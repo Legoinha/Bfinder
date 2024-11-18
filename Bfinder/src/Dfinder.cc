@@ -76,27 +76,19 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
   edm::ParameterSet theConfig;
 
-  bool detailMode_;
-  bool dropUnusedTracks_;
   std::vector<int> Dchannel_;
-  //edm::InputTag hltLabel_;
   edm::EDGetTokenT< std::vector<reco::GenParticle> > genLabel_;
-  // edm::EDGetTokenT< std::vector<pat::GenericParticle> > trackLabel_;
-  // edm::EDGetTokenT< std::vector<pat::PackedCandidate> > trackLabel_;
   edm::EDGetTokenT< edm::View<pat::PackedCandidate> > trackLabel_;
   // edm::EDGetTokenT< std::vector<pat::PackedCandidate> > losttrackLabel_;
-  // edm::EDGetTokenT< std::vector<reco::Track> > trackLabelReco_;
-  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > puInfoLabel_; // !!
-  edm::EDGetTokenT< edm::ValueMap< float > > chi2Map_;
+  edm::EDGetTokenT< edm::ValueMap<float> > chi2Map_;
+  edm::EDGetTokenT< edm::ValueMap<reco::DeDxData> > dedxMap_;
   edm::EDGetTokenT< reco::BeamSpot > bsLabel_;
   edm::EDGetTokenT< reco::VertexCollection > pvLabel_;
-  edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > Dedx_Token1_;
 
   double tkPtCut_;
   double tkEtaCut_;
   std::vector<double> dCutSeparating_PtVal_;
   std::vector<double> dPtCut_;
-  std::vector<double> dEtaCut_;
   std::vector<double> dRapidityCut_;
   std::vector<double> VtxChiProbCut_;
   std::vector<double> svpvDistanceCut_lowptD_;
@@ -105,7 +97,6 @@ private:
   std::vector<double> MaxDocaCut_;
   std::vector<double> tktkRes_dCutSeparating_PtVal_;
   std::vector<double> tktkRes_dPtCut_;
-  std::vector<double> tktkRes_dEtaCut_;
   std::vector<double> tktkRes_VtxChiProbCut_;
   std::vector<double> tktkRes_svpvDistanceCut_lowptD_;
   std::vector<double> tktkRes_svpvDistanceCut_highptD_;
@@ -115,16 +106,11 @@ private:
   std::vector<double> tktkRes_alphaToSVCut_;
   std::vector<double> ResToNonRes_PtAsym_min_;
   std::vector<double> ResToNonRes_PtAsym_max_;
-  double tktkRes_masswindowCut_ =0.0 ;
-  bool RunOnMC_;
-  bool doTkPreCut_;
+  double tktkRes_masswindowCut_ = 0.0 ;
   bool makeDntuple_;
   bool doDntupleSkim_;
   bool printInfo_;
   bool readDedx_;
-
-  //A tag for any use at your wish
-  int codeCat_;
 
   edm::Service<TFileService> fs;
   TTree *root;
@@ -145,12 +131,6 @@ private:
   TTree* ntD8;
   TTree* ntGen;
 
-  //histograms
-  TH1F *TrackCutLevel;
-  //How many channel
-  static int const Nchannel = 20;
-  std::vector<TH1F*> DMassCutLevel;
-
 };//}}}
 
 void Dfinder::beginJob()
@@ -167,36 +147,31 @@ void Dfinder::beginJob()
   ntGen = fs->make<TTree>("ntGen","");           Dntuple->buildGenBranch(ntGen);
   EvtInfo.regTree(root);
   VtxInfo.regTree(root);
-  TrackInfo.regTree(root, detailMode_);
-  DInfo.regTree(root, detailMode_);
+  TrackInfo.regTree(root);
+  DInfo.regTree(root);
   GenInfo.regTree(root);
 }//}}}
 
 Dfinder::Dfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
 {//{{{
   //now do what ever initialization is needed
-  detailMode_ = iConfig.getParameter<bool>("detailMode");
-  dropUnusedTracks_ = iConfig.getParameter<bool>("dropUnusedTracks");
 
   idealMagneticFieldRecordToken_ = esConsumes();
   // idealMagneticFieldRecordToken_ = esConsumes(edm::ESInputTag("")); // ParabolicMf
 
   Dchannel_ = iConfig.getParameter<std::vector<int> >("Dchannel");
-  genLabel_           = consumes< std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenLabel"));
-  trackLabel_         = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
-  // losttrackLabel_         = consumes< std::vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTrackLabel"));
-  chi2Map_            = consumes< edm::ValueMap< float > >( iConfig.getParameter< edm::InputTag >( "TrackChi2Label" ) );
-  // trackLabelReco_     = consumes< std::vector<reco::Track> >(iConfig.getParameter<edm::InputTag>("TrackLabelReco"));
-  //hltLabel_           = iConfig.getParameter<edm::InputTag>("HLTLabel");
-  puInfoLabel_    = consumes< std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("PUInfoLabel")); // !!
-  bsLabel_        = consumes< reco::BeamSpot >(iConfig.getParameter<edm::InputTag>("BSLabel"));
-  pvLabel_        = consumes< reco::VertexCollection >(iConfig.getParameter<edm::InputTag>("PVLabel"));
+  genLabel_ = consumes< std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenLabel"));
+  trackLabel_ = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
+  // losttrackLabel_ = consumes< std::vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTrackLabel"));
+  chi2Map_ = consumes< edm::ValueMap<float> >(iConfig.getParameter< edm::InputTag >("TrackChi2Label"));
+  dedxMap_ = consumes< edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("TrackDedxLabel"));
+  bsLabel_ = consumes< reco::BeamSpot >(iConfig.getParameter<edm::InputTag>("BSLabel"));
+  pvLabel_ = consumes< reco::VertexCollection >(iConfig.getParameter<edm::InputTag>("PVLabel"));
 
   tkPtCut_ = iConfig.getParameter<double>("tkPtCut");
   tkEtaCut_ = iConfig.getParameter<double>("tkEtaCut");
   dCutSeparating_PtVal_ = iConfig.getParameter<std::vector<double> >("dCutSeparating_PtVal");
   dPtCut_ = iConfig.getParameter<std::vector<double> >("dPtCut");
-  dEtaCut_ = iConfig.getParameter<std::vector<double> >("dEtaCut");
   dRapidityCut_ = iConfig.getParameter<std::vector<double> >("dRapidityCut");
   VtxChiProbCut_ = iConfig.getParameter<std::vector<double> >("VtxChiProbCut");
   svpvDistanceCut_lowptD_ = iConfig.getParameter<std::vector<double> >("svpvDistanceCut_lowptD");
@@ -205,7 +180,6 @@ Dfinder::Dfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   MaxDocaCut_ = iConfig.getParameter<std::vector<double> >("MaxDocaCut");
   tktkRes_dCutSeparating_PtVal_ = iConfig.getParameter<std::vector<double> >("tktkRes_dCutSeparating_PtVal");
   tktkRes_dPtCut_ = iConfig.getParameter<std::vector<double> >("tktkRes_dPtCut");
-  tktkRes_dEtaCut_ = iConfig.getParameter<std::vector<double> >("tktkRes_dEtaCut");
   tktkRes_VtxChiProbCut_ = iConfig.getParameter<std::vector<double> >("tktkRes_VtxChiProbCut");
   tktkRes_svpvDistanceCut_lowptD_ = iConfig.getParameter<std::vector<double> >("tktkRes_svpvDistanceCut_lowptD");
   tktkRes_svpvDistanceCut_highptD_ = iConfig.getParameter<std::vector<double> >("tktkRes_svpvDistanceCut_highptD");
@@ -215,27 +189,14 @@ Dfinder::Dfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   tktkRes_alphaToSVCut_ = iConfig.getParameter<std::vector<double> >("tktkRes_alphaToSVCut");
   ResToNonRes_PtAsym_min_= iConfig.getParameter<std::vector<double> >("ResToNonRes_PtAsym_min");
   ResToNonRes_PtAsym_max_= iConfig.getParameter<std::vector<double> >("ResToNonRes_PtAsym_max");
-  RunOnMC_ = iConfig.getParameter<bool>("RunOnMC");
-  doTkPreCut_ = iConfig.getParameter<bool>("doTkPreCut");
   makeDntuple_ = iConfig.getParameter<bool>("makeDntuple");
   doDntupleSkim_ = iConfig.getParameter<bool>("doDntupleSkim");
   printInfo_ = iConfig.getParameter<bool>("printInfo");
-  // readDedx_ = iConfig.getParameter<bool>("readDedx");
-  // MVAMapLabelInputTag_ = iConfig.getParameter<edm::InputTag>("MVAMapLabel");
-  // MVAMapLabel_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("MVAMapLabel"));
-  // MVAMapLabelpA_ = consumes< std::vector<float> >(iConfig.getParameter<edm::InputTag>("MVAMapLabel"));
-  // Dedx_Token1_ = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("Dedx_Token1"));
+  readDedx_ = iConfig.getParameter<bool>("readDedx");
 
   if (iConfig.exists("tktkRes_masswindowCut")) { tktkRes_masswindowCut_ = iConfig.getParameter<double>("tktkRes_masswindowCut"); }
     
-  codeCat_ = iConfig.getParameter<int>("codeCat");
-
-  TrackCutLevel= fs->make<TH1F>("TrackCutLevel", "TrackCutLevel", 10, 0, 10);
-  for(unsigned int i = 0; i < Dchannel_.size(); i++){
-    TH1F* DMassCutLevel_temp      = fs->make<TH1F>(TString::Format("DMassCutLevel_i")   ,TString::Format("DMassCutLevel_i")  , 10, 0, 10);
-    DMassCutLevel.push_back(DMassCutLevel_temp);
-  }
-}//}}}
+}
 
 Dfinder::~Dfinder()
 {//{{{
@@ -253,7 +214,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //checking input parameter size
   if((Dchannel_.size() != dCutSeparating_PtVal_.size())
      || (Dchannel_.size() != dPtCut_.size())
-     || (Dchannel_.size() != dEtaCut_.size())
      || (Dchannel_.size() != dRapidityCut_.size())
      || (Dchannel_.size() != VtxChiProbCut_.size())
      || (Dchannel_.size() != svpvDistanceCut_lowptD_.size())
@@ -262,7 +222,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      || (Dchannel_.size() != MaxDocaCut_.size())
      || (Dchannel_.size() != tktkRes_dCutSeparating_PtVal_.size())
      || (Dchannel_.size() != tktkRes_dPtCut_.size())
-     || (Dchannel_.size() != tktkRes_dEtaCut_.size())
      || (Dchannel_.size() != tktkRes_VtxChiProbCut_.size())
      || (Dchannel_.size() != tktkRes_svpvDistanceCut_lowptD_.size())
      || (Dchannel_.size() != tktkRes_svpvDistanceCut_highptD_.size())
@@ -284,23 +243,16 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bField = iSetup.getHandle(idealMagneticFieldRecordToken_);
 
   // Change used muon and track collections
-  // edm::Handle< std::vector<pat::PackedCandidate> > tks;
-  // iEvent.getByToken(trackLabel_, tks);
-  auto tks = iEvent.getHandle( trackLabel_ );
+  auto tks = iEvent.getHandle( trackLabel_ ); // edm::Handle< std::vector<pat::PackedCandidate> >
   // edm::Handle< std::vector<pat::PackedCandidate> > losttks;
   // iEvent.getByToken(losttrackLabel_, losttks);
   edm::Handle<edm::ValueMap<float>> chi2Handle;
   iEvent.getByToken(chi2Map_, chi2Handle);
-  // auto chi2Map = iEvent.getHandle( chi2Map_ );
-  // edm::Handle< std::vector<reco::Track> > etracks;
-  // iEvent.getByToken(trackLabelReco_, etracks);
-  // if(etracks->size() != tks->size())
-  //   {
-  //     fprintf(stderr,"ERROR: number of tracks in pat::GenericParticle is different from reco::Track.\n");
-  //     exit(0);
-  //   }
+  edm::Handle<edm::ValueMap<reco::DeDxData>> dedxHandle;
+  iEvent.getByToken(dedxMap_, dedxHandle);
+
   edm::Handle<std::vector<reco::GenParticle>> gens;
-  if (!iEvent.isRealData() && RunOnMC_){
+  if (!iEvent.isRealData()) {
     iEvent.getByToken(genLabel_, gens);
   }
 
@@ -314,13 +266,10 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // EvtInfo section{{{
   EvtInfo.RunNo   = iEvent.id().run();
   EvtInfo.EvtNo   = iEvent.id().event();
-  //std::cout<<"(EvtInfo.EvtNo)"<<EvtInfo.EvtNo<<std::endl;
   EvtInfo.BxNo    = iEvent.bunchCrossing();
   EvtInfo.LumiNo  = iEvent.luminosityBlock();
   EvtInfo.Orbit   = iEvent.orbitNumber();
   EvtInfo.McFlag  = !iEvent.isRealData();
-  //EvtInfo.hltnames->clear();
-  //EvtInfo.nTrgBook= N_TRIGGER_BOOKINGS;
 
   // Handle primary vertex properties
   Vertex thePrimaryV;
@@ -347,7 +296,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EvtInfo.BSWidthXErr     = beamSpot.BeamWidthXError();
     EvtInfo.BSWidthY        = beamSpot.BeamWidthY();
     EvtInfo.BSWidthYErr     = beamSpot.BeamWidthYError();
-  }else{
+  } else {
     std::cout<< "No beam spot available from EventSetup \n";
   }
 
@@ -355,32 +304,8 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::VertexCollection> VertexHandle;
   iEvent.getByToken(pvLabel_, VertexHandle);
 
-  /*  
-      if (!VertexHandle.failedToGet() && VertexHandle->size()>0){
-      //int nVtxTrks = 0;//outdated PV definition
-      double max_tkSt = 0;
-      for(std::vector<reco::Vertex>::const_iterator it_vtx = VertexHandle->begin(); it_vtx != VertexHandle->end(); it_vtx++){
-      if (!it_vtx->isValid()) continue;
-      //find primary vertex with largest St
-      double tkSt = 0;
-      for(std::vector<reco::TrackBaseRef>::const_iterator it_tk = it_vtx->tracks_begin();
-      it_tk != it_vtx->tracks_end(); it_tk++){
-      tkSt += it_tk->get()->pt();
-      }
-      if (tkSt > max_tkSt){
-      max_tkSt = tkSt;
-      thePrimaryV = Vertex(*it_vtx);
-      }
-      }
-      }else{ 
-      thePrimaryV = Vertex(beamSpot.position(), beamSpot.covariance3D());
-      }
-      RefVtx = thePrimaryV.position();
-  */
-
   double PVBS_Pt_Max = -100.;
   reco::Vertex PVtx_BS;
-  if(detailMode_) std::cout<<"------------------------- Vertex"<<std::endl;
   if( VertexHandle.isValid() && !VertexHandle.failedToGet() && VertexHandle->size() > 0) {
     //const vector<reco::Vertex> VerticesBS = *VertexHandle;
     for(std::vector<reco::Vertex>::const_iterator it_vtx = VertexHandle->begin();it_vtx != VertexHandle->end(); it_vtx++ ) {
@@ -399,16 +324,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       VtxInfo.Pt_Sum[VtxInfo.Size] = 0.;
       VtxInfo.Pt_Sum2[VtxInfo.Size] = 0.;
       //if its hiSelectedVertex, then there will be only one vertex and will have no associated tracks
-      if(detailMode_)
-        {
-          std::cout<<std::left
-                   <<std::setw(20)<<it_vtx->x()
-                   <<std::setw(20)<<it_vtx->y()
-                   <<std::setw(20)<<it_vtx->z()
-                   <<std::setw(20)<<VtxInfo.Pt_Sum[VtxInfo.Size]
-                   <<std::setw(20)<<VtxInfo.Pt_Sum2[VtxInfo.Size]
-                   <<std::endl;
-        }
       if(int(VertexHandle->end()-VertexHandle->begin())==1){
         thePrimaryV = *it_vtx;
         VtxInfo.Size++;
@@ -438,37 +353,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.PVnchi2 = thePrimaryV.normalizedChi2();
   EvtInfo.PVchi2  = thePrimaryV.chi2();
 
-  if(detailMode_)
-    {
-      std::cout<<"------------------------- PV"<<std::endl;
-      std::cout<<std::left
-               <<std::setw(20)<<EvtInfo.PVx
-               <<std::setw(20)<<EvtInfo.PVy
-               <<std::setw(20)<<EvtInfo.PVz
-               <<std::setw(20)<<EvtInfo.PVxE
-               <<std::setw(20)<<EvtInfo.PVyE
-               <<std::setw(20)<<EvtInfo.PVzE
-               <<std::endl;
-    }
-  // get pile-up information
-  // if (!iEvent.isRealData() && RunOnMC_){
-  if (false){ // !!
-    edm::Handle<std::vector<PileupSummaryInfo> >  PUHandle;
-    iEvent.getByToken(puInfoLabel_, PUHandle);
-    std::vector<PileupSummaryInfo>::const_iterator PVI;
-    for(PVI = PUHandle->begin(); PVI != PUHandle->end(); ++PVI) {
-      EvtInfo.nPU[EvtInfo.nBX]   = PVI->getPU_NumInteractions();
-      EvtInfo.BXPU[EvtInfo.nBX]  = PVI->getBunchCrossing();
-      EvtInfo.trueIT[EvtInfo.nBX]= PVI->getTrueNumInteractions();
-      EvtInfo.nBX += 1;
-    }
-  }else{
-    EvtInfo.nBX = 0;
-  }
-
-  //}}}
-  //printf("-----*****DEBUG:End of EvtInfo.\n");
-
   // Double check size=0.
   TrackInfo.size  = 0;
   DInfo.size      = 0;
@@ -495,7 +379,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //standard check for validity of input data
     if (0){
       if (printInfo_) std::cout << "There's no muon : " << iEvent.id() << std::endl;
-    }else{
+    } else {
       if (input_tracks.size() == 0){
         if (printInfo_) std::cout << "There's no track: " << iEvent.id() << std::endl;
       }else{
@@ -506,7 +390,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           std::vector<bool> isNeededTrack;// Are the tracks redundant?
           std::vector<int> isNeededTrackIdx;
           int PassedTrk = 0;
-          if(detailMode_) std::cout<<"------------------------- track"<<std::endl;
           for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
               // for(std::vector<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
               tk_it != input_tracks.end(); tk_it++){
@@ -515,36 +398,18 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               break;
             }
 
-            // const pat::PackedCandidate & c = (*cands)[it];
-            // reco::Track const& tk_it = it->pseudoTrack();
             isNeededTrack.push_back(false);
             if(!tk_it->hasTrackDetails()) continue;
-            TrackCutLevel->Fill(0);//number of all tracks
             if (abs(tk_it->charge()) != 1) continue;
-            TrackCutLevel->Fill(1);//
-            if (tk_it->pt()<tkPtCut_)                           continue;
-            TrackCutLevel->Fill(2);
-            if (fabs(tk_it->eta())>tkEtaCut_)                   continue;
-            TrackCutLevel->Fill(3);
-            //if (fabs(tk_it->eta()) > 2.5)                       continue;
-            TrackCutLevel->Fill(4);
-            if(doTkPreCut_){
-              if( !(tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity")))) continue;
-              if( std::abs( tk_it->pseudoTrack().ptError() ) / tk_it->pseudoTrack().pt() >= 0.1 ) continue;
-              if( tk_it->pseudoTrack().numberOfValidHits() < 11 ) continue;
-              TrackCutLevel->Fill(5);
-            }
+            if (tk_it->pt()<tkPtCut_) continue;
+            if (fabs(tk_it->eta())>tkEtaCut_) continue;
+            if( !(tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity")))) continue;
+            if( std::abs( tk_it->pseudoTrack().ptError() ) / tk_it->pseudoTrack().pt() >= 0.1 ) continue;
+            if( tk_it->pseudoTrack().numberOfValidHits() < 11 ) continue;
+
             isNeededTrack[tk_it-input_tracks.begin()] = true;
             isNeededTrackIdx.push_back(tk_it-input_tracks.begin());
             PassedTrk++;
-            if(detailMode_)
-              {
-                std::cout<<std::left
-                         <<std::setw(10)<<tk_it->pt()
-                         <<std::setw(10)<<tk_it->eta()
-                         <<std::setw(10)<<tk_it->phi()
-                         <<std::endl;
-              }
           }//end of track preselection}}}
           //printf("-----*****DEBUG:End of track preselection.\n");
           if(printInfo_) std::cout<<"PassedTrk: "<<PassedTrk<<std::endl;
@@ -879,8 +744,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           }    
 
 
-
-
           if(printInfo_){
             printf("D_counter: ");
             for(unsigned int i = 0; i < Dchannel_.size(); i++){
@@ -890,13 +753,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           }//}}}
           //printf("-----*****DEBUG:End of DInfo.\n");
 
-          // TrackInfo section {{{
-          // Setup MVA
-          /* Under construction !! */
-
-          // Setup Dedx
-          /* Under construction !! */
-          if(detailMode_) std::cout<<"------------------------- track gen"<<std::endl;
           for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
               tk_it != input_tracks.end() ; tk_it++){
             int tk_hindex = int(tk_it - input_tracks.begin());
@@ -944,7 +800,9 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               }
             }
 
-            if(dropUnusedTracks_ && listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 && listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;//drop unused tracks
+            // drop unused tracks
+            if(listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 &&
+               listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;
 
                     
             TrackInfo.index          [TrackInfo.size] = TrackInfo.size;
@@ -965,19 +823,14 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             // TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInFirstPixelEndcap();
             TrackInfo.fpbarrelhit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1);
             TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
-            if (chi2Handle.isValid() && !chi2Handle.failedToGet()) {
+            TrackInfo.chi2           [TrackInfo.size] = tk_it->pseudoTrack().chi2();            
+            if (chi2Handle.isValid() && !chi2Handle.failedToGet())
               TrackInfo.chi2           [TrackInfo.size] = (float)((*chi2Handle)[ tks->ptrAt( tk_hindex ) ]) * tk_it->pseudoTrack().ndof();
-            }
-            else {
-              TrackInfo.chi2           [TrackInfo.size] = tk_it->pseudoTrack().chi2();
-            }
             TrackInfo.ndf            [TrackInfo.size] = tk_it->pseudoTrack().ndof();
             TrackInfo.d0             [TrackInfo.size] = tk_it->pseudoTrack().d0();
             TrackInfo.d0error        [TrackInfo.size] = tk_it->pseudoTrack().d0Error();
             TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
             TrackInfo.dzerror        [TrackInfo.size] = tk_it->pseudoTrack().dzError();
-            // TrackInfo.dxyPV          [TrackInfo.size] = tk_it->pseudoTrack().dxy(RefVtx);
-            // TrackInfo.dzPV           [TrackInfo.size] = tk_it->pseudoTrack().dz(RefVtx);
             TrackInfo.dxy            [TrackInfo.size] = tk_it->pseudoTrack().dxy();
             TrackInfo.dxyerror       [TrackInfo.size] = tk_it->pseudoTrack().dxyError();
             TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
@@ -987,14 +840,13 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             TrackInfo.dz1            [TrackInfo.size] = tk_it->pseudoTrack().dz(RefVtx);
             TrackInfo.dzerror1       [TrackInfo.size] = TMath::Sqrt(tk_it->pseudoTrack().dzError()*tk_it->pseudoTrack().dzError() + thePrimaryV.zError()*thePrimaryV.zError());
             TrackInfo.highPurity     [TrackInfo.size] = tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity"));
-            TrackInfo.geninfo_index  [TrackInfo.size] = -1;//initialize for later use
+            TrackInfo.geninfo_index  [TrackInfo.size] = -1; // initialize for later use
             // TrackInfo.trkMVAVal      [TrackInfo.size] = (*mvaoutput)[tk_it->track()];
             TrackInfo.trkAlgo        [TrackInfo.size] = tk_it->pseudoTrack().algo();
             TrackInfo.originalTrkAlgo[TrackInfo.size] = tk_it->pseudoTrack().originalAlgo();
             TrackInfo.dedx           [TrackInfo.size] = -1;
-            // if(readDedx_) {
-            //     TrackInfo.dedx           [TrackInfo.size] = dEdxTrack1[tk_it->track()].dEdx();
-            // }
+            if (dedxHandle.isValid() && !dedxHandle.failedToGet())
+              TrackInfo.dedx           [TrackInfo.size] = ((*dedxHandle)[ tks->ptrAt( tk_hindex ) ]).dEdx();
 
             /* Under construction */
             // if(tk_it->pseudoTrack().isNonnull()){
@@ -1004,11 +856,10 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // Gen-match
             // https://github.com/cms-sw/cmssw/blob/CMSSW_11_2_X/CommonTools/UtilAlgos/interface/MatchByDRDPt.h
-            if (!iEvent.isRealData() && RunOnMC_)
+            if (!iEvent.isRealData())
               {
                 genTrackPtr[TrackInfo.size] = -1;
-                float currentdR = 1.e+10, currentptRel=0.;
-                float genpt=0, geneta=0, genphi=0;
+                float currentdR = 1.e+10;//, currentptRel=0.;
                 for(std::vector<reco::GenParticle>::const_iterator it_gen=gens->begin();
                     it_gen != gens->end(); it_gen++)
                   {
@@ -1032,33 +883,10 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                       {
                         genTrackPtr[TrackInfo.size] = it_gen - gens->begin();
                         currentdR = dR;
-                        currentptRel = ptRel;
-                        genpt = it_gen->pt();
-                        geneta = it_gen->eta();
-                        genphi = it_gen->phi();
+                        // currentptRel = ptRel;
                       }
                   }
                 // genTrackPtr[TrackInfo.size] = tk_it->genParticle();
-                if(detailMode_)
-                  {
-                    if(tk_it->pt() < 2.) std::cout<<"\e[2m";
-                    std::cout<<std::left
-                             <<std::setw(6)<<TrackInfo.size
-                             <<std::setw(10)<<tk_it->pt()
-                             <<std::setw(10)<<tk_it->eta()
-                             <<std::setw(10)<<tk_it->phi()
-                             <<"| "
-                             <<std::setw(6)<<genTrackPtr[TrackInfo.size]
-                             <<"| "
-                             <<std::setw(10)<<genpt
-                             <<std::setw(10)<<geneta
-                             <<std::setw(10)<<genphi
-                             <<"| "
-                             <<std::setw(15)<<currentptRel
-                             <<std::setw(15)<<currentdR
-                             <<"\e[0m"
-                             <<std::endl;
-                  }
               }
             // <--------------
 
@@ -1097,9 +925,9 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }//has nTracks>1
       }//if no Tracks
     }//if no Muons
-
+    
     // GenInfo section{{{
-    if (!iEvent.isRealData() && RunOnMC_){
+    if (!iEvent.isRealData()) {
       // edm::Handle<std::vector<reco::GenParticle>> gens;
       // iEvent.getByToken(genLabel_, gens);
 
@@ -1176,9 +1004,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             || abs(it_gen->pdgId())   == 10331 //f0(1710) 
             || abs(it_gen->pdgId())   == 10331 //f0(1710) 
             || abs(it_gen->pdgId())   == 10311 //K*1430 neutral 
-                      
-
-    
+            
             //# check here by rui
             ) isGenSignal = true;//b, c, s mesons
 
@@ -1341,7 +1167,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // isDchannel[13] = 0; //B-(D0(k-pi+)pi-)
     // isDchannel[14] = 1; //lambdaC(p+pi+k-)
     // isDchannel[15] = 1; //lambdaC(p-k+pi-)
-    bool REAL = ((!iEvent.isRealData() && RunOnMC_) ? false:true);
+    bool REAL = iEvent.isRealData();
     bool fillZeroCandEvt = true;
     int Dtypesize[8]={0,0,0,0,0,0,0,0};
     Dntuple->makeDNtuple(isDchannel, Dtypesize, REAL, fillZeroCandEvt, doDntupleSkim_, &EvtInfo, &VtxInfo, &TrackInfo, &DInfo, &GenInfo, ntD1, ntD2, ntD3, ntD4, ntD5, ntD6, ntD7, ntD8);
@@ -1503,26 +1329,17 @@ void Dfinder::TkCombinationPermutation(
           if (v4_Res.Pt() < tktkRes_dPtCut_[Dchannel_number-1]) continue;
           //if (fabs(v4_Res.Eta()) > tktkRes_dEtaCut_[Dchannel_number-1]) continue;
         }
-        DMassCutLevel[Dchannel_number-1]->Fill(0);
         if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
         if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-        DMassCutLevel[Dchannel_number-1]->Fill(1);
         //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
         if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-        DMassCutLevel[Dchannel_number-1]->Fill(2);
         selectedTkhidx.push_back(tk1_hindex);
         selectedTkhidx.push_back(tk2_hindex);
         selectedTkhidxSet.push_back(selectedTkhidx);
         selectedTkhidx.clear();
         continue;
       }
-      //for(std::vector<pat::PackedCandidate>::const_iterator tk_it3=tk_it2+1;
-      //        tk_it3 != input_tracks.end() ; tk_it3++){
       for(int tk3idx = tk2idx+1; tk3idx < (int)isNeededTrackIdx.size(); tk3idx++){
-        //tk3_hindex = int(tk_it3 - input_tracks.begin());
-        //if(tk3_hindex>=int(isNeededTrack.size())) break;
-        //if(!isNeededTrack[tk3_hindex]) continue;
-        //if(tk_it3->charge()*TkMassCharge[2].first<0) continue;
         tk3_hindex = isNeededTrackIdx[tk3idx];
         if(input_tracks[tk3_hindex].charge()*TkMassCharge[2].first<0) continue;
         if(tk3_hindex==tk1_hindex) continue;
@@ -1547,13 +1364,10 @@ void Dfinder::TkCombinationPermutation(
             //if (fabs(v4_Res.Eta()) > tktkRes_dEtaCut_[Dchannel_number-1]) continue;
             if((v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) < ResToNonRes_PtAsym_min_[Dchannel_number-1] || (v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) > ResToNonRes_PtAsym_max_[Dchannel_number-1]) continue;
           }
-          DMassCutLevel[Dchannel_number-1]->Fill(0);
           if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
           if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-          DMassCutLevel[Dchannel_number-1]->Fill(1);
           //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
           if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-          DMassCutLevel[Dchannel_number-1]->Fill(2);
           selectedTkhidx.push_back(tk1_hindex);
           selectedTkhidx.push_back(tk2_hindex);
           selectedTkhidx.push_back(tk3_hindex);
@@ -1592,13 +1406,10 @@ void Dfinder::TkCombinationPermutation(
               //if (fabs(v4_Res.Eta()) > tktkRes_dEtaCut_[Dchannel_number-1]) continue;
               if((v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) < ResToNonRes_PtAsym_min_[Dchannel_number-1] || (v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) > ResToNonRes_PtAsym_max_[Dchannel_number-1]) continue;
             }
-            DMassCutLevel[Dchannel_number-1]->Fill(0);
             if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
             if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-            DMassCutLevel[Dchannel_number-1]->Fill(1);
             //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
             if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-            DMassCutLevel[Dchannel_number-1]->Fill(2);
             selectedTkhidx.push_back(tk1_hindex);
             selectedTkhidx.push_back(tk2_hindex);
             selectedTkhidx.push_back(tk3_hindex);
@@ -1639,13 +1450,10 @@ void Dfinder::TkCombinationPermutation(
                 //if (fabs(v4_Res.Eta()) > tktkRes_dEtaCut_[Dchannel_number-1]) continue;
                 if((v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) < ResToNonRes_PtAsym_min_[Dchannel_number-1] || (v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) > ResToNonRes_PtAsym_max_[Dchannel_number-1]) continue;
               }
-              DMassCutLevel[Dchannel_number-1]->Fill(0);
               if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
               if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-              DMassCutLevel[Dchannel_number-1]->Fill(1);
               //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
               if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-              DMassCutLevel[Dchannel_number-1]->Fill(2);
               selectedTkhidx.push_back(tk1_hindex);
               selectedTkhidx.push_back(tk2_hindex);
               selectedTkhidx.push_back(tk3_hindex);
@@ -1738,14 +1546,11 @@ void Dfinder::TkCombinationResFast(
           }
         }
       if(TkMassCharge.size()==2){
-        DMassCutLevel[Dchannel_number-1]->Fill(0);
         //cut mass window before fit
         if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
         if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-        DMassCutLevel[Dchannel_number-1]->Fill(1);
         //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
         if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-        DMassCutLevel[Dchannel_number-1]->Fill(2);
         selectedTkhidx.push_back(tk1_hindex);
         selectedTkhidx.push_back(tk2_hindex);
         selectedTkhidxSet.push_back(selectedTkhidx);
@@ -1782,13 +1587,10 @@ void Dfinder::TkCombinationResFast(
         if(TkMassCharge.size()==3){
           if(tktkRes_mass > 0)
             if((v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) < ResToNonRes_PtAsym_min_[Dchannel_number-1] || (v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) > ResToNonRes_PtAsym_max_[Dchannel_number-1]) continue;
-          DMassCutLevel[Dchannel_number-1]->Fill(0);
           if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
           if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-          DMassCutLevel[Dchannel_number-1]->Fill(1);
           //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
           if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-          DMassCutLevel[Dchannel_number-1]->Fill(2);
 
           selectedTkhidx.push_back(tk1_hindex);
           selectedTkhidx.push_back(tk2_hindex);
@@ -1827,13 +1629,10 @@ void Dfinder::TkCombinationResFast(
           if(TkMassCharge.size()==4){
             if(tktkRes_mass > 0)
               if((v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) < ResToNonRes_PtAsym_min_[Dchannel_number-1] || (v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) > ResToNonRes_PtAsym_max_[Dchannel_number-1]) continue;
-            DMassCutLevel[Dchannel_number-1]->Fill(0);
             if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
             if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-            DMassCutLevel[Dchannel_number-1]->Fill(1);
             //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
             if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-            DMassCutLevel[Dchannel_number-1]->Fill(2);
             selectedTkhidx.push_back(tk1_hindex);
             selectedTkhidx.push_back(tk2_hindex);
             selectedTkhidx.push_back(tk3_hindex);
@@ -1868,13 +1667,10 @@ void Dfinder::TkCombinationResFast(
                 //if (fabs(v4_Res.Eta()) > tktkRes_dEtaCut_[Dchannel_number-1]) continue;
                 if((v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) < ResToNonRes_PtAsym_min_[Dchannel_number-1] || (v4_Res.Pt()-v4_NonRes.Pt())/(v4_Res.Pt()+v4_NonRes.Pt()) > ResToNonRes_PtAsym_max_[Dchannel_number-1]) continue;
               }
-              DMassCutLevel[Dchannel_number-1]->Fill(0);
               if(v4_D.Mag()<mass_window[0] || v4_D.Mag()>mass_window[1]) continue;
               if(v4_D.Pt() < dPtCut_[Dchannel_number-1])continue;
-              DMassCutLevel[Dchannel_number-1]->Fill(1);
               //if(fabs(v4_D.Eta()) > dEtaCut_[Dchannel_number-1])continue;
               if(fabs(v4_D.Rapidity()) > dRapidityCut_[Dchannel_number-1])continue;
-              DMassCutLevel[Dchannel_number-1]->Fill(2);
               selectedTkhidx.push_back(tk1_hindex);
               selectedTkhidx.push_back(tk2_hindex);
               selectedTkhidx.push_back(tk3_hindex);
@@ -2004,13 +1800,11 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     if(tktkRes_mass>0){
       tktkRes_VFT = tktkRes_fitter.fit(tktkRes_candidate);
       if(!tktkRes_VFT->isValid()) continue;
-      DMassCutLevel[Dchannel_number-1]->Fill(3);
       tktkRes_VFP   = tktkRes_VFT->currentParticle();
       tktkRes_VFPvtx = tktkRes_VFT->currentDecayVertex();
       double chi2_prob_tktkRes = TMath::Prob(tktkRes_VFPvtx->chiSquared(),tktkRes_VFPvtx->degreesOfFreedom());
 
       if(chi2_prob_tktkRes < tktkRes_VtxChiProbCut_[Dchannel_number-1]) continue;
-      DMassCutLevel[Dchannel_number-1]->Fill(4);
 
       if(SequentialFit){
         float tktkchi = tktkRes_VFPvtx->chiSquared();
@@ -2032,11 +1826,9 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
       pushbackTrkIdx.push_back(selectedTkhidxSet[i][p]);
       pushbackTrkMassHypo.push_back(tk_mass);
     }
-    DMassCutLevel[Dchannel_number-1]->Fill(5);
 
     double MaximumDoca = Functs.getMaxDoca(tktk_candidate); // Max of all tracks pairs MinimumDistance
     if (MaximumDoca > MaxDocaCut_[Dchannel_number-1]) continue;
-    DMassCutLevel[Dchannel_number-1]->Fill(6);
 
     if(tktkRes_mass>0){
       if(doConstrainFit){
@@ -2051,23 +1843,19 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     }
 
     if(!tktk_VFT->isValid()) continue;
-    DMassCutLevel[Dchannel_number-1]->Fill(7);
 
     tktk_VFT->movePointerToTheTop(); // KinematicTree.cc , make the Tree accessible, pointer to particle, and daughters
     tktk_VFP   = tktk_VFT->currentParticle();
     tktk_VFPvtx = tktk_VFT->currentDecayVertex();
     if (!tktk_VFPvtx->vertexIsValid()) continue;
-    DMassCutLevel[Dchannel_number-1]->Fill(8);
 
     double chi2_prob_tktk = TMath::Prob(tktk_VFPvtx->chiSquared(),tktk_VFPvtx->degreesOfFreedom());
     if(chi2_prob_tktk < VtxChiProbCut_[Dchannel_number-1]) continue;
-    DMassCutLevel[Dchannel_number-1]->Fill(9);
 
     tktkCands  = tktk_VFT->finalStateParticles(); // these determine the order of output - rftk
 
     //cut mass window after fit
     //if (tktk_VFP->currentState().mass()<mass_window[0] || tktk_VFP->currentState().mass()>mass_window[1]) continue;
-    DMassCutLevel[Dchannel_number-1]->Fill(10);
 
     for(unsigned int k = 0; k < tktkCands.size(); k++){
       v4_tk.SetPxPyPzE(tktkCands[k]->currentState().kinematicParameters().momentum().x(),
@@ -2143,8 +1931,6 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
       if(DInfo.tktkRes_pt[DInfo.size] <= tktkRes_dCutSeparating_PtVal_[Dchannel_number-1] && (DInfo.tktkRes_svpvDistanceToSV[DInfo.size]/DInfo.tktkRes_svpvDisErrToSV[DInfo.size]) < tktkRes_svpvDistanceToSVCut_lowptD_[Dchannel_number-1]) continue;
       else if( DInfo.tktkRes_pt[DInfo.size] > tktkRes_dCutSeparating_PtVal_[Dchannel_number-1] && (DInfo.tktkRes_svpvDistanceToSV[DInfo.size]/DInfo.tktkRes_svpvDisErrToSV[DInfo.size]) < tktkRes_svpvDistanceToSVCut_highptD_[Dchannel_number-1]) continue;
 
-      DMassCutLevel[Dchannel_number-1]->Fill(11);
-
       //index initialization to -2
       DInfo.tktkRes_rftk1_index[DInfo.size]     = -2;
       DInfo.tktkRes_rftk2_index[DInfo.size]     = -2;
@@ -2204,7 +1990,6 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     DInfo.svpvDisErr[DInfo.size] = a3d.distance(thePrimaryV,tktk_VFPvtx->vertexState()).error();
     if( DInfo.pt[DInfo.size] <= dCutSeparating_PtVal_[Dchannel_number-1] && (DInfo.svpvDistance[DInfo.size]/DInfo.svpvDisErr[DInfo.size]) < svpvDistanceCut_lowptD_[Dchannel_number-1]) continue;
     else if( DInfo.pt[DInfo.size] > dCutSeparating_PtVal_[Dchannel_number-1] && (DInfo.svpvDistance[DInfo.size]/DInfo.svpvDisErr[DInfo.size]) < svpvDistanceCut_highptD_[Dchannel_number-1]) continue;
-    DMassCutLevel[Dchannel_number-1]->Fill(12);
 
     reco::Vertex::Point vp1(thePrimaryV.position().x(), thePrimaryV.position().y(), 0.);
     reco::Vertex::Point vp2(tktk_VFPvtx->vertexState().position().x(), tktk_VFPvtx->vertexState().position().y(), 0.);
@@ -2235,7 +2020,6 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     dVec.SetXYZ(DInfo.px[DInfo.size], DInfo.py[DInfo.size], DInfo.pz[DInfo.size]);
     DInfo.alpha[DInfo.size] = svpvVec.Angle(dVec);
     if( DInfo.alpha[DInfo.size] > alphaCut_[Dchannel_number-1]) continue;
-    DMassCutLevel[Dchannel_number-1]->Fill(13);
 
     DInfo.rftk1_mass[DInfo.size]      = tktk_4vecs[0].Mag();
     DInfo.rftk1_pt[DInfo.size]        = tktk_4vecs[0].Pt();
