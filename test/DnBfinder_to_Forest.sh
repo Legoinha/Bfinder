@@ -1,10 +1,11 @@
 #!/bin/bash
 
 PATHTOTEST=$CMSSW_BASE/src/HeavyIonsAnalysis/Configuration/test/
-FORESTS=(forest_miniAOD_run3_DATA forest_miniAOD_run3_MC)
-RUNONMC=(False True)
+FORESTS=(forest_miniAOD_run3_DATA forest_miniAOD_run3_UPC_DATA forest_miniAOD_run3_MC)
+RUNONMC=(False False True)
 INFILES=(
-    "file:/eos/cms/store/group/phys_heavyions_ops/abaty/RAWPrimeChecks2023/RAWPrime/RAWPrime_Streamer_2.root"
+    "/store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v1/000/388/350/00000/60ad5c5a-8835-49c9-a031-77671c00b56e.root"
+    "/store/hidata/HIRun2024B/HIForward0/MINIAOD/PromptReco-v1/000/388/305/00000/e7d52f63-4bde-4b69-93c8-2f307b69ed67.root"
     "root://eoscms.cern.ch//store/group/phys_heavyions/jviinika/PythiaHydjetRun3_5p36TeV_dijet_ptHat15_100kEvents_miniAOD_2023_08_30/PythiaHydjetDijetRun3/PythiaHydjetRun3_dijet_ptHat15_5p36TeV_miniAOD/230830_165931/0000/pythiaHydjet_miniAOD_11.root"
 )
 MINIMUMTREES=0
@@ -21,7 +22,6 @@ AddCaloMuon = False
 runOnMC = '${RUNONMC[cc]}' ## !!
 HIFormat = False 
 UseGenPlusSim = False 
-# VtxLabel = "unpackedTracksAndVertices"
 VtxLabel = "offlineSlimmedPrimaryVertices"
 TrkLabel = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
@@ -59,7 +59,6 @@ AddCaloMuon = False
 runOnMC = '${RUNONMC[cc]}' ## !!
 HIFormat = False
 UseGenPlusSim = False
-# VtxLabel = "unpackedTracksAndVertices"
 VtxLabel = "offlineSlimmedPrimaryVertices"
 TrkLabel = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
