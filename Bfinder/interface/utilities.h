@@ -65,67 +65,67 @@
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 
 class CommonFuncts{//{{{
-    public:
-        void test(){
-    }   
+public:
+  void test(){
+  }   
         
-    bool GetAncestor(const reco::Candidate* p, int PDGprefix)
-    {
-        if(p->numberOfMothers()==0) return false;
-        else{
-            const reco::Candidate* MyMom = p->mother(0);
-            int mpid = abs(MyMom->pdgId());
-            if(abs(int(mpid/100) % 100) == PDGprefix) return true;
-            else return GetAncestor(MyMom, PDGprefix);
-        }
+  bool GetAncestor(const reco::Candidate* p, int PDGprefix)
+  {
+    if(p->numberOfMothers()==0) return false;
+    else{
+      const reco::Candidate* MyMom = p->mother(0);
+      int mpid = abs(MyMom->pdgId());
+      if(abs(int(mpid/100) % 100) == PDGprefix) return true;
+      else return GetAncestor(MyMom, PDGprefix);
     }
+  }
 
-	bool GetDescendant(const reco::Candidate* p, int PDGprefix)
-	{
-		bool Saveit = false;
-		if( p->numberOfDaughters() == 0 ) return false; //not necessary, keep it to make clear
-		const reco::Candidate * daughterparticle = NULL;
-		for( unsigned int idau = 0; idau < p->numberOfDaughters(); idau++ )
-		{
-			daughterparticle = p->daughter(idau);
-			if( abs( int(daughterparticle->pdgId()/100) % 100 ) == PDGprefix ) return true;
-			if( daughterparticle == p )   continue; //protection
-			Saveit = GetDescendant(daughterparticle, PDGprefix);
-			if( Saveit )  return true;
-		}
-		return Saveit;
-	}
+  bool GetDescendant(const reco::Candidate* p, int PDGprefix)
+  {
+    bool Saveit = false;
+    if( p->numberOfDaughters() == 0 ) return false; //not necessary, keep it to make clear
+    const reco::Candidate * daughterparticle = NULL;
+    for( unsigned int idau = 0; idau < p->numberOfDaughters(); idau++ )
+      {
+        daughterparticle = p->daughter(idau);
+        if( abs( int(daughterparticle->pdgId()/100) % 100 ) == PDGprefix ) return true;
+        if( daughterparticle == p )   continue; //protection
+        Saveit = GetDescendant(daughterparticle, PDGprefix);
+        if( Saveit )  return true;
+      }
+    return Saveit;
+  }
 
-    float getParticleSigma(double mass)
-    {
-        if(mass == ELECTRON_MASS)
-            return 0.013E-9f;
-        else if(mass == MUON_MASS)
-            return 4E-9f;
-        else if(mass == PION_MASS)
-            return 3.5E-7f;
-        else if(mass == KAON_MASS)
-            return 1.6E-5f;
-        else if(mass == PROTON_MASS)
-            return 8E-8f;
-        else
-            return 1E-6;
+  float getParticleSigma(double mass)
+  {
+    if(mass == ELECTRON_MASS)
+      return 0.013E-9f;
+    else if(mass == MUON_MASS)
+      return 4E-9f;
+    else if(mass == PION_MASS)
+      return 3.5E-7f;
+    else if(mass == KAON_MASS)
+      return 1.6E-5f;
+    else if(mass == PROTON_MASS)
+      return 8E-8f;
+    else
+      return 1E-6;
+  }
+
+  double getMaxDoca(std::vector<RefCountedKinematicParticle> &kinParticles)
+  {
+    double maxDoca = -1.0;
+    TwoTrackMinimumDistance md;
+    std::vector<RefCountedKinematicParticle>::iterator in_it, out_it;
+    for (out_it = kinParticles.begin(); out_it != kinParticles.end(); ++out_it) {
+      for (in_it = out_it + 1; in_it != kinParticles.end(); ++in_it) {
+        md.calculate((*out_it)->currentState().freeTrajectoryState(),(*in_it)->currentState().freeTrajectoryState());
+        if (md.distance() > maxDoca)
+          maxDoca = md.distance();
+      }
     }
-
-    double getMaxDoca(std::vector<RefCountedKinematicParticle> &kinParticles)
-    {
-        double maxDoca = -1.0;
-        TwoTrackMinimumDistance md;
-        std::vector<RefCountedKinematicParticle>::iterator in_it, out_it;
-        for (out_it = kinParticles.begin(); out_it != kinParticles.end(); ++out_it) {
-            for (in_it = out_it + 1; in_it != kinParticles.end(); ++in_it) {
-                md.calculate((*out_it)->currentState().freeTrajectoryState(),(*in_it)->currentState().freeTrajectoryState());
-                if (md.distance() > maxDoca)
-                    maxDoca = md.distance();
-            }
-        }
-        return maxDoca;
-    }
+    return maxDoca;
+  }
 };//}}}
 
 #endif
