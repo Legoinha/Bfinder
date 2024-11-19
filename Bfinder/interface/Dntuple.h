@@ -312,8 +312,12 @@ public:
   int     Dgensubchannel[MAX_XB];
   int     DsGen[MAX_XB];
   int     DgennDa[MAX_XB];
+  int     Dgenda1pdgId[MAX_XB];
+  int     Dgenda2pdgId[MAX_XB];
+  int     Dgenda3pdgId[MAX_XB];
+  int     Dgenda4pdgId[MAX_XB];
   int     DgenIndex[MAX_XB];
-  float   DgenMass[MAX_XB];
+  int     DgenpdgId[MAX_XB];
   float   Dgenpt[MAX_XB];
   float   Dgeneta[MAX_XB];
   float   Dgenphi[MAX_XB];
@@ -321,20 +325,21 @@ public:
   int     DgencollisionId[MAX_XB];
   float   DgenBAncestorpt[MAX_XB];
   int     DgenBAncestorpdgId[MAX_XB];
-  float   DgenprodvtxX[MAX_XB];
-  float   DgenprodvtxY[MAX_XB];
-  float   DgenprodvtxZ[MAX_XB];
-  float   DgendecayvtxX[MAX_XB];
-  float   DgendecayvtxY[MAX_XB];
-  float   DgendecayvtxZ[MAX_XB];
   int     DgenfromgenPV[MAX_XB];
+  int     Dgentk1pdgId[MAX_XB];
+  int     Dgentk2pdgId[MAX_XB];
+  int     Dgentk3pdgId[MAX_XB];
+  int     Dgentk4pdgId[MAX_XB];
+  int     DgenRestk1pdgId[MAX_XB];
+  int     DgenRestk2pdgId[MAX_XB];
+  int     DgenRestk3pdgId[MAX_XB];
+  int     DgenRestk4pdgId[MAX_XB];
 
-  //#later add Dgen Channel?
 
   //# later ,modify and add Dgen with from Ds three tracks decay ( but not correct mass match)
  
 
-  void buildDBranch(TTree* dnt, bool D0kpimode=false, bool detailMode=true)
+  void buildDBranch(TTree* dnt, bool D0kpimode=false, bool detailMode=false)
   {
     //EvtInfo
     dnt->Branch("RunNo",&RunNo);
@@ -375,13 +380,6 @@ public:
     dnt->Branch("Deta",Deta,"Deta[Dsize]/F");
     dnt->Branch("Dphi",Dphi,"Dphi[Dsize]/F");
     dnt->Branch("Dy",Dy,"Dy[Dsize]/F");
-    dnt->Branch("DvtxX",DvtxX,"DvtxX[Dsize]/F");
-    dnt->Branch("DvtxY",DvtxY,"DvtxY[Dsize]/F");
-    dnt->Branch("DvtxZ",DvtxZ,"DvtxZ[Dsize]/F");
-    dnt->Branch("Dd0",Dd0,"Dd0[Dsize]/F");
-    dnt->Branch("Dd0Err",Dd0Err,"Dd0Err[Dsize]/F");
-    dnt->Branch("Ddxyz",Ddxyz,"Ddxyz[Dsize]/F");
-    dnt->Branch("DdxyzErr",DdxyzErr,"DdxyzErr[Dsize]/F");
     dnt->Branch("Dchi2ndf",Dchi2ndf,"Dchi2ndf[Dsize]/F");
     dnt->Branch("Dchi2cl",Dchi2cl,"Dchi2cl[Dsize]/F");
     dnt->Branch("Ddtheta",Ddtheta,"Ddtheta[Dsize]/F");
@@ -394,11 +392,21 @@ public:
     dnt->Branch("Ddca",Ddca,"Ddca[Dsize]/F");
     dnt->Branch("DlxyBS",DlxyBS,"DlxyBS[Dsize]/F");
     dnt->Branch("DlxyBSErr",DlxyBSErr,"DlxyBSErr[Dsize]/F");
-    dnt->Branch("DMaxDoca",DMaxDoca,"DMaxDoca[Dsize]/F");
     dnt->Branch("DMaxTkPt",DMaxTkPt,"DMaxTkPt[Dsize]/F");
     dnt->Branch("DMinTkPt",DMinTkPt,"DMinTkPt[Dsize]/F");
-    dnt->Branch("DisSequentialFit",DisSequentialFit,"DisSequentialFit[Dsize]/O");
 
+    if(detailMode) {
+      dnt->Branch("DvtxX",DvtxX,"DvtxX[Dsize]/F");
+      dnt->Branch("DvtxY",DvtxY,"DvtxY[Dsize]/F");
+      dnt->Branch("DvtxZ",DvtxZ,"DvtxZ[Dsize]/F");
+      dnt->Branch("Dd0",Dd0,"Dd0[Dsize]/F");
+      dnt->Branch("Dd0Err",Dd0Err,"Dd0Err[Dsize]/F");
+      dnt->Branch("Ddxyz",Ddxyz,"Ddxyz[Dsize]/F");
+      dnt->Branch("DdxyzErr",DdxyzErr,"DdxyzErr[Dsize]/F");
+      dnt->Branch("DMaxDoca",DMaxDoca,"DMaxDoca[Dsize]/F");
+      dnt->Branch("DisSequentialFit",DisSequentialFit,"DisSequentialFit[Dsize]/O");
+    }
+    
     //DInfo.trkInfo
     dnt->Branch("Dtrk1Pt",Dtrk1Pt,"Dtrk1Pt[Dsize]/F");
     dnt->Branch("Dtrk2Pt",Dtrk2Pt,"Dtrk2Pt[Dsize]/F");
@@ -410,14 +418,6 @@ public:
     dnt->Branch("Dtrk2Phi",Dtrk2Phi,"Dtrk2Phi[Dsize]/F");
     dnt->Branch("Dtrk1P",Dtrk1P,"Dtrk1P[Dsize]/F");
     dnt->Branch("Dtrk2P",Dtrk2P,"Dtrk2P[Dsize]/F");
-    dnt->Branch("Dtrk1Dz",Dtrk1Dz,"Dtrk1Dz[Dsize]/F");
-    dnt->Branch("Dtrk2Dz",Dtrk2Dz,"Dtrk2Dz[Dsize]/F");
-    dnt->Branch("Dtrk1DzError",Dtrk1DzError,"Dtrk1DzError[Dsize]/F");
-    dnt->Branch("Dtrk2DzError",Dtrk2DzError,"Dtrk2DzError[Dsize]/F");
-    dnt->Branch("Dtrk1Dxy",Dtrk1Dxy,"Dtrk1Dxy[Dsize]/F");
-    dnt->Branch("Dtrk2Dxy",Dtrk2Dxy,"Dtrk2Dxy[Dsize]/F");
-    dnt->Branch("Dtrk1DxyError",Dtrk1DxyError,"Dtrk1DxyError[Dsize]/F");
-    dnt->Branch("Dtrk2DxyError",Dtrk2DxyError,"Dtrk2DxyError[Dsize]/F");
     dnt->Branch("Dtrk1Dz1",Dtrk1Dz1,"Dtrk1Dz1[Dsize]/F");
     dnt->Branch("Dtrk2Dz1",Dtrk2Dz1,"Dtrk2Dz1[Dsize]/F");
     dnt->Branch("Dtrk1DzError1",Dtrk1DzError1,"Dtrk1DzError1[Dsize]/F");
@@ -428,16 +428,10 @@ public:
     dnt->Branch("Dtrk2DxyError1",Dtrk2DxyError1,"Dtrk2DxyError1[Dsize]/F");
     dnt->Branch("Dtrk1MassHypo",Dtrk1MassHypo,"Dtrk1MassHypo[Dsize]/F");
     dnt->Branch("Dtrk2MassHypo",Dtrk2MassHypo,"Dtrk2MassHypo[Dsize]/F");
-    dnt->Branch("Dtrk1originalAlgo",Dtrk1originalAlgo,"Dtrk1originalAlgo[Dsize]/I");
-    dnt->Branch("Dtrk2originalAlgo",Dtrk2originalAlgo,"Dtrk2originalAlgo[Dsize]/I");
     dnt->Branch("Dtrk1highPurity",Dtrk1highPurity,"Dtrk1highPurity[Dsize]/O");
     dnt->Branch("Dtrk2highPurity",Dtrk2highPurity,"Dtrk2highPurity[Dsize]/O");
     dnt->Branch("Dtrk1dedx",Dtrk1dedx,"Dtrk1dedx[Dsize]/F");
     dnt->Branch("Dtrk2dedx",Dtrk2dedx,"Dtrk2dedx[Dsize]/F");
-    dnt->Branch("Dtrk1thetastar",Dtrk1thetastar,"Dtrk1thetastar[Dsize]/F");
-    dnt->Branch("Dtrk2thetastar",Dtrk2thetastar,"Dtrk2thetastar[Dsize]/F");
-    dnt->Branch("Dtrk1thetastar_uf",Dtrk1thetastar_uf,"Dtrk1thetastar_uf[Dsize]/F");
-    dnt->Branch("Dtrk2thetastar_uf",Dtrk2thetastar_uf,"Dtrk2thetastar_uf[Dsize]/F");
 
     dnt->Branch("Dtrk1PixelHit",Dtrk1PixelHit,"Dtrk1PixelHit[Dsize]/F");
     dnt->Branch("Dtrk2PixelHit",Dtrk2PixelHit,"Dtrk2PixelHit[Dsize]/F");
@@ -465,14 +459,6 @@ public:
         dnt->Branch("Dtrk4P",Dtrk4P,"Dtrk4P[Dsize]/F");
         dnt->Branch("Dtrk3MassHypo",Dtrk3MassHypo,"Dtrk3MassHypo[Dsize]/F");
         dnt->Branch("Dtrk4MassHypo",Dtrk4MassHypo,"Dtrk4MassHypo[Dsize]/F");
-        dnt->Branch("Dtrk3Dz",Dtrk3Dz,"Dtrk3Dz[Dsize]/F");
-        dnt->Branch("Dtrk4Dz",Dtrk4Dz,"Dtrk4Dz[Dsize]/F");
-        dnt->Branch("Dtrk3DzError",Dtrk3DzError,"Dtrk3DzError[Dsize]/F");
-        dnt->Branch("Dtrk4DzError",Dtrk4DzError,"Dtrk4DzError[Dsize]/F");
-        dnt->Branch("Dtrk3Dxy",Dtrk3Dxy,"Dtrk3Dxy[Dsize]/F");
-        dnt->Branch("Dtrk4Dxy",Dtrk4Dxy,"Dtrk4Dxy[Dsize]/F");
-        dnt->Branch("Dtrk3DxyError",Dtrk3DxyError,"Dtrk3DxyError[Dsize]/F");
-        dnt->Branch("Dtrk4DxyError",Dtrk4DxyError,"Dtrk4DxyError[Dsize]/F");
         dnt->Branch("Dtrk3Dz1",Dtrk3Dz1,"Dtrk3Dz1[Dsize]/F");
         dnt->Branch("Dtrk4Dz1",Dtrk4Dz1,"Dtrk4Dz1[Dsize]/F");
         dnt->Branch("Dtrk3DzError1",Dtrk3DzError1,"Dtrk3DzError1[Dsize]/F");
@@ -481,16 +467,10 @@ public:
         dnt->Branch("Dtrk4Dxy1",Dtrk4Dxy1,"Dtrk4Dxy1[Dsize]/F");
         dnt->Branch("Dtrk3DxyError1",Dtrk3DxyError1,"Dtrk3DxyError1[Dsize]/F");
         dnt->Branch("Dtrk4DxyError1",Dtrk4DxyError1,"Dtrk4DxyError1[Dsize]/F");
-        dnt->Branch("Dtrk3originalAlgo",Dtrk3originalAlgo,"Dtrk3originalAlgo[Dsize]/I");
-        dnt->Branch("Dtrk4originalAlgo",Dtrk4originalAlgo,"Dtrk4originalAlgo[Dsize]/I");
         dnt->Branch("Dtrk3highPurity",Dtrk3highPurity,"Dtrk3highPurity[Dsize]/O");
         dnt->Branch("Dtrk4highPurity",Dtrk4highPurity,"Dtrk4highPurity[Dsize]/O");
         dnt->Branch("Dtrk3dedx",Dtrk3dedx,"Dtrk3dedx[Dsize]/F");
         dnt->Branch("Dtrk4dedx",Dtrk4dedx,"Dtrk4dedx[Dsize]/F");
-        dnt->Branch("Dtrk3thetastar",Dtrk3thetastar,"Dtrk3thetastar[Dsize]/F");
-        dnt->Branch("Dtrk4thetastar",Dtrk4thetastar,"Dtrk4thetastar[Dsize]/F");
-        dnt->Branch("Dtrk3thetastar_uf",Dtrk3thetastar_uf,"Dtrk3thetastar_uf[Dsize]/F");
-        dnt->Branch("Dtrk4thetastar_uf",Dtrk4thetastar_uf,"Dtrk4thetastar_uf[Dsize]/F");
 
         dnt->Branch("Dtrk3PixelHit",Dtrk3PixelHit,"Dtrk3PixelHit[Dsize]/F");
         dnt->Branch("Dtrk4PixelHit",Dtrk4PixelHit,"Dtrk4PixelHit[Dsize]/F");
@@ -511,6 +491,20 @@ public:
         dnt->Branch("Dtrk2Y",Dtrk2Y,"Dtrk2Y[Dsize]/F");
         dnt->Branch("Dtrk1Quality",Dtrk1Quality,"Dtrk1Quality[Dsize]/I");
         dnt->Branch("Dtrk2Quality",Dtrk2Quality,"Dtrk2Quality[Dsize]/I");
+        dnt->Branch("Dtrk1originalAlgo",Dtrk1originalAlgo,"Dtrk1originalAlgo[Dsize]/I");
+        dnt->Branch("Dtrk2originalAlgo",Dtrk2originalAlgo,"Dtrk2originalAlgo[Dsize]/I");
+        dnt->Branch("Dtrk1thetastar",Dtrk1thetastar,"Dtrk1thetastar[Dsize]/F");
+        dnt->Branch("Dtrk2thetastar",Dtrk2thetastar,"Dtrk2thetastar[Dsize]/F");
+        dnt->Branch("Dtrk1thetastar_uf",Dtrk1thetastar_uf,"Dtrk1thetastar_uf[Dsize]/F");
+        dnt->Branch("Dtrk2thetastar_uf",Dtrk2thetastar_uf,"Dtrk2thetastar_uf[Dsize]/F");
+        dnt->Branch("Dtrk1Dz",Dtrk1Dz,"Dtrk1Dz[Dsize]/F");
+        dnt->Branch("Dtrk2Dz",Dtrk2Dz,"Dtrk2Dz[Dsize]/F");
+        dnt->Branch("Dtrk1DzError",Dtrk1DzError,"Dtrk1DzError[Dsize]/F");
+        dnt->Branch("Dtrk2DzError",Dtrk2DzError,"Dtrk2DzError[Dsize]/F");
+        dnt->Branch("Dtrk1Dxy",Dtrk1Dxy,"Dtrk1Dxy[Dsize]/F");
+        dnt->Branch("Dtrk2Dxy",Dtrk2Dxy,"Dtrk2Dxy[Dsize]/F");
+        dnt->Branch("Dtrk1DxyError",Dtrk1DxyError,"Dtrk1DxyError[Dsize]/F");
+        dnt->Branch("Dtrk2DxyError",Dtrk2DxyError,"Dtrk2DxyError[Dsize]/F");
 
         dnt->Branch("Dtrk1Idx",Dtrk1Idx,"Dtrk1Idx[Dsize]/I");
         dnt->Branch("Dtrk2Idx",Dtrk2Idx,"Dtrk2Idx[Dsize]/I");
@@ -526,6 +520,20 @@ public:
             dnt->Branch("Dtrk4Y",Dtrk4Y,"Dtrk4Y[Dsize]/F");
             dnt->Branch("Dtrk3Quality",Dtrk3Quality,"Dtrk3Quality[Dsize]/I");
             dnt->Branch("Dtrk4Quality",Dtrk4Quality,"Dtrk4Quality[Dsize]/I");
+            dnt->Branch("Dtrk3originalAlgo",Dtrk3originalAlgo,"Dtrk3originalAlgo[Dsize]/I");
+            dnt->Branch("Dtrk4originalAlgo",Dtrk4originalAlgo,"Dtrk4originalAlgo[Dsize]/I");
+            dnt->Branch("Dtrk3thetastar",Dtrk3thetastar,"Dtrk3thetastar[Dsize]/F");
+            dnt->Branch("Dtrk4thetastar",Dtrk4thetastar,"Dtrk4thetastar[Dsize]/F");
+            dnt->Branch("Dtrk3thetastar_uf",Dtrk3thetastar_uf,"Dtrk3thetastar_uf[Dsize]/F");
+            dnt->Branch("Dtrk4thetastar_uf",Dtrk4thetastar_uf,"Dtrk4thetastar_uf[Dsize]/F");
+            dnt->Branch("Dtrk3Dz",Dtrk3Dz,"Dtrk3Dz[Dsize]/F");
+            dnt->Branch("Dtrk4Dz",Dtrk4Dz,"Dtrk4Dz[Dsize]/F");
+            dnt->Branch("Dtrk3DzError",Dtrk3DzError,"Dtrk3DzError[Dsize]/F");
+            dnt->Branch("Dtrk4DzError",Dtrk4DzError,"Dtrk4DzError[Dsize]/F");
+            dnt->Branch("Dtrk3Dxy",Dtrk3Dxy,"Dtrk3Dxy[Dsize]/F");
+            dnt->Branch("Dtrk4Dxy",Dtrk4Dxy,"Dtrk4Dxy[Dsize]/F");
+            dnt->Branch("Dtrk3DxyError",Dtrk3DxyError,"Dtrk3DxyError[Dsize]/F");
+            dnt->Branch("Dtrk4DxyError",Dtrk4DxyError,"Dtrk4DxyError[Dsize]/F");
 
             dnt->Branch("Dtrk3Idx",Dtrk3Idx,"Dtrk3Idx[Dsize]/I");
             dnt->Branch("Dtrk4Idx",Dtrk4Idx,"Dtrk4Idx[Dsize]/I");
@@ -661,7 +669,11 @@ public:
     dnt->Branch("DsGen",DsGen,"DsGen[Dsize]/I");
     dnt->Branch("DgenIndex",DgenIndex,"DgenIndex[Dsize]/I");
     dnt->Branch("DgennDa",DgennDa,"DgennDa[Dsize]/I");
-    dnt->Branch("DgenMass",DgenMass,"DgenMass[Dsize]/F");
+    dnt->Branch("Dgenda1pdgId",Dgenda1pdgId,"Dgenda1pdgId[Dsize]/I");
+    dnt->Branch("Dgenda2pdgId",Dgenda2pdgId,"Dgenda2pdgId[Dsize]/I");
+    dnt->Branch("Dgenda3pdgId",Dgenda3pdgId,"Dgenda3pdgId[Dsize]/I");
+    dnt->Branch("Dgenda4pdgId",Dgenda4pdgId,"Dgenda4pdgId[Dsize]/I");
+    dnt->Branch("DgenpdgId",DgenpdgId,"DgenpdgId[Dsize]/I");
     dnt->Branch("Dgenpt",Dgenpt,"Dgenpt[Dsize]/F");
     dnt->Branch("Dgeneta",Dgeneta,"Dgeneta[Dsize]/F");
     dnt->Branch("Dgenphi",Dgenphi,"Dgenphi[Dsize]/F");
@@ -669,13 +681,15 @@ public:
     dnt->Branch("DgencollisionId",DgencollisionId,"DgencollisionId[Dsize]/I");
     dnt->Branch("DgenBAncestorpt",DgenBAncestorpt,"DgenBAncestorpt[Dsize]/F");
     dnt->Branch("DgenBAncestorpdgId",DgenBAncestorpdgId,"DgenBAncestorpdgId[Dsize]/I");
-    dnt->Branch("DgenprodvtxX",DgenprodvtxX,"DgenprodvtxX[Dsize]/F");
-    dnt->Branch("DgenprodvtxY",DgenprodvtxY,"DgenprodvtxY[Dsize]/F");
-    dnt->Branch("DgenprodvtxZ",DgenprodvtxZ,"DgenprodvtxZ[Dsize]/F");
-    dnt->Branch("DgendecayvtxX",DgendecayvtxX,"DgendecayvtxX[Dsize]/F");
-    dnt->Branch("DgendecayvtxY",DgendecayvtxY,"DgendecayvtxY[Dsize]/F");
-    dnt->Branch("DgendecayvtxZ",DgendecayvtxZ,"DgendecayvtxZ[Dsize]/F");
     dnt->Branch("DgenfromgenPV",DgenfromgenPV,"DgenfromgenPV[Dsize]/I");
+    dnt->Branch("Dgentk1pdgId",Dgentk1pdgId,"Dgentk1pdgId[Dsize]/I");
+    dnt->Branch("Dgentk2pdgId",Dgentk2pdgId,"Dgentk2pdgId[Dsize]/I");
+    dnt->Branch("Dgentk3pdgId",Dgentk3pdgId,"Dgentk3pdgId[Dsize]/I");
+    dnt->Branch("Dgentk4pdgId",Dgentk4pdgId,"Dgentk4pdgId[Dsize]/I");
+    dnt->Branch("DgenRestk1pdgId",DgenRestk1pdgId,"DgenRestk1pdgId[Dsize]/I");
+    dnt->Branch("DgenRestk2pdgId",DgenRestk2pdgId,"DgenRestk2pdgId[Dsize]/I");
+    dnt->Branch("DgenRestk3pdgId",DgenRestk3pdgId,"DgenRestk3pdgId[Dsize]/I");
+    dnt->Branch("DgenRestk4pdgId",DgenRestk4pdgId,"DgenRestk4pdgId[Dsize]/I");
   }
   
   //GenInfo
@@ -2126,20 +2140,24 @@ public:
     DgenIndex[typesize] = -1;
     DgennDa[typesize] = -1;
     Dgenpt[typesize] = -1;
-    DgenMass[typesize] = -1;
+    DgenpdgId[typesize] = -1;
     Dgeneta[typesize] = -20;
     Dgenphi[typesize] = -20;
     Dgeny[typesize] = -20;
     DgenBAncestorpt[typesize] = -99;
     DgenBAncestorpdgId[typesize] = 0;
     DgencollisionId[typesize] = -99;
-    DgenprodvtxX[typesize] = -999;
-    DgenprodvtxY[typesize] = -999;
-    DgenprodvtxZ[typesize] = -999;
-    DgendecayvtxX[typesize] = -999;
-    DgendecayvtxY[typesize] = -999;
-    DgendecayvtxZ[typesize] = -999;
-    DgenfromgenPV[typesize] = -999;
+    DgenfromgenPV[typesize] = -1;
+
+    Dgentk1pdgId[typesize] = getrftkpdgId(DInfo->rftk1_index[j], TrackInfo, GenInfo);
+    Dgentk2pdgId[typesize] = getrftkpdgId(DInfo->rftk2_index[j], TrackInfo, GenInfo);
+    Dgentk3pdgId[typesize] = getrftkpdgId(DInfo->rftk3_index[j], TrackInfo, GenInfo);
+    Dgentk4pdgId[typesize] = getrftkpdgId(DInfo->rftk4_index[j], TrackInfo, GenInfo);
+    DgenRestk1pdgId[typesize] = getrftkpdgId(DInfo->tktkRes_rftk1_index[j], TrackInfo, GenInfo);
+    DgenRestk2pdgId[typesize] = getrftkpdgId(DInfo->tktkRes_rftk2_index[j], TrackInfo, GenInfo);
+    DgenRestk3pdgId[typesize] = getrftkpdgId(DInfo->tktkRes_rftk3_index[j], TrackInfo, GenInfo);
+    DgenRestk4pdgId[typesize] = getrftkpdgId(DInfo->tktkRes_rftk4_index[j], TrackInfo, GenInfo);
+
     if(!REAL)
       {
         if(DInfo->type[j]==1||DInfo->type[j]==2)
@@ -2154,21 +2172,24 @@ public:
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1)
                       {
-                        if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId && 
-                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])
-                          {                          
-                            Dgen[typesize] += 300;
-                            if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
-                               TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]))
-                              {
-                                Dgen[typesize] = 23333;
-                                dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
-                              }
-                            else if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
-                                    TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]))
-                              {
-                                Dgen[typesize] = 23344;
-                                dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
+                        if (GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]] == GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]] &&
+                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]] > -1)
+                          {
+                            Dgen[typesize] += 200;
+                            dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
+                            if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId)
+                              {                          
+                                Dgen[typesize] += 100;
+                                if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]))
+                                  {
+                                    Dgen[typesize] = 23333;
+                                  }
+                                else if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
+                                        TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]))
+                                  {
+                                    Dgen[typesize] = 23344;
+                                  }
                               }
                           }
                       }
@@ -2183,36 +2204,41 @@ public:
                    TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1)
                   {
+                    Dgen[typesize] += 33;
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]>-1)
                       {
-                        if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId && 
+                        if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]] > -1 && 
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]] &&
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])
                           {
-                            if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
-                               TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                               TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]))
+                            Dgen[typesize] += 200;
+                            dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
+                            if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId)
                               {
-                                Dgen[typesize] = 23333;
-                                dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
-                              }
-                            else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID) ||
-                                    (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID) ||
-                                    (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID))
-                              {
-                                Dgen[typesize] = 23344;
-                                dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
+                                Dgen[typesize] += 100;
+                                if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]))
+                                  {
+                                    Dgen[typesize] = 23333;
+                                  }
+                                else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID))
+                                  {
+                                    Dgen[typesize] = 23344;
+                                  }
                               }
                           }
                       }
@@ -2228,63 +2254,68 @@ public:
                    TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk4_index[j]]>-1)
                   {
+                    Dgen[typesize] += 33;
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]]>-1)
                       {
-                        if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId && 
+                        if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]] > -1 && 
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]] &&
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]] &&
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])
                           {
-                            if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
-                               TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                               TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
-                               TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]))
+                            Dgen[typesize] += 200;
+                            dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
+                            if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId)
                               {
-                                Dgen[typesize] = 23333;
-                                dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
-                              }
-                            else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==PION_PDGID) ||
-                                    (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==PION_PDGID) ||
-                                    (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID) ||
-                                    (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==PION_PDGID) ||
-                                    (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID) ||
-                                    (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID &&
-                                     TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID))
-                              {
-                                Dgen[typesize] = 23344;
-                                dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
+                                Dgen[typesize] += 100;
+                                if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]))
+                                  {
+                                    Dgen[typesize] = 23333;
+                                  }
+                                else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID))
+                                  {
+                                    Dgen[typesize] = 23344;
+                                  }
                               }
                           }
                       }
@@ -2293,53 +2324,41 @@ public:
           }
         else if(DInfo->type[j]==7||DInfo->type[j]==8||DInfo->type[j]==9||DInfo->type[j]==10||DInfo->type[j]==13||DInfo->type[j]==14)
           { //#later work here to add Ds->fp, k* modes , also add kpi swap p+K form phi + k case 
-            if(DInfo->tktkRes_rftk1_index[j]>-1 && DInfo->tktkRes_rftk2_index[j]>-1)
+            if(DInfo->tktkRes_rftk1_index[j]>-1 && DInfo->tktkRes_rftk2_index[j]>-1 && DInfo->rftk3_index[j]>-1) // original rftk2, should be 3 for phi kk mode
               {
                 if(TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]>-1 && 
-                   TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]>-1)
+                   TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]>-1 &&
+                   TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1) 
                   {
+                    Dgen[typesize] += 33;
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]>-1 && 
-                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]]>-1)
+                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]] &&
+                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]>-1)
                       {
-                        if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]])==RpdgId && 
-                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])
+                        if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]] > -1 &&
+                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]] == GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]])
                           {
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]]>-1 &&
-                               GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]]]>-1)
+                            Dgen[typesize] += 200;
+                            dGenIdxRes = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]];
+                            if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]])==RpdgId &&
+                               TMath::Abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]]])==DpdgId)
                               {
-                                if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]]])==DpdgId)
+                                Dgen[typesize] += 100;
+                                if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) && 
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]))
                                   {
-                                    if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) && 
-                                       TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]))
-                                      {
-                                        Dgen[typesize] = 3333;
-                                        dGenIdxRes = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]];
-                                      }
-                                    if((DInfo->type[j]==9||DInfo->type[j]==10||DInfo->type[j]==3||DInfo->type[j]==14) &&
-                                       TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) && 
-                                       TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]))
-                                      {
-                                        Dgen[typesize] = 3344;
-                                        dGenIdxRes = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]];
-                                      }
+                                    Dgen[typesize] = 3333;
                                   }
-                              }
-                          }
-                      }
-                  }
-              }
-            if(DInfo->rftk3_index[j]>-1)  //original rftk2, should be 3 for phi kk mode
-              {
-                if(TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1)
-                  {
-                    if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]>-1)
-                      {
-                        if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]])==DpdgId &&
-                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]==dGenIdxRes)
-                          {
-                            if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID)
-                              {
-                                Dgen[typesize]+=20000;
+                                if((DInfo->type[j]==9||DInfo->type[j]==10||DInfo->type[j]==3||DInfo->type[j]==14) &&
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) && 
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]))
+                                  {
+                                    Dgen[typesize] = 3344;
+                                  }
+                                if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==PION_PDGID)
+                                  {
+                                    Dgen[typesize]+=20000;
+                                  }
                               }
                           }
                       }
@@ -2348,93 +2367,81 @@ public:
           } // end if Dinfo type 7,8 ,9,10,13,14
         else if(DInfo->type[j]==11||DInfo->type[j]==12)
           {
-            if(DInfo->tktkRes_rftk1_index[j]>-1 && DInfo->tktkRes_rftk2_index[j]>-1 && DInfo->tktkRes_rftk3_index[j]>-1 && DInfo->tktkRes_rftk4_index[j]>-1)
+            if(DInfo->tktkRes_rftk1_index[j]>-1 && DInfo->tktkRes_rftk2_index[j]>-1 && DInfo->tktkRes_rftk3_index[j]>-1 && DInfo->tktkRes_rftk4_index[j]>-1 && DInfo->rftk2_index[j]>-1)
               {
                 if(TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]>-1 && 
-                   TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]>-1)
+                   TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]>-1 &&
+                   TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1
+                   )
                   {
+                    Dgen[typesize] += 33;
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]>-1 && 
-                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]]>-1 &&
-                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]]>-1 &&
-                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]]>-1)
+                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]] &&
+                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]] &&
+                       GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])
                       {
-                        if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]])==RpdgId && 
-                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]] &&
-                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]] &&
-                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])
+                        if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]]>-1 &&
+                           GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]] == GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]
+                           )
                           {
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]]>-1)
+                            Dgen[typesize] += 200;
+                            dGenIdxRes = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]];
+                            if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]])==RpdgId && 
+                               TMath::Abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]]])==DpdgId)
                               {
-                                if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]]])==DpdgId)
+                                Dgen[typesize] += 100;
+                                if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) && 
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
+                                   TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]))
                                   {
-                                    if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) && 
-                                       TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
-                                       TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
-                                       TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]))
-                                      {
-                                        Dgen[typesize] = 3333;
-                                        dGenIdxRes = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]];
-                                      }
-                                    else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) && 
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==PION_PDGID &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==PION_PDGID) ||
-                                            (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) && 
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==PION_PDGID &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==PION_PDGID) ||
-                                            (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) && 
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==PION_PDGID &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==PION_PDGID) ||
-                                            (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) && 
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==PION_PDGID &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==PION_PDGID) ||
-                                            (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) && 
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==PION_PDGID &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==PION_PDGID) ||
-                                            (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) && 
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==PION_PDGID &&
-                                             TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==PION_PDGID))
-                                      {
-                                        Dgen[typesize] = 3344;
-                                        dGenIdxRes = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]]];
-                                      }
+                                    Dgen[typesize] = 3333;
                                   }
-                              }
-                          }
-                      }
-                  }
-              }
-            if(DInfo->rftk2_index[j]>-1)
-              {
-                if(TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1)
-                  {
-                    if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1)
-                      {
-                        if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]])==DpdgId &&
-                           GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]==dGenIdxRes)
-                          {
-                            if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID)
-                              {
-                                Dgen[typesize]+=20000;
+                                else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) && 
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) && 
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) && 
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) && 
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) && 
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==PION_PDGID) ||
+                                        (TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk3_index[j]]])==findPdgid(DInfo->tktkRes_rftk4_MassHypo[j]) && 
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk4_index[j]]])==findPdgid(DInfo->tktkRes_rftk3_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==findPdgid(DInfo->tktkRes_rftk1_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==findPdgid(DInfo->tktkRes_rftk2_MassHypo[j]) &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk1_index[j]]])==PION_PDGID &&
+                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->tktkRes_rftk2_index[j]]])==PION_PDGID))
+                                  {
+                                    Dgen[typesize] = 3344;
+                                  }
+                                if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID)
+                                  {
+                                    Dgen[typesize]+=20000;
+                                  }                              
                               }
                           }
                       }
@@ -2447,7 +2454,8 @@ public:
             if(DInfo->rftk1_index[j]>-1 && DInfo->rftk2_index[j]>-1 && DInfo->rftk3_index[j]>-1)
               {
                 if(TrackInfo->geninfo_index[DInfo->rftk1_index[j]]>-1 &&
-                   TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1 &&                            TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1)
+                   TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1 &&
+                   TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1)
                   {
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]>-1 &&
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1 &&
@@ -2530,8 +2538,6 @@ public:
                                       }
                                   }
                               }//for 1=2
-
-
                             else if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])
                               {
                                 if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]]>-1 &&
@@ -2655,9 +2661,6 @@ public:
               }
 
           }
-
-
-
 
       
         // additional Match for Ds study DsGen //for tktkcombine fast rftk1,2 are from ressonance ,rftk3 is alone 
@@ -2806,50 +2809,47 @@ public:
                   }
               }    
           } // end if additional Match for Ds study
-
-
  
-        //        if(Dgen[typesize]!=23333&&Dgen[typesize]!=23344 && (DInfo->type[j]==7||DInfo->type[j]==8) ) // and general Dgen match
- 
-        if(Dgen[typesize]==23333||Dgen[typesize]==23344 || DsGen[typesize]>=19999)
+        if(dGenIdxRes >= 0)
           {
-            if(dGenIdxRes<0) cout<<"ERROR: Gen-Matched D index is -1"<<endl;
-            else
+            DgenIndex[typesize] = dGenIdxRes;
+            DgennDa[typesize] = GenInfo->nDa[dGenIdxRes];
+            DgenpdgId[typesize] = GenInfo->pdgId[dGenIdxRes];
+            Dgenda1pdgId[typesize] = GenInfo->da1[dGenIdxRes]>=0?GenInfo->pdgId[GenInfo->da1[dGenIdxRes]]:-1;
+            Dgenda2pdgId[typesize] = GenInfo->da2[dGenIdxRes]>=0?GenInfo->pdgId[GenInfo->da2[dGenIdxRes]]:-1;
+            Dgenda3pdgId[typesize] = GenInfo->da3[dGenIdxRes]>=0?GenInfo->pdgId[GenInfo->da3[dGenIdxRes]]:-1;
+            Dgenda4pdgId[typesize] = GenInfo->da4[dGenIdxRes]>=0?GenInfo->pdgId[GenInfo->da4[dGenIdxRes]]:-1;
+            Dgenpt[typesize] = GenInfo->pt[dGenIdxRes];
+            Dgeneta[typesize] = GenInfo->eta[dGenIdxRes];
+            Dgenphi[typesize] = GenInfo->phi[dGenIdxRes];
+            DgencollisionId[typesize] = GenInfo->collisionId[dGenIdxRes];
+            b4P->SetXYZM(GenInfo->pt[dGenIdxRes]*cos(GenInfo->phi[dGenIdxRes]),
+                         GenInfo->pt[dGenIdxRes]*sin(GenInfo->phi[dGenIdxRes]),
+                         GenInfo->pt[dGenIdxRes]*sinh(GenInfo->eta[dGenIdxRes]),
+                         GenInfo->mass[dGenIdxRes]);
+            Dgeny[typesize] = b4P->Rapidity();
+            
+            //decide if from gen PV or not
+            DgenfromgenPV[typesize] = (int)(fabs(GenInfo->vtxX[dGenIdxRes] - GenInfo->genPVx) < 0.001 &&
+                                            fabs(GenInfo->vtxY[dGenIdxRes] - GenInfo->genPVy) < 0.001 &&
+                                            fabs(GenInfo->vtxZ[dGenIdxRes] - GenInfo->genPVz) < 0.001 );
+            int DgenBAncestorindex = findBAncestor(dGenIdxRes, GenInfo);
+            if( DgenBAncestorindex >= 0 )
               {
-                DgenIndex[typesize] = dGenIdxRes;
-                if((DInfo->type[j]==1||DInfo->type[j]==2)&&GenInfo->nDa[DgenIndex[typesize]]>2) Dgen[typesize]=41000;
-                DgennDa[typesize] = GenInfo->nDa[DgenIndex[typesize]];
-                DgenMass[typesize] = GenInfo->mass[DgenIndex[typesize]];
-                Dgenpt[typesize] = GenInfo->pt[DgenIndex[typesize]];
-                Dgeneta[typesize] = GenInfo->eta[DgenIndex[typesize]];
-                Dgenphi[typesize] = GenInfo->phi[DgenIndex[typesize]];
-                DgencollisionId[typesize] = GenInfo->collisionId[DgenIndex[typesize]];
-                b4P->SetXYZM(GenInfo->pt[DgenIndex[typesize]]*cos(GenInfo->phi[DgenIndex[typesize]]),
-                             GenInfo->pt[DgenIndex[typesize]]*sin(GenInfo->phi[DgenIndex[typesize]]),
-                             GenInfo->pt[DgenIndex[typesize]]*sinh(GenInfo->eta[DgenIndex[typesize]]),
-                             GenInfo->mass[DgenIndex[typesize]]);
-                Dgeny[typesize] = b4P->Rapidity();
-		DgenprodvtxX[typesize] = GenInfo->vtxX[DgenIndex[typesize]];
-		DgenprodvtxY[typesize] = GenInfo->vtxY[DgenIndex[typesize]];
-		DgenprodvtxZ[typesize] = GenInfo->vtxZ[DgenIndex[typesize]];
-		DgendecayvtxX[typesize] = GenInfo->vtxX[GenInfo->da1[DgenIndex[typesize]]]; //production vertex of first daughter
-		DgendecayvtxY[typesize] = GenInfo->vtxY[GenInfo->da1[DgenIndex[typesize]]];
-		DgendecayvtxZ[typesize] = GenInfo->vtxZ[GenInfo->da1[DgenIndex[typesize]]];
-		//decide if from gen PV or not
-		if( fabs(DgenprodvtxX[typesize] - GenInfo->genPVx) < 0.001 && fabs(DgenprodvtxY[typesize] - GenInfo->genPVy) < 0.001 && fabs(DgenprodvtxZ[typesize] - GenInfo->genPVz) < 0.001 )
-		  DgenfromgenPV[typesize] = 1;
-		else
-		  DgenfromgenPV[typesize] = -1;
-		int DgenBAncestorindex = findBAncestor(DgenIndex[typesize], GenInfo);
-		if( DgenBAncestorindex >= 0 )
-		  {
-		    DgenBAncestorpt[typesize] = GenInfo->pt[DgenBAncestorindex];
-		    DgenBAncestorpdgId[typesize] = GenInfo->pdgId[DgenBAncestorindex];
-		  }
+                DgenBAncestorpt[typesize] = GenInfo->pt[DgenBAncestorindex];
+                DgenBAncestorpdgId[typesize] = GenInfo->pdgId[DgenBAncestorindex];
               }
           }
       }//if(!real)
   }//fillDtree
+
+  int getrftkpdgId(int rftk_index, TrackInfoBranches *TrackInfo, GenInfoBranches *GenInfo) {
+    int pdgid = -1;
+    if (rftk_index >= 0 && TrackInfo->geninfo_index[rftk_index] >= 0) {
+      pdgid = GenInfo->pdgId[TrackInfo->geninfo_index[rftk_index]];
+    }
+    return pdgid;
+  }
   
   int findBAncestor(int j, GenInfoBranches *GenInfo)
   {
