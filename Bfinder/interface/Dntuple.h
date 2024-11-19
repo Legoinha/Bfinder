@@ -2164,31 +2164,35 @@ public:
           {
             if(DInfo->rftk1_index[j]>-1 && DInfo->rftk2_index[j]>-1)
               {
-                Dgen[typesize] += 3;
+                Dgen[typesize] += 3; // 3
                 if(TrackInfo->geninfo_index[DInfo->rftk1_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1)
                   {
-                    Dgen[typesize] += 30;
+                    Dgen[typesize] += 30; // 33
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1)
                       {
                         if (GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]] == GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]] &&
                             GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]] > -1)
                           {
-                            Dgen[typesize] += 200;
+                            Dgen[typesize] += 200; // 233
                             dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
                             if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId)
                               {                          
-                                Dgen[typesize] += 100;
+                                Dgen[typesize] += 100; // 333
+                                if(GenInfo->nDa[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]]==2)
+                                  {
+                                    Dgen[typesize] += 20000; // 20333
+                                  }
                                 if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
                                    TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]))
                                   {
-                                    Dgen[typesize] = 23333;
+                                    Dgen[typesize] += 3000; // 23333 or 3333
                                   }
                                 else if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
                                         TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]))
                                   {
-                                    Dgen[typesize] = 23344;
+                                    Dgen[typesize] += 3011; // 23344 or 3344
                                   }
                               }
                           }
@@ -2200,11 +2204,12 @@ public:
           {
             if(DInfo->rftk1_index[j]>-1 && DInfo->rftk2_index[j]>-1 && DInfo->rftk3_index[j]>-1)
               {
+                Dgen[typesize] += 3; // 3
                 if(TrackInfo->geninfo_index[DInfo->rftk1_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1)
                   {
-                    Dgen[typesize] += 33;
+                    Dgen[typesize] += 30; // 33
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]>-1)
@@ -2213,16 +2218,20 @@ public:
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]] &&
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])
                           {
-                            Dgen[typesize] += 200;
+                            Dgen[typesize] += 200; // 233
                             dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
                             if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId)
                               {
-                                Dgen[typesize] += 100;
+                                Dgen[typesize] += 100; // 333
+                                if(GenInfo->nDa[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]]==3)
+                                  {
+                                    Dgen[typesize] += 20000; // 20333
+                                  }
                                 if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
                                    TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
                                    TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]))
                                   {
-                                    Dgen[typesize] = 23333;
+                                    Dgen[typesize] += 3000; // 23333 or 3333
                                   }
                                 else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j])&&
                                          TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
@@ -2237,7 +2246,7 @@ public:
                                          TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j])&&
                                          TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID))
                                   {
-                                    Dgen[typesize] = 23344;
+                                    Dgen[typesize] += 3011; // 23344 or 3344
                                   }
                               }
                           }
@@ -2249,12 +2258,13 @@ public:
           {
             if(DInfo->rftk1_index[j]>-1 && DInfo->rftk2_index[j]>-1 && DInfo->rftk3_index[j]>-1 && DInfo->rftk4_index[j]>-1)
               {
+                Dgen[typesize] += 3; // 3
                 if(TrackInfo->geninfo_index[DInfo->rftk1_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk2_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk3_index[j]]>-1 && 
                    TrackInfo->geninfo_index[DInfo->rftk4_index[j]]>-1)
                   {
-                    Dgen[typesize] += 33;
+                    Dgen[typesize] += 30; // 33
                     if(GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]]>-1 && 
                        GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]]>-1 && 
@@ -2265,17 +2275,21 @@ public:
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]] &&
                            GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]==GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])
                           {
-                            Dgen[typesize] += 200;
+                            Dgen[typesize] += 200; // 233
                             dGenIdxRes = GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]];
                             if(TMath::Abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]])==DpdgId)
                               {
-                                Dgen[typesize] += 100;
+                                Dgen[typesize] += 100; // 333
+                                if(GenInfo->nDa[GenInfo->mo1[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]]]==4)
+                                  {
+                                    Dgen[typesize] += 20000; // 20333
+                                  }
                                 if(TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) && 
                                    TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
                                    TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk3_index[j]]])==findPdgid(DInfo->rftk3_MassHypo[j]) &&
                                    TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk4_index[j]]])==findPdgid(DInfo->rftk4_MassHypo[j]))
                                   {
-                                    Dgen[typesize] = 23333;
+                                    Dgen[typesize] += 3000; // 23333 or 3333
                                   }
                                 else if((TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==findPdgid(DInfo->rftk2_MassHypo[j]) &&
                                          TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==findPdgid(DInfo->rftk1_MassHypo[j]) &&
@@ -2314,7 +2328,7 @@ public:
                                          TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk1_index[j]]])==PION_PDGID &&
                                          TMath::Abs(GenInfo->pdgId[TrackInfo->geninfo_index[DInfo->rftk2_index[j]]])==PION_PDGID))
                                   {
-                                    Dgen[typesize] = 23344;
+                                    Dgen[typesize] += 3011; // 23344 or 3344
                                   }
                               }
                           }
