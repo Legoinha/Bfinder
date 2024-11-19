@@ -78,8 +78,8 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
 
         # Make a sequence
         process.patMuonSequence = cms.Sequence(process.patMuonsWithTriggerSequence)
-        if runOnMC:
-                process.patMuonSequence.insert(0, process.genMuons)
+        # if runOnMC:
+        #         process.patMuonSequence.insert(0, process.genMuons)
 
         ### Set Bfinder option
         process.Bfinder = cms.EDAnalyzer('Bfinder',
@@ -182,8 +182,19 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
 
         changeToMiniAODforMuon(process)
 
-# def setCutForAllChannelsDfinder(process, dPtCut, dRapidityCut, VtxChiProbCut, svpvDistanceCut, alphaCut):
-#         for idx in 
+def setCutForAllChannelsDfinder(process, dPtCut = -1, dRapidityCut = -1, VtxChiProbCut = -1, svpvDistanceCut = -1, alphaCut = -1):
+        for i in range(len(process.Dfinder.Dchannel)):
+                if dPtCut >= 0:
+                        process.Dfinder.dPtCut[i] = dPtCut
+                if dRapidityCut >= 0:
+                        process.Dfinder.dRapidityCut[i] = dRapidityCut
+                if VtxChiProbCut >= 0:
+                        process.Dfinder.VtxChiProbCut[i] = VtxChiProbCut
+                if svpvDistanceCut >= 0:
+                        process.Dfinder.svpvDistanceCut_lowptD[i] = svpvDistanceCut
+                        process.Dfinder.svpvDistanceCut_highptD[i] = svpvDistanceCut
+                if alphaCut >= 0:
+                        process.Dfinder.alphaCut[i] = alphaCut
 
 def changeToMiniAODforMuon(process, newtag = "unpackedMuons"):
 

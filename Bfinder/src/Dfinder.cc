@@ -244,12 +244,9 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Change used muon and track collections
   auto tks = iEvent.getHandle( trackLabel_ ); // edm::Handle< std::vector<pat::PackedCandidate> >
-  // edm::Handle< std::vector<pat::PackedCandidate> > losttks;
-  // iEvent.getByToken(losttrackLabel_, losttks);
-  edm::Handle<edm::ValueMap<float>> chi2Handle;
-  iEvent.getByToken(chi2Map_, chi2Handle);
-  edm::Handle<edm::ValueMap<reco::DeDxData>> dedxHandle;
-  iEvent.getByToken(dedxMap_, dedxHandle);
+  // auto losttks = iEvent.getHandle(losttrackLabel_);
+  auto chi2Handle = iEvent.getHandle(chi2Map_); // edm::Handle<edm::ValueMap<float>>
+  auto dedxHandle = iEvent.getHandle(dedxMap_); // edm::Handle<edm::ValueMap<reco::DeDxData>>
 
   edm::Handle<std::vector<reco::GenParticle>> gens;
   if (!iEvent.isRealData()) {
@@ -363,12 +360,10 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     D_counter.push_back(0);
   }
 
-  // std::vector<pat::PackedCandidate>   input_tracks;
-  auto input_tracks = *tks;
-  // std::vector<pat::PackedCandidate>   input_losttracks;
-  // input_losttracks = *losttks;
+  auto input_tracks = *tks; // std::vector<pat::PackedCandidate>
+  // auto input_losttracks = *losttks;
   // input_tracks.insert(input_tracks.end(), input_losttracks.begin(), input_losttracks.end());
-  try{
+  try {
     // const reco::GenParticle* genMuonPtr[MAX_MUON];
     // // memset(genMuonPtr,0x00,MAX_MUON);
     // memset(genMuonPtr,0x00,MAX_MUON*sizeof(genMuonPtr[0]));
@@ -377,569 +372,556 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // memset(genTrackPtr,0x00,MAX_GEN);
     // memset(genTrackPtr,0x00,MAX_TRACK*sizeof(genTrackPtr[0]));
     //standard check for validity of input data
-    if (0){
-      if (printInfo_) std::cout << "There's no muon : " << iEvent.id() << std::endl;
-    } else {
-      if (input_tracks.size() == 0){
-        if (printInfo_) std::cout << "There's no track: " << iEvent.id() << std::endl;
-      }else{
-        if (printInfo_) std::cout << "Got " << input_tracks.size() << " tracks" << std::endl;
-        if (input_tracks.size() > 0){
 
-          //Preselect tracks{{{
-          std::vector<bool> isNeededTrack;// Are the tracks redundant?
-          std::vector<int> isNeededTrackIdx;
-          int PassedTrk = 0;
-          for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
-              // for(std::vector<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
-              tk_it != input_tracks.end(); tk_it++){
-            if(PassedTrk >= MAX_TRACK){
-              fprintf(stderr,"ERROR: number of tracks exceeds the size of array.\n");
-              break;
-            }
+    if (input_tracks.size() > 0) {
+      if (printInfo_) std::cout << "Got " << input_tracks.size() << " tracks" << std::endl;
+      //Preselect tracks{{{
+      std::vector<bool> isNeededTrack;// Are the tracks redundant?
+      std::vector<int> isNeededTrackIdx;
+      int PassedTrk = 0;
+      for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
+          // for(std::vector<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
+          tk_it != input_tracks.end(); tk_it++){
+        if(PassedTrk >= MAX_TRACK){
+          fprintf(stderr,"ERROR: number of tracks exceeds the size of array.\n");
+          break;
+        }
 
-            isNeededTrack.push_back(false);
-            if(!tk_it->hasTrackDetails()) continue;
-            if (abs(tk_it->charge()) != 1) continue;
-            if (tk_it->pt()<tkPtCut_) continue;
-            if (fabs(tk_it->eta())>tkEtaCut_) continue;
-            if( !(tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity")))) continue;
-            if( std::abs( tk_it->pseudoTrack().ptError() ) / tk_it->pseudoTrack().pt() >= 0.1 ) continue;
-            if( tk_it->pseudoTrack().numberOfValidHits() < 11 ) continue;
+        isNeededTrack.push_back(false);
+        if(!tk_it->hasTrackDetails()) continue;
+        if (abs(tk_it->charge()) != 1) continue;
+        if (tk_it->pt()<tkPtCut_) continue;
+        if (fabs(tk_it->eta())>tkEtaCut_) continue;
+        if( !(tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity")))) continue;
+        if( std::abs( tk_it->pseudoTrack().ptError() ) / tk_it->pseudoTrack().pt() >= 0.1 ) continue;
+        if( tk_it->pseudoTrack().numberOfValidHits() < 11 ) continue;
 
-            isNeededTrack[tk_it-input_tracks.begin()] = true;
-            isNeededTrackIdx.push_back(tk_it-input_tracks.begin());
-            PassedTrk++;
-          }//end of track preselection}}}
-          //printf("-----*****DEBUG:End of track preselection.\n");
-          if(printInfo_) std::cout<<"PassedTrk: "<<PassedTrk<<std::endl;
+        isNeededTrack[tk_it-input_tracks.begin()] = true;
+        isNeededTrackIdx.push_back(tk_it-input_tracks.begin());
+        PassedTrk++;
+      }//end of track preselection}}}
+      //printf("-----*****DEBUG:End of track preselection.\n");
+      if(printInfo_) std::cout<<"PassedTrk: "<<PassedTrk<<std::endl;
 
-          // DInfo section{{{
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K+pi-
-          //////////////////////////////////////////////////////////////////////////
-          float d0_mass_window[2] = {D0_MASS-0.2,D0_MASS+0.2};
+      // DInfo section{{{
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K+pi-
+      //////////////////////////////////////////////////////////////////////////
+      float d0_mass_window[2] = {D0_MASS-0.2,D0_MASS+0.2};
 
-          if(Dchannel_[0] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 1, 0);
-            }
-            //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 1, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K-pi+
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[1] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 2, 0);
-            }
-            //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 2, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K-pi+pi+
-          //////////////////////////////////////////////////////////////////////////
-          float dplus_mass_window[2] = {DPLUS_MASS-0.2,DPLUS_MASS+0.2};
-          if(Dchannel_[2] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(PION_MASS, 0);
-            std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, PermuVec[i], -1, -1, false, false, 3, 0);
-            }
-            //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, InVec, -1, -1, false, false, 3, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K+pi-pi-
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[3] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 0);
-            std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, PermuVec[i], -1, -1, false, false, 4, 0);
-            }
-            //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, InVec, -1, -1, false, false, 4, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K-pi-pi+pi+
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[4] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 0);
-            std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
-            std::pair<float, int> tk4 = std::make_pair(PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            InVec.push_back(tk4);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 5, 0);
-            }
-            //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 5, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K+pi+pi-pi-
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[5] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(PION_MASS, 0);
-            std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
-            std::pair<float, int> tk4 = std::make_pair(-PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            InVec.push_back(tk4);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 6, 0);
-            }
-            //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 6, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K+K-(Phi)pi+
-          //////////////////////////////////////////////////////////////////////////
-          float dsubs_mass_window[2] = {DSUBS_MASS-0.2,DSUBS_MASS+0.2};
-          if(Dchannel_[6] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
-            std::pair<float, int> tk2 = std::make_pair(-KAON_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
-            //std::pair<float, int> tk1 = std::make_pair(-PION_MASS, 1);
-            //std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
-            //std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            double Phi_masswindows=0.1;
-            if(tktkRes_masswindowCut_>0.0001 && tktkRes_masswindowCut_<2 ) { Phi_masswindows=tktkRes_masswindowCut_;}
-            //for(unsigned int i = 0; i < PermuVec.size(); i++){
-            //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, PermuVec[i], PHI_MASS, 0.1, false, false, 7, 0);
-            //}
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, InVec, PHI_MASS, Phi_masswindows , false, false, 7, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: K+K-(Phi)pi-
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[7] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1); // original is k+,k- pi- , true for pp, HIMB567, changed to k-k+pi- to have same order of charge relation with another Ds channel
-            std::pair<float, int> tk2 = std::make_pair(KAON_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
-            // std::pair<float, int> tk1 = std::make_pair(PION_MASS, 1);
-            // std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
-            // std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            double Phi_masswindows=0.1;
-            if(tktkRes_masswindowCut_>0.0001 && tktkRes_masswindowCut_<2) { Phi_masswindows=tktkRes_masswindowCut_;}
-            //for(unsigned int i = 0; i < PermuVec.size(); i++){
-            //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, PermuVec[i], PHI_MASS, 0.1, false, false, 8, 0);
-            //}
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, InVec, PHI_MASS, Phi_masswindows, false, false, 8, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: D0(K-pi+)pi+
-          //////////////////////////////////////////////////////////////////////////
-          float dstar_mass_window[2] = {DSTAR_MASS-0.2,DSTAR_MASS+0.2};
-          if(Dchannel_[8] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1);
-            std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            //for(unsigned int i = 0; i < PermuVec.size(); i++){
-            //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 9, 0);
-            //}
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 9, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: D0bar(K+pi-)pi-
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[9] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
-            std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            //for(unsigned int i = 0; i < PermuVec.size(); i++){
-            //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 10, 0);
-            //}
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 10, 1);
-          }
+      if(Dchannel_[0] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        // std::cout<<"InVec:"<<std::endl;
+        // for (auto p : InVec) { std::cout<<" "<<p.first<<", "<<p.second<<std::endl; }
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        for(unsigned int i = 0; i < PermuVec.size(); i++){
+          Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 1, 0);
+        }
+        // Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 1, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K-pi+
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[1] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        // for(unsigned int i = 0; i < PermuVec.size(); i++){
+        //   Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 2, 0);
+        // }
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 2, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K-pi+pi+
+      //////////////////////////////////////////////////////////////////////////
+      float dplus_mass_window[2] = {DPLUS_MASS-0.2,DPLUS_MASS+0.2};
+      if(Dchannel_[2] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(PION_MASS, 0);
+        std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        for(unsigned int i = 0; i < PermuVec.size(); i++){
+          Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, PermuVec[i], -1, -1, false, false, 3, 0);
+        }
+        //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, InVec, -1, -1, false, false, 3, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K+pi-pi-
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[3] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 0);
+        std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        for(unsigned int i = 0; i < PermuVec.size(); i++){
+          Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, PermuVec[i], -1, -1, false, false, 4, 0);
+        }
+        //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dplus_mass_window, InVec, -1, -1, false, false, 4, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K-pi-pi+pi+
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[4] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 0);
+        std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
+        std::pair<float, int> tk4 = std::make_pair(PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        InVec.push_back(tk4);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        for(unsigned int i = 0; i < PermuVec.size(); i++){
+          Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 5, 0);
+        }
+        //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 5, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K+pi+pi-pi-
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[5] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(PION_MASS, 0);
+        std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
+        std::pair<float, int> tk4 = std::make_pair(-PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        InVec.push_back(tk4);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        for(unsigned int i = 0; i < PermuVec.size(); i++){
+          Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, PermuVec[i], -1, -1, false, false, 6, 0);
+        }
+        //Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, d0_mass_window, InVec, -1, -1, false, false, 6, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K+K-(Phi)pi+
+      //////////////////////////////////////////////////////////////////////////
+      float dsubs_mass_window[2] = {DSUBS_MASS-0.2,DSUBS_MASS+0.2};
+      if(Dchannel_[6] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
+        std::pair<float, int> tk2 = std::make_pair(-KAON_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
+        //std::pair<float, int> tk1 = std::make_pair(-PION_MASS, 1);
+        //std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
+        //std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        double Phi_masswindows=0.1;
+        if(tktkRes_masswindowCut_>0.0001 && tktkRes_masswindowCut_<2 ) { Phi_masswindows=tktkRes_masswindowCut_;}
+        //for(unsigned int i = 0; i < PermuVec.size(); i++){
+        //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, PermuVec[i], PHI_MASS, 0.1, false, false, 7, 0);
+        //}
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, InVec, PHI_MASS, Phi_masswindows , false, false, 7, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: K+K-(Phi)pi-
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[7] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1); // original is k+,k- pi- , true for pp, HIMB567, changed to k-k+pi- to have same order of charge relation with another Ds channel
+        std::pair<float, int> tk2 = std::make_pair(KAON_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
+        // std::pair<float, int> tk1 = std::make_pair(PION_MASS, 1);
+        // std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
+        // std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        double Phi_masswindows=0.1;
+        if(tktkRes_masswindowCut_>0.0001 && tktkRes_masswindowCut_<2) { Phi_masswindows=tktkRes_masswindowCut_;}
+        //for(unsigned int i = 0; i < PermuVec.size(); i++){
+        //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, PermuVec[i], PHI_MASS, 0.1, false, false, 8, 0);
+        //}
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dsubs_mass_window, InVec, PHI_MASS, Phi_masswindows, false, false, 8, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: D0(K-pi+)pi+
+      //////////////////////////////////////////////////////////////////////////
+      float dstar_mass_window[2] = {DSTAR_MASS-0.2,DSTAR_MASS+0.2};
+      if(Dchannel_[8] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1);
+        std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        //for(unsigned int i = 0; i < PermuVec.size(); i++){
+        //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 9, 0);
+        //}
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 9, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: D0bar(K+pi-)pi-
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[9] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
+        std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        //for(unsigned int i = 0; i < PermuVec.size(); i++){
+        //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 10, 0);
+        //}
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 10, 1);
+      }
 
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: D0(K-pi-pi+pi+)pi+
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[10] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1);
-            std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(PION_MASS, 1);
-            std::pair<float, int> tk4 = std::make_pair(PION_MASS, 1);
-            std::pair<float, int> tk5 = std::make_pair(PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            InVec.push_back(tk4);
-            InVec.push_back(tk5);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            //for(unsigned int i = 0; i < PermuVec.size(); i++){
-            //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 11, 0);
-            //}
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 11, 1);
-          }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: D0(K-pi-pi+pi+)pi+
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[10] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1);
+        std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(PION_MASS, 1);
+        std::pair<float, int> tk4 = std::make_pair(PION_MASS, 1);
+        std::pair<float, int> tk5 = std::make_pair(PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        InVec.push_back(tk4);
+        InVec.push_back(tk5);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        //for(unsigned int i = 0; i < PermuVec.size(); i++){
+        //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 11, 0);
+        //}
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 11, 1);
+      }
 
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: D0bar(K+pi+pi-pi-)pi-
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[11] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
-            std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 1);
-            std::pair<float, int> tk4 = std::make_pair(-PION_MASS, 1);
-            std::pair<float, int> tk5 = std::make_pair(-PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            InVec.push_back(tk4);
-            InVec.push_back(tk5);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            //for(unsigned int i = 0; i < PermuVec.size(); i++){
-            //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 12, 0);
-            //}
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 12, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: D0bar(K+pi-)pi+
-          //////////////////////////////////////////////////////////////////////////
-          //float bplus_mass_window[2] = {BPLUS_MASS-0.2,BPLUS_MASS+0.2};
-          //                    float bplus_mass_window[2] = {4.5, 6.5};
-          float bplus_mass_window[2] = {4.9, 6.1};
-          //                    float bplus_mass_window[2] = {4.9, 5.6};
-          if(Dchannel_[12] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
-            std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, bplus_mass_window, InVec, D0_MASS, 0.04, false, true, 13, 1);
-          }
-          //////////////////////////////////////////////////////////////////////////
-          // RECONSTRUCTION: D0(K-pi+)pi-
-          //////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[13] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1);
-            std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
-            std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, bplus_mass_window, InVec, D0_MASS, 0.04, false, true, 14, 1);
-          }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: D0bar(K+pi+pi-pi-)pi-
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[11] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
+        std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 1);
+        std::pair<float, int> tk4 = std::make_pair(-PION_MASS, 1);
+        std::pair<float, int> tk5 = std::make_pair(-PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        InVec.push_back(tk4);
+        InVec.push_back(tk5);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        //for(unsigned int i = 0; i < PermuVec.size(); i++){
+        //    Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, PermuVec[i], D0_MASS, 0.1, false, true, 12, 0);
+        //}
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, dstar_mass_window, InVec, D0_MASS, 0.1, false, true, 12, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: D0bar(K+pi-)pi+
+      //////////////////////////////////////////////////////////////////////////
+      //float bplus_mass_window[2] = {BPLUS_MASS-0.2,BPLUS_MASS+0.2};
+      //                    float bplus_mass_window[2] = {4.5, 6.5};
+      float bplus_mass_window[2] = {4.9, 6.1};
+      //                    float bplus_mass_window[2] = {4.9, 5.6};
+      if(Dchannel_[12] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(KAON_MASS, 1);
+        std::pair<float, int> tk2 = std::make_pair(-PION_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, bplus_mass_window, InVec, D0_MASS, 0.04, false, true, 13, 1);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      // RECONSTRUCTION: D0(K-pi+)pi-
+      //////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[13] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-KAON_MASS, 1);
+        std::pair<float, int> tk2 = std::make_pair(PION_MASS, 1);
+        std::pair<float, int> tk3 = std::make_pair(-PION_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, bplus_mass_window, InVec, D0_MASS, 0.04, false, true, 14, 1);
+      }
 
-          ///////////////////////////////////////////////////////////////////////////
-          //RECONSTRUCTION: pi+p+k-(for lambda_C)
-          ///////////////////////////////////////////////////////////////////////////
-          float lambdaC_mass_window[2] = {LAMBDAC_MASS-0.3,LAMBDAC_MASS+0.3};
-          if(Dchannel_[14] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(+PION_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(+PROTON_MASS, 0);
-            std::pair<float, int> tk3 = std::make_pair(-KAON_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, lambdaC_mass_window, PermuVec[i], -1, -1, false, false, 15, 0);
-            }    
-          }    
-          ///////////////////////////////////////////////////////////////////////////
-          //RECONSTRUCTION: pi-pbar-k+(for anti_lambda_C)
-          ///////////////////////////////////////////////////////////////////////////
-          if(Dchannel_[15] == 1){
-            std::vector< std::vector< std::pair<float, int> > > PermuVec;
-            std::vector< std::pair<float, int> > InVec;
-            std::pair<float, int> tk1 = std::make_pair(-PION_MASS, 0);
-            std::pair<float, int> tk2 = std::make_pair(-PROTON_MASS, 0);
-            std::pair<float, int> tk3 = std::make_pair(+KAON_MASS, 0);
-            InVec.push_back(tk1);
-            InVec.push_back(tk2);
-            InVec.push_back(tk3);
-            PermuVec = GetPermu(InVec);
-            PermuVec = DelDuplicate(PermuVec);
-            for(unsigned int i = 0; i < PermuVec.size(); i++){
-              Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, lambdaC_mass_window, PermuVec[i], -1, -1, false, false, 16, 0);
-            }    
-          }    
+      ///////////////////////////////////////////////////////////////////////////
+      //RECONSTRUCTION: pi+p+k-(for lambda_C)
+      ///////////////////////////////////////////////////////////////////////////
+      float lambdaC_mass_window[2] = {LAMBDAC_MASS-0.3,LAMBDAC_MASS+0.3};
+      if(Dchannel_[14] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(+PION_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(+PROTON_MASS, 0);
+        std::pair<float, int> tk3 = std::make_pair(-KAON_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        for(unsigned int i = 0; i < PermuVec.size(); i++){
+          Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, lambdaC_mass_window, PermuVec[i], -1, -1, false, false, 15, 0);
+        }    
+      }    
+      ///////////////////////////////////////////////////////////////////////////
+      //RECONSTRUCTION: pi-pbar-k+(for anti_lambda_C)
+      ///////////////////////////////////////////////////////////////////////////
+      if(Dchannel_[15] == 1){
+        std::vector< std::vector< std::pair<float, int> > > PermuVec;
+        std::vector< std::pair<float, int> > InVec;
+        std::pair<float, int> tk1 = std::make_pair(-PION_MASS, 0);
+        std::pair<float, int> tk2 = std::make_pair(-PROTON_MASS, 0);
+        std::pair<float, int> tk3 = std::make_pair(+KAON_MASS, 0);
+        InVec.push_back(tk1);
+        InVec.push_back(tk2);
+        InVec.push_back(tk3);
+        PermuVec = GetPermu(InVec);
+        PermuVec = DelDuplicate(PermuVec);
+        for(unsigned int i = 0; i < PermuVec.size(); i++){
+          Dfinder::BranchOutNTk( DInfo, input_tracks, thePrimaryV, isNeededTrackIdx, D_counter, lambdaC_mass_window, PermuVec[i], -1, -1, false, false, 16, 0);
+        }    
+      }    
 
 
-          if(printInfo_){
-            printf("D_counter: ");
-            for(unsigned int i = 0; i < Dchannel_.size(); i++){
-              printf("%d/", D_counter[i]);
-            }
-            printf("\n");
-          }//}}}
-          //printf("-----*****DEBUG:End of DInfo.\n");
+      if(printInfo_){
+        printf("D_counter: ");
+        for(unsigned int i = 0; i < Dchannel_.size(); i++){
+          printf("%d/", D_counter[i]);
+        }
+        printf("\n");
+      }//}}}
+      //printf("-----*****DEBUG:End of DInfo.\n");
 
-          for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
-              tk_it != input_tracks.end() ; tk_it++){
-            int tk_hindex = int(tk_it - input_tracks.begin());
-            if(tk_hindex>=int(isNeededTrack.size())) break;
-            if (isNeededTrack[tk_hindex]==false) continue;
+      for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
+          tk_it != input_tracks.end() ; tk_it++){
+        int tk_hindex = int(tk_it - input_tracks.begin());
+        if(tk_hindex>=int(isNeededTrack.size())) break;
+        if (isNeededTrack[tk_hindex]==false) continue;
 
-            //Create list of relative xb candidates for later filling
-            std::vector<int> listOfRelativeDCand1;//1~nXb
-            std::vector<int> listOfRelativeDCand2;//1~nXb
-            std::vector<int> listOfRelativeDCand3;//1~nXb
-            std::vector<int> listOfRelativeDCand4;//1~nXb
-            std::vector<int> listOfRelativeDCand5;//1~nXb
-            std::vector<int> listOfRelativeDResCand1;//1~nXb
-            std::vector<int> listOfRelativeDResCand2;//1~nXb
-            std::vector<int> listOfRelativeDResCand3;//1~nXb
-            std::vector<int> listOfRelativeDResCand4;//1~nXb
-            for(int d=0; d < DInfo.size; d++){
-              if(DInfo.rftk1_index[d] == tk_hindex){
-                listOfRelativeDCand1.push_back(d+1);
-              }
-              if(DInfo.rftk2_index[d] == tk_hindex){
-                listOfRelativeDCand2.push_back(d+1);
-              }
-              if(DInfo.rftk3_index[d] == tk_hindex){
-                listOfRelativeDCand3.push_back(d+1);
-              }
-              if(DInfo.rftk4_index[d] == tk_hindex){
-                listOfRelativeDCand4.push_back(d+1);
-              }
-              if(DInfo.rftk5_index[d] == tk_hindex){
-                listOfRelativeDCand5.push_back(d+1);
-              }
+        //Create list of relative xb candidates for later filling
+        std::vector<int> listOfRelativeDCand1;//1~nXb
+        std::vector<int> listOfRelativeDCand2;//1~nXb
+        std::vector<int> listOfRelativeDCand3;//1~nXb
+        std::vector<int> listOfRelativeDCand4;//1~nXb
+        std::vector<int> listOfRelativeDCand5;//1~nXb
+        std::vector<int> listOfRelativeDResCand1;//1~nXb
+        std::vector<int> listOfRelativeDResCand2;//1~nXb
+        std::vector<int> listOfRelativeDResCand3;//1~nXb
+        std::vector<int> listOfRelativeDResCand4;//1~nXb
+        for(int d=0; d < DInfo.size; d++){
+          if(DInfo.rftk1_index[d] == tk_hindex){
+            listOfRelativeDCand1.push_back(d+1);
+          }
+          if(DInfo.rftk2_index[d] == tk_hindex){
+            listOfRelativeDCand2.push_back(d+1);
+          }
+          if(DInfo.rftk3_index[d] == tk_hindex){
+            listOfRelativeDCand3.push_back(d+1);
+          }
+          if(DInfo.rftk4_index[d] == tk_hindex){
+            listOfRelativeDCand4.push_back(d+1);
+          }
+          if(DInfo.rftk5_index[d] == tk_hindex){
+            listOfRelativeDCand5.push_back(d+1);
+          }
 
-              if(DInfo.tktkRes_rftk1_index[d] == tk_hindex){
-                listOfRelativeDResCand1.push_back(d+1);
-              }
-              if(DInfo.tktkRes_rftk2_index[d] == tk_hindex){
-                listOfRelativeDResCand2.push_back(d+1);
-              }
-              if(DInfo.tktkRes_rftk3_index[d] == tk_hindex){
-                listOfRelativeDResCand3.push_back(d+1);
-              }
-              if(DInfo.tktkRes_rftk4_index[d] == tk_hindex){
-                listOfRelativeDResCand4.push_back(d+1);
-              }
-            }
+          if(DInfo.tktkRes_rftk1_index[d] == tk_hindex){
+            listOfRelativeDResCand1.push_back(d+1);
+          }
+          if(DInfo.tktkRes_rftk2_index[d] == tk_hindex){
+            listOfRelativeDResCand2.push_back(d+1);
+          }
+          if(DInfo.tktkRes_rftk3_index[d] == tk_hindex){
+            listOfRelativeDResCand3.push_back(d+1);
+          }
+          if(DInfo.tktkRes_rftk4_index[d] == tk_hindex){
+            listOfRelativeDResCand4.push_back(d+1);
+          }
+        }
 
-            // drop unused tracks
-            if(listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 &&
-               listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;
+        // drop unused tracks
+        if(listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 &&
+           listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;
 
                     
-            TrackInfo.index          [TrackInfo.size] = TrackInfo.size;
-            TrackInfo.handle_index   [TrackInfo.size] = tk_hindex;
-            TrackInfo.charge         [TrackInfo.size] = tk_it->charge();
-            TrackInfo.pt             [TrackInfo.size] = tk_it->pt();
-            TrackInfo.eta            [TrackInfo.size] = tk_it->eta();
-            TrackInfo.phi            [TrackInfo.size] = tk_it->phi();
-            TrackInfo.ptErr          [TrackInfo.size] = tk_it->pseudoTrack().ptError();
-            TrackInfo.etaErr         [TrackInfo.size] = tk_it->pseudoTrack().etaError();
-            TrackInfo.phiErr         [TrackInfo.size] = tk_it->pseudoTrack().phiError();
-            //TrackInfo.p              [TrackInfo.size] = tk_it->p();
-            TrackInfo.striphit       [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().numberOfValidStripHits();
-            TrackInfo.pixelhit       [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().numberOfValidPixelHits();
-            TrackInfo.nStripLayer    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().stripLayersWithMeasurement();
-            TrackInfo.nPixelLayer    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().pixelLayersWithMeasurement();
-            // TrackInfo.fpbarrelhit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInFirstPixelBarrel();
-            // TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInFirstPixelEndcap();
-            TrackInfo.fpbarrelhit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1);
-            TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
-            TrackInfo.chi2           [TrackInfo.size] = tk_it->pseudoTrack().chi2();            
-            if (chi2Handle.isValid() && !chi2Handle.failedToGet())
-              TrackInfo.chi2           [TrackInfo.size] = (float)((*chi2Handle)[ tks->ptrAt( tk_hindex ) ]) * tk_it->pseudoTrack().ndof();
-            TrackInfo.ndf            [TrackInfo.size] = tk_it->pseudoTrack().ndof();
-            TrackInfo.d0             [TrackInfo.size] = tk_it->pseudoTrack().d0();
-            TrackInfo.d0error        [TrackInfo.size] = tk_it->pseudoTrack().d0Error();
-            TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
-            TrackInfo.dzerror        [TrackInfo.size] = tk_it->pseudoTrack().dzError();
-            TrackInfo.dxy            [TrackInfo.size] = tk_it->pseudoTrack().dxy();
-            TrackInfo.dxyerror       [TrackInfo.size] = tk_it->pseudoTrack().dxyError();
-            TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
-            TrackInfo.dzerror        [TrackInfo.size] = tk_it->pseudoTrack().dzError();
-            TrackInfo.dxy1           [TrackInfo.size] = tk_it->pseudoTrack().dxy(RefVtx);
-            TrackInfo.dxyerror1      [TrackInfo.size] = TMath::Sqrt(tk_it->pseudoTrack().dxyError()*tk_it->pseudoTrack().dxyError() + thePrimaryV.xError()*thePrimaryV.yError());
-            TrackInfo.dz1            [TrackInfo.size] = tk_it->pseudoTrack().dz(RefVtx);
-            TrackInfo.dzerror1       [TrackInfo.size] = TMath::Sqrt(tk_it->pseudoTrack().dzError()*tk_it->pseudoTrack().dzError() + thePrimaryV.zError()*thePrimaryV.zError());
-            TrackInfo.highPurity     [TrackInfo.size] = tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity"));
-            TrackInfo.geninfo_index  [TrackInfo.size] = -1; // initialize for later use
-            // TrackInfo.trkMVAVal      [TrackInfo.size] = (*mvaoutput)[tk_it->track()];
-            TrackInfo.trkAlgo        [TrackInfo.size] = tk_it->pseudoTrack().algo();
-            TrackInfo.originalTrkAlgo[TrackInfo.size] = tk_it->pseudoTrack().originalAlgo();
-            TrackInfo.dedx           [TrackInfo.size] = -1;
-            if (dedxHandle.isValid() && !dedxHandle.failedToGet())
-              TrackInfo.dedx           [TrackInfo.size] = ((*dedxHandle)[ tks->ptrAt( tk_hindex ) ]).dEdx();
+        TrackInfo.index          [TrackInfo.size] = TrackInfo.size;
+        TrackInfo.handle_index   [TrackInfo.size] = tk_hindex;
+        TrackInfo.charge         [TrackInfo.size] = tk_it->charge();
+        TrackInfo.pt             [TrackInfo.size] = tk_it->pt();
+        TrackInfo.eta            [TrackInfo.size] = tk_it->eta();
+        TrackInfo.phi            [TrackInfo.size] = tk_it->phi();
+        TrackInfo.ptErr          [TrackInfo.size] = tk_it->pseudoTrack().ptError();
+        TrackInfo.etaErr         [TrackInfo.size] = tk_it->pseudoTrack().etaError();
+        TrackInfo.phiErr         [TrackInfo.size] = tk_it->pseudoTrack().phiError();
+        // TrackInfo.p              [TrackInfo.size] = tk_it->p();
+        TrackInfo.striphit       [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().numberOfValidStripHits();
+        TrackInfo.pixelhit       [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().numberOfValidPixelHits();
+        TrackInfo.nStripLayer    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().stripLayersWithMeasurement();
+        TrackInfo.nPixelLayer    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().pixelLayersWithMeasurement();
+        TrackInfo.fpbarrelhit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1);
+        TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
+        TrackInfo.chi2           [TrackInfo.size] = tk_it->pseudoTrack().chi2();            
+        if (chi2Handle.isValid() && !chi2Handle.failedToGet())
+          TrackInfo.chi2           [TrackInfo.size] = (float)((*chi2Handle)[ tks->ptrAt( tk_hindex ) ]) * tk_it->pseudoTrack().ndof();
+        TrackInfo.ndf            [TrackInfo.size] = tk_it->pseudoTrack().ndof();
+        TrackInfo.d0             [TrackInfo.size] = tk_it->pseudoTrack().d0();
+        TrackInfo.d0error        [TrackInfo.size] = tk_it->pseudoTrack().d0Error();
+        TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
+        TrackInfo.dzerror        [TrackInfo.size] = tk_it->pseudoTrack().dzError();
+        TrackInfo.dxy            [TrackInfo.size] = tk_it->pseudoTrack().dxy();
+        TrackInfo.dxyerror       [TrackInfo.size] = tk_it->pseudoTrack().dxyError();
+        TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
+        TrackInfo.dzerror        [TrackInfo.size] = tk_it->pseudoTrack().dzError();
+        TrackInfo.dxy1           [TrackInfo.size] = tk_it->pseudoTrack().dxy(RefVtx);
+        TrackInfo.dxyerror1      [TrackInfo.size] = TMath::Sqrt(tk_it->pseudoTrack().dxyError()*tk_it->pseudoTrack().dxyError() + thePrimaryV.xError()*thePrimaryV.yError());
+        TrackInfo.dz1            [TrackInfo.size] = tk_it->pseudoTrack().dz(RefVtx);
+        TrackInfo.dzerror1       [TrackInfo.size] = TMath::Sqrt(tk_it->pseudoTrack().dzError()*tk_it->pseudoTrack().dzError() + thePrimaryV.zError()*thePrimaryV.zError());
+        TrackInfo.highPurity     [TrackInfo.size] = tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity"));
+        TrackInfo.geninfo_index  [TrackInfo.size] = -1; // initialize for later use
+        // TrackInfo.trkMVAVal      [TrackInfo.size] = (*mvaoutput)[tk_it->track()];
+        TrackInfo.trkAlgo        [TrackInfo.size] = tk_it->pseudoTrack().algo();
+        TrackInfo.originalTrkAlgo[TrackInfo.size] = tk_it->pseudoTrack().originalAlgo();
+        TrackInfo.dedx           [TrackInfo.size] = -1;
+        if (dedxHandle.isValid() && !dedxHandle.failedToGet())
+          TrackInfo.dedx           [TrackInfo.size] = ((*dedxHandle)[ tks->ptrAt( tk_hindex ) ]).dEdx();
 
-            /* Under construction */
-            // if(tk_it->pseudoTrack().isNonnull()){
-            //     for(int tq = 0; tq < reco::TrackBase::qualitySize; tq++){
-            //         if (tk_it->pseudoTrack().quality(static_cast<reco::TrackBase::TrackQuality>(tq))) TrackInfo.trackQuality[TrackInfo.size] += 1 << (tq);
-            //     }}
+        /* Under construction */
+        // if(tk_it->pseudoTrack().isNonnull()){
+        //     for(int tq = 0; tq < reco::TrackBase::qualitySize; tq++){
+        //         if (tk_it->pseudoTrack().quality(static_cast<reco::TrackBase::TrackQuality>(tq))) TrackInfo.trackQuality[TrackInfo.size] += 1 << (tq);
+        //     }}
 
-            // Gen-match
-            // https://github.com/cms-sw/cmssw/blob/CMSSW_11_2_X/CommonTools/UtilAlgos/interface/MatchByDRDPt.h
-            if (!iEvent.isRealData())
+        // Gen-match
+        // https://github.com/cms-sw/cmssw/blob/CMSSW_11_2_X/CommonTools/UtilAlgos/interface/MatchByDRDPt.h
+        if (!iEvent.isRealData())
+          {
+            // std::cout<<tk_it->genParticle()<<std::endl;
+            genTrackPtr[TrackInfo.size] = -1;
+            float currentdR = 1.e+10;//, currentptRel=0.;
+            for(std::vector<reco::GenParticle>::const_iterator it_gen=gens->begin();
+                it_gen != gens->end(); it_gen++)
               {
-                genTrackPtr[TrackInfo.size] = -1;
-                float currentdR = 1.e+10;//, currentptRel=0.;
-                for(std::vector<reco::GenParticle>::const_iterator it_gen=gens->begin();
-                    it_gen != gens->end(); it_gen++)
-                  {
-                    int abspdg = abs(int(it_gen->pdgId()));
-                    if (it_gen->status() != 1) continue;
-                    if (abspdg != 111 && 
-                        abspdg != 211 && 
-                        abspdg != 311 && 
-                        abspdg != 321 && 
-                        abspdg != 2212) continue;
-                    if (tk_it->charge() != it_gen->charge()) continue;
-                    float ptRel = fabs(tk_it->pt() - it_gen->pt()) / tk_it->pt();
-                    if(ptRel >= 0.2) continue; //
-                    float deta = tk_it->eta() - it_gen->eta();
-                    float dphi = std::abs(tk_it->phi() - it_gen->phi());
-                    if(dphi > float(M_PI))
-                      dphi -= float(2 * M_PI);
-                    float dR = sqrt(deta*deta + dphi*dphi);
-                    if(dR >= 0.02) continue; //
-                    if(dR < currentdR) 
-                      {
-                        genTrackPtr[TrackInfo.size] = it_gen - gens->begin();
-                        currentdR = dR;
-                        // currentptRel = ptRel;
-                      }
-                  }
-                // genTrackPtr[TrackInfo.size] = tk_it->genParticle();
+                int abspdg = abs(int(it_gen->pdgId()));
+                if (it_gen->status() != 1) continue;
+                if (abspdg != 111 && 
+                    abspdg != 211 && 
+                    abspdg != 311 && 
+                    abspdg != 321 && 
+                    abspdg != 2212) continue;
+                if (tk_it->charge() != it_gen->charge()) continue;
+                float ptRel = fabs(tk_it->pt() - it_gen->pt()) / tk_it->pt();
+                if(ptRel >= 0.2) continue; //
+                float deta = tk_it->eta() - it_gen->eta();
+                float dphi = std::abs(tk_it->phi() - it_gen->phi());
+                if(dphi > float(M_PI))
+                  dphi -= float(2 * M_PI);
+                float dR = sqrt(deta*deta + dphi*dphi);
+                if(dR >= 0.02) continue; //
+                if(dR < currentdR) {
+                  genTrackPtr[TrackInfo.size] = it_gen - gens->begin();
+                  currentdR = dR;
+                  // currentptRel = ptRel;
+                }
               }
-            // <--------------
+            // genTrackPtr[TrackInfo.size] = tk_it->genParticle();
+          }
+        // <--------------
 
-            // Fill the same list for DInfo // original idx is Handle_idx changed to the TrackInfo idx 
-            for(unsigned int iCands=0; iCands < listOfRelativeDCand1.size(); iCands++){
-              DInfo.rftk1_index[listOfRelativeDCand1[iCands]-1] = TrackInfo.size;
-            }
-            for(unsigned int iCands=0; iCands < listOfRelativeDCand2.size(); iCands++){
-              DInfo.rftk2_index[listOfRelativeDCand2[iCands]-1] = TrackInfo.size;
-            }
-            for(unsigned int iCands=0; iCands < listOfRelativeDCand3.size(); iCands++){
-              DInfo.rftk3_index[listOfRelativeDCand3[iCands]-1] = TrackInfo.size;
-            }
-            for(unsigned int iCands=0; iCands < listOfRelativeDCand4.size(); iCands++){
-              DInfo.rftk4_index[listOfRelativeDCand4[iCands]-1] = TrackInfo.size;
-            }
-            for(unsigned int iCands=0; iCands < listOfRelativeDCand5.size(); iCands++){
-              DInfo.rftk5_index[listOfRelativeDCand5[iCands]-1] = TrackInfo.size;
-            }
+        // Fill the same list for DInfo // original idx is Handle_idx changed to the TrackInfo idx 
+        for(unsigned int iCands=0; iCands < listOfRelativeDCand1.size(); iCands++){
+          DInfo.rftk1_index[listOfRelativeDCand1[iCands]-1] = TrackInfo.size;
+        }
+        for(unsigned int iCands=0; iCands < listOfRelativeDCand2.size(); iCands++){
+          DInfo.rftk2_index[listOfRelativeDCand2[iCands]-1] = TrackInfo.size;
+        }
+        for(unsigned int iCands=0; iCands < listOfRelativeDCand3.size(); iCands++){
+          DInfo.rftk3_index[listOfRelativeDCand3[iCands]-1] = TrackInfo.size;
+        }
+        for(unsigned int iCands=0; iCands < listOfRelativeDCand4.size(); iCands++){
+          DInfo.rftk4_index[listOfRelativeDCand4[iCands]-1] = TrackInfo.size;
+        }
+        for(unsigned int iCands=0; iCands < listOfRelativeDCand5.size(); iCands++){
+          DInfo.rftk5_index[listOfRelativeDCand5[iCands]-1] = TrackInfo.size;
+        }
 
-            for(unsigned int iCands=0; iCands < listOfRelativeDResCand1.size(); iCands++){
-              DInfo.tktkRes_rftk1_index[listOfRelativeDResCand1[iCands]-1] = TrackInfo.size;
-            }
-            for(unsigned int iCands=0; iCands < listOfRelativeDResCand2.size(); iCands++){
-              DInfo.tktkRes_rftk2_index[listOfRelativeDResCand2[iCands]-1] = TrackInfo.size;
-            }
-            for(unsigned int iCands=0; iCands < listOfRelativeDResCand3.size(); iCands++){
-              DInfo.tktkRes_rftk3_index[listOfRelativeDResCand3[iCands]-1] = TrackInfo.size;
-            }
-            for(unsigned int iCands=0; iCands < listOfRelativeDResCand4.size(); iCands++){
-              DInfo.tktkRes_rftk4_index[listOfRelativeDResCand4[iCands]-1] = TrackInfo.size;
-            }
-            TrackInfo.size++;
-          }//end of TrackInfo}}}
-          //printf("-----*****DEBUG:End of TrackInfo.\n");
-        }//has nTracks>1
-      }//if no Tracks
-    }//if no Muons
-    
+        for(unsigned int iCands=0; iCands < listOfRelativeDResCand1.size(); iCands++){
+          DInfo.tktkRes_rftk1_index[listOfRelativeDResCand1[iCands]-1] = TrackInfo.size;
+        }
+        for(unsigned int iCands=0; iCands < listOfRelativeDResCand2.size(); iCands++){
+          DInfo.tktkRes_rftk2_index[listOfRelativeDResCand2[iCands]-1] = TrackInfo.size;
+        }
+        for(unsigned int iCands=0; iCands < listOfRelativeDResCand3.size(); iCands++){
+          DInfo.tktkRes_rftk3_index[listOfRelativeDResCand3[iCands]-1] = TrackInfo.size;
+        }
+        for(unsigned int iCands=0; iCands < listOfRelativeDResCand4.size(); iCands++){
+          DInfo.tktkRes_rftk4_index[listOfRelativeDResCand4[iCands]-1] = TrackInfo.size;
+        }
+        TrackInfo.size++;
+      }//end of TrackInfo}}}
+      //printf("-----*****DEBUG:End of TrackInfo.\n");
+    }//has nTracks>1
+    else {
+      if (printInfo_) std::cout << "There's no track: " << iEvent.id() << std::endl;
+    }
+        
     // GenInfo section{{{
     if (!iEvent.isRealData()) {
       // edm::Handle<std::vector<reco::GenParticle>> gens;
       // iEvent.getByToken(genLabel_, gens);
 
       std::vector<const reco::Candidate *> sel_cands;
-      //deprecated
-      /*
-        std::vector<const reco::Candidate *> cands;
-        for(std::vector<reco::GenParticle>::const_iterator it_gen = gens->begin();
-        it_gen != gens->end(); it_gen++ ){
-        cands.push_back(&*it_gen);
-        }
-      */
 
       //fill gen PV, parton, gluon, etc can also be used
       GenInfo.genPVx = -99;
@@ -955,9 +937,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         GenInfo.genPVx = it_gen->vx();
         GenInfo.genPVy = it_gen->vy();
         GenInfo.genPVz = it_gen->vz();
-        //if( abs(it_gen->pdgId()) == 421 ) cout << "DzeroDzeroDzeroDzero!!!!!!" << endl;
-        //cout << "Pid: " << it_gen->pdgId() << " status: " << it_gen->status() << endl;
-        //cout << " vx: " << it_gen->vx() << " vy: " << it_gen->vy() << " vz: " << it_gen->vz() << endl;
         break;
       }
       //end fill gen PV
@@ -969,15 +948,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           fprintf(stderr,"ERROR: number of gens exceeds the size of array.\n");
           break;;
         }
-
-        /*
-          if (
-          //(abs(it_gen->pdgId()) == 111 && it_gen->status() == 2) ||//pi 0
-          (abs(it_gen->pdgId()) == 211 && it_gen->status() == 2) ||//pi +-
-          //(abs(it_gen->pdgId()) == 311 && it_gen->status() == 2) ||//K0
-          (abs(it_gen->pdgId()) == 321 && it_gen->status() == 2) //K+-
-          ) continue;//only status=1 pi+- and K+-
-        */
 
         bool isGenSignal = false;
         //save target intermediate state particle
@@ -1019,7 +989,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             abs(it_gen->pdgId()) ==3124 || //lambda(1520)0
             abs(it_gen->pdgId()) ==2224 //delta++
             //# check here by Rui
-            ){
+            ) {
           reco::GenParticle _deRef = (*it_gen);
           reco::Candidate* Myself = dynamic_cast<reco::Candidate*>(&_deRef);
           //std::cout<<Myself->pdgId()<<"-----------"<<std::endl;
@@ -1035,45 +1005,13 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         if (!isGenSignal) continue;
 
-        /*deprecated
-          int iMo1 = -1,  iMo2 = -1,  iDa1 = -1,  iDa2 = -1;
-          for(std::vector<const reco::Candidate *>::iterator iCands = cands.begin();
-          iCands != cands.end(); iCands++){
-          if (it_gen->numberOfMothers() >= 2){
-          if (it_gen->mother(0) == *iCands)
-          iMo1 = iCands - cands.begin();
-          if (it_gen->mother(1) == *iCands)
-          iMo2 = iCands - cands.begin();
-          }else if(it_gen->numberOfMothers() == 1){
-          if (it_gen->mother(0) == *iCands)
-          iMo1 = iCands - cands.begin();
-          }
-          if (it_gen->numberOfDaughters() >= 2){
-          if (it_gen->daughter(0) == *iCands)
-          iDa1 = iCands - cands.begin();
-          else if (it_gen->daughter(1) == *iCands)
-          iDa2 = iCands - cands.begin();
-          }else if(it_gen->numberOfDaughters() == 1){
-          if (it_gen->daughter(0) == *iCands)
-          iDa1 = iCands - cands.begin();
-          }
-          }
-        */
-        //Find all other particle in TrackInfo
-        //printf("-----*****DEBUG:Start of matching.\n");
-        //printf("-----*****DEBUG:Entered pion matching block.\n");
         for(int trackIdx = 0; trackIdx < TrackInfo.size; trackIdx++){ //# saving gen-track ref index 
-          //match by pat::GenericParticle
+          // match by pat::GenericParticle
           if (genTrackPtr[trackIdx] < 0 ) continue;
-          if ((it_gen-gens->begin()) == genTrackPtr[trackIdx]){
+          if ((it_gen - gens->begin()) == genTrackPtr[trackIdx]) {
             TrackInfo.geninfo_index[trackIdx] = GenInfo.size;
-            // break;
+            break;
           }
-          // if (genTrackPtr[trackIdx] == 0 ) continue;
-          // if (it_gen->p4() == genTrackPtr[trackIdx]->p4()){
-          //     TrackInfo.geninfo_index[trackIdx] = GenInfo.size;
-          //     break;
-          // }
         }
 
         GenInfo.index[GenInfo.size]         = GenInfo.size;
@@ -1091,10 +1029,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         GenInfo.vtxX[GenInfo.size]          = it_gen->vx(); //it should be the production vx of the particle, better to double check
         GenInfo.vtxY[GenInfo.size]          = it_gen->vy();
         GenInfo.vtxZ[GenInfo.size]          = it_gen->vz();
-        //GenInfo.mo1[GenInfo.size]           = iMo1;//To be matched later.
-        //GenInfo.mo2[GenInfo.size]           = iMo2;
-        //GenInfo.da1[GenInfo.size]           = iDa1;
-        //GenInfo.da2[GenInfo.size]           = iDa2;
         GenInfo.mo1[GenInfo.size]           = -1;//To be matched later.
         GenInfo.mo2[GenInfo.size]           = -1;
         GenInfo.da1[GenInfo.size]           = -1;
@@ -1138,11 +1072,11 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //printf("-----*****DEBUG:End of GenInfo.\n");
     //std::cout<<"Start to fill!\n";
 
-  }//try
-  catch (std::exception & err){
+  } // try
+  catch (std::exception & err) {
     std::cout  << "Exception during event number: " << iEvent.id()
                << "\n" << err.what() << "\n";
-  }//catch 
+  } // catch 
   root->Fill();
   //std::cout<<"filled!\n";
 
@@ -1494,14 +1428,6 @@ void Dfinder::TkCombinationResFast(
   TLorentzVector v4_tk1, v4_tk2, v4_tk3, v4_tk4, v4_tk5;// all tracks
   TLorentzVector v4_Restk1, v4_Restk2, v4_Restk3, v4_Restk4, v4_Restk5;// resonance tracks
   TLorentzVector v4_NonRestk1, v4_NonRestk2, v4_NonRestk3, v4_NonRestk4, v4_NonRestk5;// non-resonance tracks, i.e., all - resonance tracks
-  // TVector3 *Sumboost = new TVector3();
-  // TVector3 *Sum3Vec = new TVector3();
-
-                    
-  // cout<<"\nTkMassCharge[0] = "<<TkMassCharge[0].first<<" , "<<TkMassCharge[0].second<<endl;
-  // cout<<"TkMassCharge[1] = "<<TkMassCharge[1].first<<" , "<<TkMassCharge[1].second<<endl;
-  // cout<<"TkMassCharge[2] = "<<TkMassCharge[2].first<<" , "<<TkMassCharge[2].second<<endl;
-  // cout<<"====================="<<endl;
 
   for(int tk1idx = 0; tk1idx < (int)isNeededTrackIdx.size(); tk1idx++){
     v4_D.Clear(); v4_Res.Clear();
