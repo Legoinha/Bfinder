@@ -17,34 +17,18 @@ do
     cp ${PATHTOTEST}/${FOREST}.py ${PATHTOTEST}/${FOREST}_wDfinder.py
 
     echo '
-#################### D finder ################# 
-AddCaloMuon = False 
-runOnMC = '${RUNONMC[cc]}' ## !!
-HIFormat = False 
-UseGenPlusSim = False 
+#################### D finder #################
+runOnMC = '${RUNONMC[cc]}'
 VtxLabel = "offlineSlimmedPrimaryVertices"
 TrkLabel = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
-useL1Stage2 = True
-HLTProName = "HLT"
-from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X 
-finderMaker_75X(process, AddCaloMuon, runOnMC, HIFormat, UseGenPlusSim, VtxLabel, TrkLabel, TrkChi2Label, GenLabel, useL1Stage2, HLTProName)
-process.Dfinder.MVAMapLabel = cms.InputTag(TrkLabel, "MVAValues")
-process.Dfinder.makeDntuple = cms.bool(True)
-process.Dfinder.tkPtCut = cms.double(1.0) # before fit
+from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X,setCutForAllChannelsDfinder
+finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
+process.Dfinder.tkPtCut = cms.double(0.5) # before fit
 process.Dfinder.tkEtaCut = cms.double(2.4) # before fit
-process.Dfinder.dPtCut = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0) # before fit
-process.Dfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.0, 0.0, 0.0, 0.0, 0.05, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 0.05)
-process.Dfinder.dCutSeparating_PtVal = cms.vdouble(5., 5., 5., 5., 5., 5., 5., 5., 5., 5., 5., 5., 5., 5., 5., 5.)
-process.Dfinder.tktkRes_svpvDistanceCut_lowptD = cms.vdouble(0., 0., 0., 0., 0., 0., 0., 0., 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 0., 0.)
-process.Dfinder.tktkRes_svpvDistanceCut_highptD = cms.vdouble(0., 0., 0., 0., 0., 0., 0., 0., 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 0., 0.)
-process.Dfinder.svpvDistanceCut_lowptD = cms.vdouble(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 0., 0., 0., 0., 0., 0., 2.5, 2.5)
-process.Dfinder.svpvDistanceCut_highptD = cms.vdouble(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 0., 0., 0., 0., 0., 0., 2.5, 2.5)
-process.Dfinder.alphaCut = cms.vdouble(0.2, 0.2, 999., 999., 999., 999., 999., 999., 999., 999., 999., 999., 999., 999., 999., 999.)
 process.Dfinder.Dchannel = cms.vint32(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-process.Dfinder.dropUnusedTracks = cms.bool(True)
-process.Dfinder.detailMode = cms.bool(False)
+setCutForAllChannelsDfinder(process, dPtCut = 1, VtxChiProbCut = 0.05, svpvDistanceCut = 2.5, alphaCut = 0.2)
 
 process.dfinder = cms.Path(process.DfinderSequence)
 
@@ -55,19 +39,13 @@ process.dfinder = cms.Path(process.DfinderSequence)
 
     echo '
 #################### B finder #################
-AddCaloMuon = False
-runOnMC = '${RUNONMC[cc]}' ## !!
-HIFormat = False
-UseGenPlusSim = False
+runOnMC = '${RUNONMC[cc]}'
 VtxLabel = "offlineSlimmedPrimaryVertices"
 TrkLabel = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
-useL1Stage2 = True
-HLTProName = "HLT"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
-finderMaker_75X(process, AddCaloMuon, runOnMC, HIFormat, UseGenPlusSim, VtxLabel, TrkLabel, TrkChi2Label, GenLabel, useL1Stage2, HLTProName)
-
+finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
 process.Bfinder.makeBntuple = cms.bool(True)
 process.Bfinder.tkPtCut = cms.double(0.8) # before fit
