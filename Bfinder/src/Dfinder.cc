@@ -33,7 +33,8 @@ private:
 
   virtual void BranchOutNTk(
                             DInfoBranches &DInfo, 
-                            edm::View<pat::PackedCandidate> input_tracks, 
+                            // edm::View<pat::PackedCandidate> input_tracks, 
+                            std::vector<const reco::Track*> input_tracks,
                             reco::Vertex thePrimaryV,
                             std::vector<int> isNeededTrackIdx,
                             std::vector<int> &D_counter,
@@ -49,7 +50,8 @@ private:
 
   virtual void TkCombinationPermutation(
                                         reco::Vertex thePrimaryV,
-                                        edm::View<pat::PackedCandidate> input_tracks, 
+                                        // edm::View<pat::PackedCandidate> input_tracks,
+                                        std::vector<const reco::Track*> input_tracks,
                                         std::vector<int> isNeededTrackIdx,
                                         float *mass_window,
                                         std::vector< std::pair<float, int> > TkMassCharge,
@@ -61,7 +63,8 @@ private:
 
   virtual void TkCombinationResFast(
                                     reco::Vertex thePrimaryV,
-                                    edm::View<pat::PackedCandidate> input_tracks, 
+                                    // edm::View<pat::PackedCandidate> input_tracks,
+                                    std::vector<const reco::Track*> input_tracks,
                                     std::vector<int> isNeededTrackIdx,
                                     float *mass_window,
                                     std::vector< std::pair<float, int> > TkMassCharge,
@@ -71,6 +74,17 @@ private:
                                     int Dchannel_number
                                     );
 
+  static const reco::Track* getFromPC(const reco::Candidate& rc) {
+    const pat::PackedCandidate* pp = dynamic_cast<const pat::PackedCandidate*>(&rc);
+    if (pp == nullptr)
+      return nullptr;
+    try {
+      const reco::Track* trk = &pp->pseudoTrack();
+      return trk;
+    } catch (edm::Exception const&) {
+    }
+    return nullptr;
+  }
   // ----------member data ---------------------------
   edm::ESHandle<MagneticField> bField;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
@@ -136,7 +150,7 @@ private:
 void Dfinder::beginJob()
 {//{{{
   root = fs->make<TTree>("root","root");
-  ntD1 = fs->make<TTree>("ntDkpi","");           Dntuple->buildDBranch(ntD1);
+  ntD1 = fs->make<TTree>("ntDkpi","");           Dntuple->buildDBranch(ntD1, true);
   ntD2 = fs->make<TTree>("ntDkpipi","");         Dntuple->buildDBranch(ntD2);
   ntD3 = fs->make<TTree>("ntDkpipipi","");       Dntuple->buildDBranch(ntD3);
   ntD4 = fs->make<TTree>("ntDPhikkpi","");       Dntuple->buildDBranch(ntD4);
@@ -338,7 +352,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }else{ 
     thePrimaryV = Vertex(beamSpot.position(), beamSpot.covariance3D());
-  }
+ } 
   RefVtx = thePrimaryV.position();
 
   EvtInfo.PVx     = thePrimaryV.position().x();
@@ -360,7 +374,13 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     D_counter.push_back(0);
   }
 
-  auto input_tracks = *tks; // std::vector<pat::PackedCandidate>
+  auto input_pc_tracks = *tks; // std::vector<pat::PackedCandidate>
+  std::vector<const reco::Track*> input_tracks;
+  for(auto tk_it=tks->begin(); tk_it != tks->end(); tk_it++){
+      // static const reco::Track* getFromPC(const reco::Candidate& rc) {
+    auto rt = getFromPC((*tk_it));
+    input_tracks.push_back(rt);
+  }
   // auto input_losttracks = *losttks;
   // input_tracks.insert(input_tracks.end(), input_losttracks.begin(), input_losttracks.end());
   try {
@@ -379,25 +399,26 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<bool> isNeededTrack;// Are the tracks redundant?
       std::vector<int> isNeededTrackIdx;
       int PassedTrk = 0;
-      for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
-          // for(std::vector<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
-          tk_it != input_tracks.end(); tk_it++){
+      for(auto tk_it_it=input_tracks.begin(); // edm::View<pat::PackedCandidate>::const_iterator tk_it
+          tk_it_it != input_tracks.end(); tk_it_it++){
         if(PassedTrk >= MAX_TRACK){
           fprintf(stderr,"ERROR: number of tracks exceeds the size of array.\n");
           break;
         }
-
+        auto tk_it = (*tk_it_it);
+        // std::cout<<tk_it<<std::endl;
         isNeededTrack.push_back(false);
-        if(!tk_it->hasTrackDetails()) continue;
+        if (!tk_it) continue;
+        // if(!tk_it->hasTrackDetails()) continue;
         if (abs(tk_it->charge()) != 1) continue;
         if (tk_it->pt()<tkPtCut_) continue;
         if (fabs(tk_it->eta())>tkEtaCut_) continue;
-        if( !(tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity")))) continue;
-        if( std::abs( tk_it->pseudoTrack().ptError() ) / tk_it->pseudoTrack().pt() >= 0.1 ) continue;
-        if( tk_it->pseudoTrack().numberOfValidHits() < 11 ) continue;
+        if( !(tk_it->/*pseudoTrack().*/quality(reco::TrackBase::qualityByName("highPurity")))) continue;
+        // if( std::abs( tk_it->/*pseudoTrack().*/ptError() ) / tk_it->/*pseudoTrack().*/pt() >= 0.1 ) continue;
+        // if( tk_it->/*pseudoTrack().*/numberOfValidHits() < 11 ) continue;
 
-        isNeededTrack[tk_it-input_tracks.begin()] = true;
-        isNeededTrackIdx.push_back(tk_it-input_tracks.begin());
+        isNeededTrack[tk_it_it-input_tracks.begin()] = true;
+        isNeededTrackIdx.push_back(tk_it_it-input_tracks.begin());
         PassedTrk++;
       }//end of track preselection}}}
       //printf("-----*****DEBUG:End of track preselection.\n");
@@ -744,9 +765,10 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }//}}}
       //printf("-----*****DEBUG:End of DInfo.\n");
 
-      for(edm::View<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
-          tk_it != input_tracks.end() ; tk_it++){
-        int tk_hindex = int(tk_it - input_tracks.begin());
+      for(auto tk_it_it=input_tracks.begin();
+          tk_it_it != input_tracks.end() ; tk_it_it++){
+        auto tk_it = (*tk_it_it);
+        int tk_hindex = int(tk_it_it - input_tracks.begin());
         if(tk_hindex>=int(isNeededTrack.size())) break;
         if (isNeededTrack[tk_hindex]==false) continue;
 
@@ -792,8 +814,8 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
         // drop unused tracks
-        if(listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 &&
-           listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;
+        // if(listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 &&
+        //    listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;
 
                     
         TrackInfo.index          [TrackInfo.size] = TrackInfo.size;
@@ -802,45 +824,46 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         TrackInfo.pt             [TrackInfo.size] = tk_it->pt();
         TrackInfo.eta            [TrackInfo.size] = tk_it->eta();
         TrackInfo.phi            [TrackInfo.size] = tk_it->phi();
-        TrackInfo.ptErr          [TrackInfo.size] = tk_it->pseudoTrack().ptError();
-        TrackInfo.etaErr         [TrackInfo.size] = tk_it->pseudoTrack().etaError();
-        TrackInfo.phiErr         [TrackInfo.size] = tk_it->pseudoTrack().phiError();
+        TrackInfo.ptErr          [TrackInfo.size] = tk_it->/*pseudoTrack().*/ptError();
+        TrackInfo.etaErr         [TrackInfo.size] = tk_it->/*pseudoTrack().*/etaError();
+        TrackInfo.phiErr         [TrackInfo.size] = tk_it->/*pseudoTrack().*/phiError();
         // TrackInfo.p              [TrackInfo.size] = tk_it->p();
-        TrackInfo.striphit       [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().numberOfValidStripHits();
-        TrackInfo.pixelhit       [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().numberOfValidPixelHits();
-        TrackInfo.nStripLayer    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().stripLayersWithMeasurement();
-        TrackInfo.nPixelLayer    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().pixelLayersWithMeasurement();
-        TrackInfo.fpbarrelhit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1);
-        TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->pseudoTrack().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
-        TrackInfo.chi2           [TrackInfo.size] = tk_it->pseudoTrack().chi2();            
+        TrackInfo.striphit       [TrackInfo.size] = tk_it->/*pseudoTrack().*/hitPattern().numberOfValidStripHits();
+        TrackInfo.pixelhit       [TrackInfo.size] = tk_it->/*pseudoTrack().*/hitPattern().numberOfValidPixelHits();
+        TrackInfo.nStripLayer    [TrackInfo.size] = tk_it->/*pseudoTrack().*/hitPattern().stripLayersWithMeasurement();
+        TrackInfo.nPixelLayer    [TrackInfo.size] = tk_it->/*pseudoTrack().*/hitPattern().pixelLayersWithMeasurement();
+        TrackInfo.fpbarrelhit    [TrackInfo.size] = tk_it->/*pseudoTrack().*/hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1);
+        TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->/*pseudoTrack().*/hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
+        TrackInfo.chi2           [TrackInfo.size] = tk_it->/*pseudoTrack().*/chi2();            
         if (chi2Handle.isValid() && !chi2Handle.failedToGet())
-          TrackInfo.chi2           [TrackInfo.size] = (float)((*chi2Handle)[ tks->ptrAt( tk_hindex ) ]) * tk_it->pseudoTrack().ndof();
-        TrackInfo.ndf            [TrackInfo.size] = tk_it->pseudoTrack().ndof();
-        TrackInfo.d0             [TrackInfo.size] = tk_it->pseudoTrack().d0();
-        TrackInfo.d0error        [TrackInfo.size] = tk_it->pseudoTrack().d0Error();
-        TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
-        TrackInfo.dzerror        [TrackInfo.size] = tk_it->pseudoTrack().dzError();
-        TrackInfo.dxy            [TrackInfo.size] = tk_it->pseudoTrack().dxy();
-        TrackInfo.dxyerror       [TrackInfo.size] = tk_it->pseudoTrack().dxyError();
-        TrackInfo.dz             [TrackInfo.size] = tk_it->pseudoTrack().dz();
-        TrackInfo.dzerror        [TrackInfo.size] = tk_it->pseudoTrack().dzError();
-        TrackInfo.dxy1           [TrackInfo.size] = tk_it->pseudoTrack().dxy(RefVtx);
-        TrackInfo.dxyerror1      [TrackInfo.size] = TMath::Sqrt(tk_it->pseudoTrack().dxyError()*tk_it->pseudoTrack().dxyError() + thePrimaryV.xError()*thePrimaryV.yError());
-        TrackInfo.dz1            [TrackInfo.size] = tk_it->pseudoTrack().dz(RefVtx);
-        TrackInfo.dzerror1       [TrackInfo.size] = TMath::Sqrt(tk_it->pseudoTrack().dzError()*tk_it->pseudoTrack().dzError() + thePrimaryV.zError()*thePrimaryV.zError());
-        TrackInfo.highPurity     [TrackInfo.size] = tk_it->pseudoTrack().quality(reco::TrackBase::qualityByName("highPurity"));
+          TrackInfo.chi2           [TrackInfo.size] = (float)((*chi2Handle)[ tks->ptrAt( tk_hindex ) ]) * tk_it->/*pseudoTrack().*/ndof();
+        TrackInfo.ndf            [TrackInfo.size] = tk_it->/*pseudoTrack().*/ndof();
+        TrackInfo.d0             [TrackInfo.size] = tk_it->/*pseudoTrack().*/d0();
+        TrackInfo.d0error        [TrackInfo.size] = tk_it->/*pseudoTrack().*/d0Error();
+        TrackInfo.dz             [TrackInfo.size] = tk_it->/*pseudoTrack().*/dz();
+        TrackInfo.dzerror        [TrackInfo.size] = tk_it->/*pseudoTrack().*/dzError();
+        TrackInfo.dxy            [TrackInfo.size] = tk_it->/*pseudoTrack().*/dxy();
+        TrackInfo.dxyerror       [TrackInfo.size] = tk_it->/*pseudoTrack().*/dxyError();
+        TrackInfo.dz             [TrackInfo.size] = tk_it->/*pseudoTrack().*/dz();
+        TrackInfo.dzerror        [TrackInfo.size] = tk_it->/*pseudoTrack().*/dzError();
+        TrackInfo.dxy1           [TrackInfo.size] = tk_it->/*pseudoTrack().*/dxy(RefVtx);
+        TrackInfo.dxyerror1      [TrackInfo.size] = TMath::Sqrt(tk_it->/*pseudoTrack().*/dxyError()*tk_it->/*pseudoTrack().*/dxyError() + thePrimaryV.xError()*thePrimaryV.yError());
+        TrackInfo.dz1            [TrackInfo.size] = tk_it->/*pseudoTrack().*/dz(RefVtx);
+        TrackInfo.dzerror1       [TrackInfo.size] = TMath::Sqrt(tk_it->/*pseudoTrack().*/dzError()*tk_it->/*pseudoTrack().*/dzError() + thePrimaryV.zError()*thePrimaryV.zError());
+        TrackInfo.highPurity     [TrackInfo.size] = tk_it->/*pseudoTrack().*/quality(reco::TrackBase::qualityByName("highPurity"));
         TrackInfo.geninfo_index  [TrackInfo.size] = -1; // initialize for later use
+        TrackInfo.geninfo_pdgId  [TrackInfo.size] = -1; // initialize for later use
         // TrackInfo.trkMVAVal      [TrackInfo.size] = (*mvaoutput)[tk_it->track()];
-        TrackInfo.trkAlgo        [TrackInfo.size] = tk_it->pseudoTrack().algo();
-        TrackInfo.originalTrkAlgo[TrackInfo.size] = tk_it->pseudoTrack().originalAlgo();
+        TrackInfo.trkAlgo        [TrackInfo.size] = tk_it->/*pseudoTrack().*/algo();
+        TrackInfo.originalTrkAlgo[TrackInfo.size] = tk_it->/*pseudoTrack().*/originalAlgo();
         TrackInfo.dedx           [TrackInfo.size] = -1;
         if (dedxHandle.isValid() && !dedxHandle.failedToGet())
           TrackInfo.dedx           [TrackInfo.size] = ((*dedxHandle)[ tks->ptrAt( tk_hindex ) ]).dEdx();
 
         /* Under construction */
-        // if(tk_it->pseudoTrack().isNonnull()){
+        // if(tk_it->/*pseudoTrack().*/isNonnull()){
         //     for(int tq = 0; tq < reco::TrackBase::qualitySize; tq++){
-        //         if (tk_it->pseudoTrack().quality(static_cast<reco::TrackBase::TrackQuality>(tq))) TrackInfo.trackQuality[TrackInfo.size] += 1 << (tq);
+        //         if (tk_it->/*pseudoTrack().*/quality(static_cast<reco::TrackBase::TrackQuality>(tq))) TrackInfo.trackQuality[TrackInfo.size] += 1 << (tq);
         //     }}
 
         // Gen-match
@@ -855,9 +878,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               {
                 int abspdg = abs(int(it_gen->pdgId()));
                 if (it_gen->status() != 1) continue;
-                if (abspdg != 111 && 
-                    abspdg != 211 && 
-                    abspdg != 311 && 
+                if (abspdg != 211 && 
                     abspdg != 321 && 
                     abspdg != 2212) continue;
                 if (tk_it->charge() != it_gen->charge()) continue;
@@ -872,7 +893,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 if(dR < currentdR) {
                   genTrackPtr[TrackInfo.size] = it_gen - gens->begin();
                   currentdR = dR;
-                  // currentptRel = ptRel;
                 }
               }
             // genTrackPtr[TrackInfo.size] = tk_it->genParticle();
@@ -960,7 +980,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             abs(it_gen->pdgId()) == 130 ||//KL
             abs(it_gen->pdgId()) == 4122 ||//lamadac
             //abs(it_gen->pdgId()) == 311 ||//K0
-            //abs(it_gen->pdgId()) == 321 ||//K+
+            // abs(it_gen->pdgId()) == 321 ||//K+
             //abs(it_gen->pdgId()) == 310 ||//KS
             //abs(it_gen->pdgId()) == 313 ||//K*0(892)
             //abs(it_gen->pdgId()) == 323 ||//K*+-(892)
@@ -986,8 +1006,9 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             abs(it_gen->pdgId()) == 211 ||//pi+
             abs(it_gen->pdgId()) == 2212  ||//proton
             abs(it_gen->pdgId()) == 321 || //K+ actually, I DO NOT need to add this,s meson is in the list
-            abs(it_gen->pdgId()) ==3124 || //lambda(1520)0
-            abs(it_gen->pdgId()) ==2224 //delta++
+            abs(it_gen->pdgId()) == 3124 || //lambda(1520)0
+            abs(it_gen->pdgId()) == 2224 || //delta++
+            abs(it_gen->pdgId()) == 22
             //# check here by Rui
             ) {
           reco::GenParticle _deRef = (*it_gen);
@@ -1010,7 +1031,8 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           if (genTrackPtr[trackIdx] < 0 ) continue;
           if ((it_gen - gens->begin()) == genTrackPtr[trackIdx]) {
             TrackInfo.geninfo_index[trackIdx] = GenInfo.size;
-            break;
+            TrackInfo.geninfo_pdgId[trackIdx] = it_gen->pdgId();
+            // break;
           }
         }
 
@@ -1085,22 +1107,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     int isDchannel[16];
     for(int ichannel=0; ichannel<16; ichannel++)
       { isDchannel[ichannel] = Dchannel_[ichannel]; }
-    // isDchannel[0] = 0; //k+pi-
-    // isDchannel[1] = 0; //k-pi+
-    // isDchannel[2] = 0; //k-pi+pi+
-    // isDchannel[3] = 0; //k+pi-pi-
-    // isDchannel[4] = 0; //k-pi-pi+pi+
-    // isDchannel[5] = 0; //k+pi+pi-pi-
-    // isDchannel[6] = 1; // Ds+ phikkpi+ 
-    // isDchannel[7] = 1; // Ds- phikkpi-
-    // isDchannel[8] = 0; 
-    // isDchannel[9] = 0; 
-    // isDchannel[10] = 0; 
-    // isDchannel[11] = 0;
-    // isDchannel[12] = 0; //B+(D0(k-pi+)pi+)
-    // isDchannel[13] = 0; //B-(D0(k-pi+)pi-)
-    // isDchannel[14] = 1; //lambdaC(p+pi+k-)
-    // isDchannel[15] = 1; //lambdaC(p-k+pi-)
     bool REAL = iEvent.isRealData();
     bool fillZeroCandEvt = true;
     int Dtypesize[8]={0,0,0,0,0,0,0,0};
@@ -1191,7 +1197,8 @@ std::vector< std::vector< std::pair<float, int> > > Dfinder::DelDuplicate(std::v
 
 void Dfinder::TkCombinationPermutation(
                                        reco::Vertex thePrimaryV,
-                                       edm::View<pat::PackedCandidate> input_tracks, 
+                                       // edm::View<pat::PackedCandidate> input_tracks, 
+                                       std::vector<const reco::Track*> input_tracks, 
                                        std::vector<int> isNeededTrackIdx,
                                        float *mass_window,
                                        std::vector< std::pair<float, int> > TkMassCharge,
@@ -1220,16 +1227,16 @@ void Dfinder::TkCombinationPermutation(
     //if(!isNeededTrack[tk1_hindex]) continue;
     //if(tk_it1->charge()*TkMassCharge[0].first<0) continue;
     tk1_hindex = isNeededTrackIdx[tk1idx];
-    if(input_tracks[tk1_hindex].charge()*TkMassCharge[0].first<0) continue;
-    v4_tk1.SetXYZM(input_tracks[tk1_hindex].px(),input_tracks[tk1_hindex].py(),input_tracks[tk1_hindex].pz(),fabs(TkMassCharge[0].first));
+    if(input_tracks[tk1_hindex]->charge()*TkMassCharge[0].first<0) continue;
+    v4_tk1.SetXYZM(input_tracks[tk1_hindex]->px(),input_tracks[tk1_hindex]->py(),input_tracks[tk1_hindex]->pz(),fabs(TkMassCharge[0].first));
     v4_D.SetPxPyPzE((v4_tk1.Px()), (v4_tk1.Py()), (v4_tk1.Pz()), (v4_tk1.E()));
     if(TkMassCharge[0].second==1){
-      v4_Restk1.SetXYZM(input_tracks[tk1_hindex].px(),input_tracks[tk1_hindex].py(),input_tracks[tk1_hindex].pz(),fabs(TkMassCharge[0].first));
+      v4_Restk1.SetXYZM(input_tracks[tk1_hindex]->px(),input_tracks[tk1_hindex]->py(),input_tracks[tk1_hindex]->pz(),fabs(TkMassCharge[0].first));
       v4_NonRestk1.SetXYZM(0,0,0,0);
     }
     else{    
       v4_Restk1.SetXYZM(0,0,0,0);
-      v4_NonRestk1.SetXYZM(input_tracks[tk1_hindex].px(),input_tracks[tk1_hindex].py(),input_tracks[tk1_hindex].pz(),fabs(TkMassCharge[0].first));
+      v4_NonRestk1.SetXYZM(input_tracks[tk1_hindex]->px(),input_tracks[tk1_hindex]->py(),input_tracks[tk1_hindex]->pz(),fabs(TkMassCharge[0].first));
     }
     v4_Res.SetPxPyPzE(v4_Restk1.Px(), v4_Restk1.Py(), v4_Restk1.Pz(), v4_Restk1.E());
     v4_NonRes.SetPxPyPzE(v4_NonRestk1.Px(), v4_NonRestk1.Py(), v4_NonRestk1.Pz(), v4_NonRestk1.E());
@@ -1242,17 +1249,17 @@ void Dfinder::TkCombinationPermutation(
       //if(!isNeededTrack[tk2_hindex]) continue;
       //if(tk_it2->charge()*TkMassCharge[1].first<0) continue;
       tk2_hindex = isNeededTrackIdx[tk2idx];
-      if(input_tracks[tk2_hindex].charge()*TkMassCharge[1].first<0) continue;
+      if(input_tracks[tk2_hindex]->charge()*TkMassCharge[1].first<0) continue;
       if(tk2_hindex==tk1_hindex) continue;
-      v4_tk2.SetXYZM(input_tracks[tk2_hindex].px(),input_tracks[tk2_hindex].py(),input_tracks[tk2_hindex].pz(),fabs(TkMassCharge[1].first));
+      v4_tk2.SetXYZM(input_tracks[tk2_hindex]->px(),input_tracks[tk2_hindex]->py(),input_tracks[tk2_hindex]->pz(),fabs(TkMassCharge[1].first));
       v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px()), (v4_tk1.Py() + v4_tk2.Py()), (v4_tk1.Pz() + v4_tk2.Pz()), (v4_tk1.E() + v4_tk2.E()));
       if(TkMassCharge[1].second==1){
-        v4_Restk2.SetXYZM(input_tracks[tk2_hindex].px(),input_tracks[tk2_hindex].py(),input_tracks[tk2_hindex].pz(),fabs(TkMassCharge[1].first));
+        v4_Restk2.SetXYZM(input_tracks[tk2_hindex]->px(),input_tracks[tk2_hindex]->py(),input_tracks[tk2_hindex]->pz(),fabs(TkMassCharge[1].first));
         v4_NonRestk2.SetXYZM(0,0,0,0);
       }
       else{ 
         v4_Restk2.SetXYZM(0,0,0,0);
-        v4_NonRestk2.SetXYZM(input_tracks[tk2_hindex].px(),input_tracks[tk2_hindex].py(),input_tracks[tk2_hindex].pz(),fabs(TkMassCharge[1].first));
+        v4_NonRestk2.SetXYZM(input_tracks[tk2_hindex]->px(),input_tracks[tk2_hindex]->py(),input_tracks[tk2_hindex]->pz(),fabs(TkMassCharge[1].first));
       }
       v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px()), (v4_Restk1.Py() + v4_Restk2.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz()), (v4_Restk1.E() + v4_Restk2.E()));
       v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E()));
@@ -1275,19 +1282,19 @@ void Dfinder::TkCombinationPermutation(
       }
       for(int tk3idx = tk2idx+1; tk3idx < (int)isNeededTrackIdx.size(); tk3idx++){
         tk3_hindex = isNeededTrackIdx[tk3idx];
-        if(input_tracks[tk3_hindex].charge()*TkMassCharge[2].first<0) continue;
+        if(input_tracks[tk3_hindex]->charge()*TkMassCharge[2].first<0) continue;
         if(tk3_hindex==tk1_hindex) continue;
         if(tk3_hindex==tk2_hindex) continue;
-        v4_tk3.SetXYZM(input_tracks[tk3_hindex].px(),input_tracks[tk3_hindex].py(),input_tracks[tk3_hindex].pz(),fabs(TkMassCharge[2].first));
+        v4_tk3.SetXYZM(input_tracks[tk3_hindex]->px(),input_tracks[tk3_hindex]->py(),input_tracks[tk3_hindex]->pz(),fabs(TkMassCharge[2].first));
         v4_D = v4_tk1 + v4_tk2 + v4_tk3;
         v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px() + v4_tk3.Px()), (v4_tk1.Py() + v4_tk2.Py() + v4_tk3.Py()), (v4_tk1.Pz() + v4_tk2.Pz() + v4_tk3.Pz()), (v4_tk1.E() + v4_tk2.E() + v4_tk3.E()));
         if(TkMassCharge[2].second==1){ 
-          v4_Restk3.SetXYZM(input_tracks[tk3_hindex].px(),input_tracks[tk3_hindex].py(),input_tracks[tk3_hindex].pz(),fabs(TkMassCharge[2].first));
+          v4_Restk3.SetXYZM(input_tracks[tk3_hindex]->px(),input_tracks[tk3_hindex]->py(),input_tracks[tk3_hindex]->pz(),fabs(TkMassCharge[2].first));
           v4_NonRestk3.SetXYZM(0,0,0,0);
         }
         else{ 
           v4_Restk3.SetXYZM(0,0,0,0);
-          v4_NonRestk3.SetXYZM(input_tracks[tk3_hindex].p(),input_tracks[tk3_hindex].py(),input_tracks[tk3_hindex].pz(),fabs(TkMassCharge[2].first));
+          v4_NonRestk3.SetXYZM(input_tracks[tk3_hindex]->p(),input_tracks[tk3_hindex]->py(),input_tracks[tk3_hindex]->pz(),fabs(TkMassCharge[2].first));
         }
         v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px() + v4_Restk3.Px()), (v4_Restk1.Py() + v4_Restk2.Py() + v4_Restk3.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz() + v4_Restk3.Pz()), (v4_Restk1.E() + v4_Restk2.E() + v4_Restk3.E()));
         v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px() + v4_NonRestk3.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py() + v4_NonRestk3.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz() + v4_NonRestk3.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E() + v4_NonRestk3.E()));
@@ -1317,19 +1324,19 @@ void Dfinder::TkCombinationPermutation(
           //if(!isNeededTrack[tk4_hindex]) continue;
           //if(tk_it4->charge()*TkMassCharge[3].first<0) continue;
           tk4_hindex = isNeededTrackIdx[tk4idx];
-          if(input_tracks[tk4_hindex].charge()*TkMassCharge[3].first<0) continue;
+          if(input_tracks[tk4_hindex]->charge()*TkMassCharge[3].first<0) continue;
           if(tk4_hindex==tk1_hindex) continue;
           if(tk4_hindex==tk2_hindex) continue;
           if(tk4_hindex==tk3_hindex) continue;
-          v4_tk4.SetXYZM(input_tracks[tk4_hindex].px(),input_tracks[tk4_hindex].py(),input_tracks[tk4_hindex].pz(),fabs(TkMassCharge[3].first));
+          v4_tk4.SetXYZM(input_tracks[tk4_hindex]->px(),input_tracks[tk4_hindex]->py(),input_tracks[tk4_hindex]->pz(),fabs(TkMassCharge[3].first));
           v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px() + v4_tk3.Px() + v4_tk4.Px()), (v4_tk1.Py() + v4_tk2.Py() + v4_tk3.Py() + v4_tk4.Py()), (v4_tk1.Pz() + v4_tk2.Pz() + v4_tk3.Pz() + v4_tk4.Pz()), (v4_tk1.E() + v4_tk2.E() + v4_tk3.E() + v4_tk4.E()));
           if(TkMassCharge[3].second==1){
-            v4_Restk4.SetXYZM(input_tracks[tk4_hindex].px(),input_tracks[tk4_hindex].py(),input_tracks[tk4_hindex].pz(),fabs(TkMassCharge[3].first));
+            v4_Restk4.SetXYZM(input_tracks[tk4_hindex]->px(),input_tracks[tk4_hindex]->py(),input_tracks[tk4_hindex]->pz(),fabs(TkMassCharge[3].first));
             v4_NonRestk4.SetXYZM(0,0,0,0);
           }
           else{ 
             v4_Restk4.SetXYZM(0,0,0,0);
-            v4_NonRestk4.SetXYZM(input_tracks[tk4_hindex].px(),input_tracks[tk4_hindex].py(),input_tracks[tk4_hindex].pz(),fabs(TkMassCharge[3].first));
+            v4_NonRestk4.SetXYZM(input_tracks[tk4_hindex]->px(),input_tracks[tk4_hindex]->py(),input_tracks[tk4_hindex]->pz(),fabs(TkMassCharge[3].first));
           }
           v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px() + v4_Restk3.Px() + v4_Restk4.Px()), (v4_Restk1.Py() + v4_Restk2.Py() + v4_Restk3.Py() + v4_Restk4.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz() + v4_Restk3.Pz() + v4_Restk4.Pz()), (v4_Restk1.E() + v4_Restk2.E() + v4_Restk3.E() + v4_Restk4.E()));
           v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px() + v4_NonRestk3.Px() + v4_NonRestk4.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py() + v4_NonRestk3.Py() + v4_NonRestk4.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz() + v4_NonRestk3.Pz() + v4_NonRestk4.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E() + v4_NonRestk3.E() + v4_NonRestk4.E()));
@@ -1360,20 +1367,20 @@ void Dfinder::TkCombinationPermutation(
             //if(!isNeededTrack[tk5_hindex]) continue;
             //if(tk_it5->charge()*TkMassCharge[4].first<0) continue;
             tk5_hindex = isNeededTrackIdx[tk5idx];
-            if(input_tracks[tk5_hindex].charge()*TkMassCharge[4].first<0) continue;
+            if(input_tracks[tk5_hindex]->charge()*TkMassCharge[4].first<0) continue;
             if(tk5_hindex==tk1_hindex) continue;
             if(tk5_hindex==tk2_hindex) continue;
             if(tk5_hindex==tk3_hindex) continue;
             if(tk5_hindex==tk4_hindex) continue;
-            v4_tk5.SetXYZM(input_tracks[tk5_hindex].px(),input_tracks[tk5_hindex].py(),input_tracks[tk5_hindex].pz(),fabs(TkMassCharge[4].first));
+            v4_tk5.SetXYZM(input_tracks[tk5_hindex]->px(),input_tracks[tk5_hindex]->py(),input_tracks[tk5_hindex]->pz(),fabs(TkMassCharge[4].first));
             v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px() + v4_tk3.Px() + v4_tk4.Px() + v4_tk5.Px()), (v4_tk1.Py() + v4_tk2.Py() + v4_tk3.Py() + v4_tk4.Py() + v4_tk5.Py()), (v4_tk1.Pz() + v4_tk2.Pz() + v4_tk3.Pz() + v4_tk4.Pz() + v4_tk5.Pz()), (v4_tk1.E() + v4_tk2.E() + v4_tk3.E() + v4_tk4.E() + v4_tk5.E()));
             if(TkMassCharge[4].second==1){
-              v4_Restk5.SetXYZM(input_tracks[tk5_hindex].px(),input_tracks[tk5_hindex].py(),input_tracks[tk5_hindex].pz(),fabs(TkMassCharge[4].first));
+              v4_Restk5.SetXYZM(input_tracks[tk5_hindex]->px(),input_tracks[tk5_hindex]->py(),input_tracks[tk5_hindex]->pz(),fabs(TkMassCharge[4].first));
               v4_NonRestk5.SetXYZM(0,0,0,0);
             }
             else{ 
               v4_Restk5.SetXYZM(0,0,0,0);
-              v4_NonRestk5.SetXYZM(input_tracks[tk5_hindex].px(),input_tracks[tk5_hindex].py(),input_tracks[tk5_hindex].pz(),fabs(TkMassCharge[4].first));
+              v4_NonRestk5.SetXYZM(input_tracks[tk5_hindex]->px(),input_tracks[tk5_hindex]->py(),input_tracks[tk5_hindex]->pz(),fabs(TkMassCharge[4].first));
             }
             v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px() + v4_Restk3.Px() + v4_Restk4.Px() + v4_Restk5.Px()), (v4_Restk1.Py() + v4_Restk2.Py() + v4_Restk3.Py() + v4_Restk4.Py() + v4_Restk5.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz() + v4_Restk3.Pz() + v4_Restk4.Pz() + v4_Restk5.Pz()), (v4_Restk1.E() + v4_Restk2.E() + v4_Restk3.E() + v4_Restk4.E() + v4_Restk5.E()));
             v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px() + v4_NonRestk3.Px() + v4_NonRestk4.Px() + v4_NonRestk5.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py() + v4_NonRestk3.Py() + v4_NonRestk4.Py() + v4_NonRestk5.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz() + v4_NonRestk3.Pz() + v4_NonRestk4.Pz() + v4_NonRestk5.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E() + v4_NonRestk3.E() + v4_NonRestk4.E() + v4_NonRestk5.E()));
@@ -1408,7 +1415,8 @@ void Dfinder::TkCombinationPermutation(
 
 void Dfinder::TkCombinationResFast(
                                    reco::Vertex thePrimaryV,
-                                   edm::View<pat::PackedCandidate> input_tracks, 
+                                   // edm::View<pat::PackedCandidate> input_tracks, 
+                                   std::vector<const reco::Track*> input_tracks, 
                                    std::vector<int> isNeededTrackIdx,
                                    float *mass_window,
                                    std::vector< std::pair<float, int> > TkMassCharge,
@@ -1433,33 +1441,33 @@ void Dfinder::TkCombinationResFast(
     v4_D.Clear(); v4_Res.Clear();
     tk1_hindex = isNeededTrackIdx[tk1idx];
     // cout<<"\ntk1idx = "<<tk1idx<<" ,tk1_hindex"<<tk1_hindex<<endl;
-    if(input_tracks[tk1_hindex].charge()*TkMassCharge[0].first<0) continue;
-    v4_tk1.SetXYZM(input_tracks[tk1_hindex].px(),input_tracks[tk1_hindex].py(),input_tracks[tk1_hindex].pz(),fabs(TkMassCharge[0].first));
+    if(input_tracks[tk1_hindex]->charge()*TkMassCharge[0].first<0) continue;
+    v4_tk1.SetXYZM(input_tracks[tk1_hindex]->px(),input_tracks[tk1_hindex]->py(),input_tracks[tk1_hindex]->pz(),fabs(TkMassCharge[0].first));
     v4_D.SetPxPyPzE((v4_tk1.Px()), (v4_tk1.Py()), (v4_tk1.Pz()), (v4_tk1.E()));
     if(TkMassCharge[0].second==1){
-      v4_Restk1.SetXYZM(input_tracks[tk1_hindex].px(),input_tracks[tk1_hindex].py(),input_tracks[tk1_hindex].pz(),fabs(TkMassCharge[0].first));
+      v4_Restk1.SetXYZM(input_tracks[tk1_hindex]->px(),input_tracks[tk1_hindex]->py(),input_tracks[tk1_hindex]->pz(),fabs(TkMassCharge[0].first));
       v4_NonRestk1.SetXYZM(0,0,0,0);
     }
     else{ 
       v4_Restk1.SetXYZM(0,0,0,0);
-      v4_NonRestk1.SetXYZM(input_tracks[tk1_hindex].px(),input_tracks[tk1_hindex].py(),input_tracks[tk1_hindex].pz(),fabs(TkMassCharge[0].first));
+      v4_NonRestk1.SetXYZM(input_tracks[tk1_hindex]->px(),input_tracks[tk1_hindex]->py(),input_tracks[tk1_hindex]->pz(),fabs(TkMassCharge[0].first));
     }
     v4_Res.SetPxPyPzE(v4_Restk1.Px(), v4_Restk1.Py(), v4_Restk1.Pz(), v4_Restk1.E());
     v4_NonRes.SetPxPyPzE(v4_NonRestk1.Px(), v4_NonRestk1.Py(), v4_NonRestk1.Pz(), v4_NonRestk1.E());
     for(int tk2idx = ((TkMassCharge[1]==TkMassCharge[0]) ? tk1idx+1:0); tk2idx < (int)isNeededTrackIdx.size(); tk2idx++){
       tk2_hindex = isNeededTrackIdx[tk2idx];
       // cout<<"tk2idx = "<<tk2idx<<" ,tk2_hindex"<<tk2_hindex<<endl;
-      if(input_tracks[tk2_hindex].charge()*TkMassCharge[1].first<0) continue;
+      if(input_tracks[tk2_hindex]->charge()*TkMassCharge[1].first<0) continue;
       if(tk2_hindex==tk1_hindex) continue;
-      v4_tk2.SetXYZM(input_tracks[tk2_hindex].px(),input_tracks[tk2_hindex].py(),input_tracks[tk2_hindex].pz(),fabs(TkMassCharge[1].first));
+      v4_tk2.SetXYZM(input_tracks[tk2_hindex]->px(),input_tracks[tk2_hindex]->py(),input_tracks[tk2_hindex]->pz(),fabs(TkMassCharge[1].first));
       v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px()), (v4_tk1.Py() + v4_tk2.Py()), (v4_tk1.Pz() + v4_tk2.Pz()), (v4_tk1.E() + v4_tk2.E()));
       if(TkMassCharge[1].second==1){ 
-        v4_Restk2.SetXYZM(input_tracks[tk2_hindex].px(),input_tracks[tk2_hindex].py(),input_tracks[tk2_hindex].pz(),fabs(TkMassCharge[1].first));
+        v4_Restk2.SetXYZM(input_tracks[tk2_hindex]->px(),input_tracks[tk2_hindex]->py(),input_tracks[tk2_hindex]->pz(),fabs(TkMassCharge[1].first));
         v4_NonRestk2.SetXYZM(0,0,0,0);
       }
       else{
         v4_Restk2.SetXYZM(0,0,0,0);
-        v4_NonRestk2.SetXYZM(input_tracks[tk2_hindex].px(),input_tracks[tk2_hindex].py(),input_tracks[tk2_hindex].pz(),fabs(TkMassCharge[1].first));
+        v4_NonRestk2.SetXYZM(input_tracks[tk2_hindex]->px(),input_tracks[tk2_hindex]->py(),input_tracks[tk2_hindex]->pz(),fabs(TkMassCharge[1].first));
       }
       v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px()), (v4_Restk1.Py() + v4_Restk2.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz()), (v4_Restk1.E() + v4_Restk2.E()));
       v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E()));
@@ -1486,19 +1494,19 @@ void Dfinder::TkCombinationResFast(
       for(int tk3idx = ((TkMassCharge[2]==TkMassCharge[1]) ? tk2idx+1:0); tk3idx < (int)isNeededTrackIdx.size(); tk3idx++){
         tk3_hindex = isNeededTrackIdx[tk3idx];
         // cout<<"tk3idx = "<<tk3idx<<" ,tk3_hindex"<<tk3_hindex<<endl;
-        if(input_tracks[tk3_hindex].charge()*TkMassCharge[2].first<0) continue;
+        if(input_tracks[tk3_hindex]->charge()*TkMassCharge[2].first<0) continue;
         if(tk3_hindex==tk1_hindex) continue;
         if(tk3_hindex==tk2_hindex) continue;
 
-        v4_tk3.SetXYZM(input_tracks[tk3_hindex].px(),input_tracks[tk3_hindex].py(),input_tracks[tk3_hindex].pz(),fabs(TkMassCharge[2].first));
+        v4_tk3.SetXYZM(input_tracks[tk3_hindex]->px(),input_tracks[tk3_hindex]->py(),input_tracks[tk3_hindex]->pz(),fabs(TkMassCharge[2].first));
         v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px() + v4_tk3.Px()), (v4_tk1.Py() + v4_tk2.Py() + v4_tk3.Py()), (v4_tk1.Pz() + v4_tk2.Pz() + v4_tk3.Pz()), (v4_tk1.E() + v4_tk2.E() + v4_tk3.E()));
         if(TkMassCharge[2].second==1){ 
-          v4_Restk3.SetXYZM(input_tracks[tk3_hindex].px(),input_tracks[tk3_hindex].py(),input_tracks[tk3_hindex].pz(),fabs(TkMassCharge[2].first));
+          v4_Restk3.SetXYZM(input_tracks[tk3_hindex]->px(),input_tracks[tk3_hindex]->py(),input_tracks[tk3_hindex]->pz(),fabs(TkMassCharge[2].first));
           v4_NonRestk3.SetXYZM(0,0,0,0);
         }
         else{ 
           v4_Restk3.SetXYZM(0,0,0,0);
-          v4_NonRestk3.SetXYZM(input_tracks[tk3_hindex].px(),input_tracks[tk3_hindex].py(),input_tracks[tk3_hindex].pz(),fabs(TkMassCharge[2].first));
+          v4_NonRestk3.SetXYZM(input_tracks[tk3_hindex]->px(),input_tracks[tk3_hindex]->py(),input_tracks[tk3_hindex]->pz(),fabs(TkMassCharge[2].first));
         }
         v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px() + v4_Restk3.Px()), (v4_Restk1.Py() + v4_Restk2.Py() + v4_Restk3.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz() + v4_Restk3.Pz()), (v4_Restk1.E() + v4_Restk2.E() + v4_Restk3.E()));
         v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px() + v4_NonRestk3.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py() + v4_NonRestk3.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz() + v4_NonRestk3.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E() + v4_NonRestk3.E()));
@@ -1528,19 +1536,19 @@ void Dfinder::TkCombinationResFast(
         }
         for(int tk4idx = ((TkMassCharge[3]==TkMassCharge[2]) ? tk3idx+1:0); tk4idx < (int)isNeededTrackIdx.size(); tk4idx++){
           tk4_hindex = isNeededTrackIdx[tk4idx];
-          if(input_tracks[tk4_hindex].charge()*TkMassCharge[3].first<0) continue;
+          if(input_tracks[tk4_hindex]->charge()*TkMassCharge[3].first<0) continue;
           if(tk4_hindex==tk1_hindex) continue;
           if(tk4_hindex==tk2_hindex) continue;
           if(tk4_hindex==tk3_hindex) continue;
-          v4_tk4.SetXYZM(input_tracks[tk4_hindex].px(),input_tracks[tk4_hindex].py(),input_tracks[tk4_hindex].pz(),fabs(TkMassCharge[3].first));
+          v4_tk4.SetXYZM(input_tracks[tk4_hindex]->px(),input_tracks[tk4_hindex]->py(),input_tracks[tk4_hindex]->pz(),fabs(TkMassCharge[3].first));
           v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px() + v4_tk3.Px() + v4_tk4.Px()), (v4_tk1.Py() + v4_tk2.Py() + v4_tk3.Py() + v4_tk4.Py()), (v4_tk1.Pz() + v4_tk2.Pz() + v4_tk3.Pz() + v4_tk4.Pz()), (v4_tk1.E() + v4_tk2.E() + v4_tk3.E() + v4_tk4.E()));
           if(TkMassCharge[3].second==1){ 
-            v4_Restk4.SetXYZM(input_tracks[tk4_hindex].px(),input_tracks[tk4_hindex].py(),input_tracks[tk4_hindex].pz(),fabs(TkMassCharge[3].first));
+            v4_Restk4.SetXYZM(input_tracks[tk4_hindex]->px(),input_tracks[tk4_hindex]->py(),input_tracks[tk4_hindex]->pz(),fabs(TkMassCharge[3].first));
             v4_NonRestk4.SetXYZM(0,0,0,0);
           }
           else{ 
             v4_Restk4.SetXYZM(0,0,0,0);
-            v4_NonRestk4.SetXYZM(input_tracks[tk4_hindex].px(),input_tracks[tk4_hindex].py(),input_tracks[tk4_hindex].pz(),fabs(TkMassCharge[3].first));
+            v4_NonRestk4.SetXYZM(input_tracks[tk4_hindex]->px(),input_tracks[tk4_hindex]->py(),input_tracks[tk4_hindex]->pz(),fabs(TkMassCharge[3].first));
           }
           v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px() + v4_Restk3.Px() + v4_Restk4.Px()), (v4_Restk1.Py() + v4_Restk2.Py() + v4_Restk3.Py() + v4_Restk4.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz() + v4_Restk3.Pz() + v4_Restk4.Pz()), (v4_Restk1.E() + v4_Restk2.E() + v4_Restk3.E() + v4_Restk4.E()));
           v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px() + v4_NonRestk3.Px() + v4_NonRestk4.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py() + v4_NonRestk3.Py() + v4_NonRestk4.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz() + v4_NonRestk3.Pz() + v4_NonRestk4.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E() + v4_NonRestk3.E() + v4_NonRestk4.E()));
@@ -1569,20 +1577,20 @@ void Dfinder::TkCombinationResFast(
           }
           for(int tk5idx = ((TkMassCharge[4]==TkMassCharge[3]) ? tk4idx+1:0); tk5idx < (int)isNeededTrackIdx.size(); tk5idx++){
             tk5_hindex = isNeededTrackIdx[tk5idx];
-            if(input_tracks[tk5_hindex].charge()*TkMassCharge[4].first<0) continue;
+            if(input_tracks[tk5_hindex]->charge()*TkMassCharge[4].first<0) continue;
             if(tk5_hindex==tk1_hindex) continue;
             if(tk5_hindex==tk2_hindex) continue;
             if(tk5_hindex==tk3_hindex) continue;
             if(tk5_hindex==tk4_hindex) continue;
-            v4_tk5.SetXYZM(input_tracks[tk5_hindex].px(),input_tracks[tk5_hindex].py(),input_tracks[tk5_hindex].pz(),fabs(TkMassCharge[4].first));
+            v4_tk5.SetXYZM(input_tracks[tk5_hindex]->px(),input_tracks[tk5_hindex]->py(),input_tracks[tk5_hindex]->pz(),fabs(TkMassCharge[4].first));
             v4_D.SetPxPyPzE((v4_tk1.Px() + v4_tk2.Px() + v4_tk3.Px() + v4_tk4.Px() + v4_tk5.Px()), (v4_tk1.Py() + v4_tk2.Py() + v4_tk3.Py() + v4_tk4.Py() + v4_tk5.Py()), (v4_tk1.Pz() + v4_tk2.Pz() + v4_tk3.Pz() + v4_tk4.Pz() + v4_tk5.Pz()), (v4_tk1.E() + v4_tk2.E() + v4_tk3.E() + v4_tk4.E() + v4_tk5.E()));
             if(TkMassCharge[4].second==1){ 
-              v4_Restk5.SetXYZM(input_tracks[tk5_hindex].px(),input_tracks[tk5_hindex].py(),input_tracks[tk5_hindex].pz(),fabs(TkMassCharge[4].first));
+              v4_Restk5.SetXYZM(input_tracks[tk5_hindex]->px(),input_tracks[tk5_hindex]->py(),input_tracks[tk5_hindex]->pz(),fabs(TkMassCharge[4].first));
               v4_NonRestk5.SetXYZM(0,0,0,0);
             }
             else{ 
               v4_Restk5.SetXYZM(0,0,0,0);
-              v4_NonRestk5.SetXYZM(input_tracks[tk5_hindex].px(),input_tracks[tk5_hindex].py(),input_tracks[tk5_hindex].pz(),fabs(TkMassCharge[4].first));
+              v4_NonRestk5.SetXYZM(input_tracks[tk5_hindex]->px(),input_tracks[tk5_hindex]->py(),input_tracks[tk5_hindex]->pz(),fabs(TkMassCharge[4].first));
             }
             v4_Res.SetPxPyPzE((v4_Restk1.Px() + v4_Restk2.Px() + v4_Restk3.Px() + v4_Restk4.Px() + v4_Restk5.Px()), (v4_Restk1.Py() + v4_Restk2.Py() + v4_Restk3.Py() + v4_Restk4.Py() + v4_Restk5.Py()), (v4_Restk1.Pz() + v4_Restk2.Pz() + v4_Restk3.Pz() + v4_Restk4.Pz() + v4_Restk5.Pz()), (v4_Restk1.E() + v4_Restk2.E() + v4_Restk3.E() + v4_Restk4.E() + v4_Restk5.E()));
             v4_NonRes.SetPxPyPzE((v4_NonRestk1.Px() + v4_NonRestk2.Px() + v4_NonRestk3.Px() + v4_NonRestk4.Px() + v4_NonRestk5.Px()), (v4_NonRestk1.Py() + v4_NonRestk2.Py() + v4_NonRestk3.Py() + v4_NonRestk4.Py() + v4_NonRestk5.Py()), (v4_NonRestk1.Pz() + v4_NonRestk2.Pz() + v4_NonRestk3.Pz() + v4_NonRestk4.Pz() + v4_NonRestk5.Pz()), (v4_NonRestk1.E() + v4_NonRestk2.E() + v4_NonRestk3.E() + v4_NonRestk4.E() + v4_NonRestk5.E()));
@@ -1619,7 +1627,8 @@ void Dfinder::TkCombinationResFast(
 //BranchOutNTk{{{
 void Dfinder::BranchOutNTk(//input 2~4 tracks
                            DInfoBranches &DInfo, 
-                           edm::View<pat::PackedCandidate> input_tracks, 
+                           // edm::View<pat::PackedCandidate> input_tracks, 
+                           std::vector<const reco::Track*> input_tracks, 
                            reco::Vertex thePrimaryV,
                            std::vector<int> isNeededTrackIdx,
                            std::vector<int> &D_counter,
@@ -1663,10 +1672,10 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
   RefCountedKinematicVertex       tktkRes_VFPvtx;
 
   TLorentzVector v4_tk;
-  std::vector<TLorentzVector> tktk_4vecs;//fitted tks
+  // std::vector<TLorentzVector> tktk_4vecs;//fitted tks
   TLorentzVector tktk_4vec;//fitted D
   TLorentzVector unfitted_tktk_4vec;//unfitted D
-  std::vector<TLorentzVector> tktkRes_4vecs;//fitted Res tks
+  // std::vector<TLorentzVector> tktkRes_4vecs;//fitted Res tks
   TLorentzVector tktkRes_4vec;//fitted Res
   TLorentzVector unfitted_tktkRes_4vec;//unfitted Res
   std::vector<RefCountedKinematicParticle> tktk_candidate;//input tracks to D fitter
@@ -1680,10 +1689,10 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
 
     //clear before using
     v4_tk.Clear();
-    tktk_4vecs.clear();
+    // tktk_4vecs.clear();
     tktk_4vec.Clear();
     unfitted_tktk_4vec.Clear();
-    tktkRes_4vecs.clear();
+    // tktkRes_4vecs.clear();
     tktkRes_4vec.Clear();
     unfitted_tktkRes_4vec.Clear();
     tktk_candidate.clear();
@@ -1702,10 +1711,10 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     std::vector<float> pushbackResTrkMassHypo;
     float tk_sigma;
     for(int p = 0; p < int(selectedTkhidxSet[0].size()); p++){       // all Set has same size, could also use [i] as the index for selectedTkhidxSet[i] 
-      temp_vec.SetXYZM(input_tracks[selectedTkhidxSet[i][p]].px(), input_tracks[selectedTkhidxSet[i][p]].py(), input_tracks[selectedTkhidxSet[i][p]].pz(), fabs(TkMassCharge[p].first));
+      temp_vec.SetXYZM(input_tracks[selectedTkhidxSet[i][p]]->px(), input_tracks[selectedTkhidxSet[i][p]]->py(), input_tracks[selectedTkhidxSet[i][p]]->pz(), fabs(TkMassCharge[p].first));
       unfitted_tktk_4vec += temp_vec;
       if(TkMassCharge[p].second==0) continue; // push resonace duaghter particle first here, other particle later
-      reco::TransientTrack tkTT(input_tracks[selectedTkhidxSet[i][p]].pseudoTrack(), &(*bField) );
+      reco::TransientTrack tkTT(*(input_tracks[selectedTkhidxSet[i][p]])/*.pseudoTrack()*/, &(*bField) );
       if (!tkTT.isValid()) continue;
       tk_mass = fabs(TkMassCharge[p].first);
       tk_sigma = Functs.getParticleSigma(tk_mass);
@@ -1744,7 +1753,7 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     //push back the other tracks
     for(int p = 0; p < int(selectedTkhidxSet[0].size()); p++){        
       if(TkMassCharge[p].second==1) continue;
-      reco::TransientTrack tkTT(input_tracks[selectedTkhidxSet[i][p]].pseudoTrack(), &(*bField) );
+      reco::TransientTrack tkTT(*(input_tracks[selectedTkhidxSet[i][p]])/*.pseudoTrack()*/, &(*bField) );
       if (!tkTT.isValid()) continue;
       tk_mass = fabs(TkMassCharge[p].first);
       tk_sigma = Functs.getParticleSigma(tk_mass);
@@ -1783,14 +1792,14 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     //cut mass window after fit
     //if (tktk_VFP->currentState().mass()<mass_window[0] || tktk_VFP->currentState().mass()>mass_window[1]) continue;
 
-    for(unsigned int k = 0; k < tktkCands.size(); k++){
-      v4_tk.SetPxPyPzE(tktkCands[k]->currentState().kinematicParameters().momentum().x(),
-                       tktkCands[k]->currentState().kinematicParameters().momentum().y(),
-                       tktkCands[k]->currentState().kinematicParameters().momentum().z(),
-                       tktkCands[k]->currentState().kinematicParameters().energy());
-      tktk_4vecs.push_back(v4_tk);
-      v4_tk.Clear();
-    }
+    // for(unsigned int k = 0; k < tktkCands.size(); k++){
+    //   v4_tk.SetPxPyPzE(tktkCands[k]->currentState().kinematicParameters().momentum().x(),
+    //                    tktkCands[k]->currentState().kinematicParameters().momentum().y(),
+    //                    tktkCands[k]->currentState().kinematicParameters().momentum().z(),
+    //                    tktkCands[k]->currentState().kinematicParameters().energy());
+    //   tktk_4vecs.push_back(v4_tk);
+    //   v4_tk.Clear();
+    // }
 
     tktk_4vec.SetPxPyPzE(tktk_VFP->currentState().kinematicParameters().momentum().x(),
                          tktk_VFP->currentState().kinematicParameters().momentum().y(),
@@ -1801,14 +1810,14 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     if(tktkRes_mass>0){
       tktkResCands = tktkRes_VFT->finalStateParticles();
 
-      for(unsigned int k = 0; k < tktkResCands.size(); k++){
-        v4_tk.SetPxPyPzE(tktkResCands[k]->currentState().kinematicParameters().momentum().x(),
-                         tktkResCands[k]->currentState().kinematicParameters().momentum().y(),
-                         tktkResCands[k]->currentState().kinematicParameters().momentum().z(),
-                         tktkResCands[k]->currentState().kinematicParameters().energy());
-        tktkRes_4vecs.push_back(v4_tk);
-        v4_tk.Clear();
-      }
+      // for(unsigned int k = 0; k < tktkResCands.size(); k++){
+      //   v4_tk.SetPxPyPzE(tktkResCands[k]->currentState().kinematicParameters().momentum().x(),
+      //                    tktkResCands[k]->currentState().kinematicParameters().momentum().y(),
+      //                    tktkResCands[k]->currentState().kinematicParameters().momentum().z(),
+      //                    tktkResCands[k]->currentState().kinematicParameters().energy());
+      //   tktkRes_4vecs.push_back(v4_tk);
+      //   v4_tk.Clear();
+      // }
 
       tktkRes_4vec.SetPxPyPzE(tktkRes_VFP->currentState().kinematicParameters().momentum().x(),
                               tktkRes_VFP->currentState().kinematicParameters().momentum().y(),
@@ -1867,31 +1876,31 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
       DInfo.tktkRes_rftk3_MassHypo[DInfo.size]     = -2;
       DInfo.tktkRes_rftk4_MassHypo[DInfo.size]     = -2;
 
-      DInfo.tktkRes_rftk1_mass[DInfo.size]      = tktkRes_4vecs[0].Mag();
-      DInfo.tktkRes_rftk1_pt[DInfo.size]        = tktkRes_4vecs[0].Pt();
-      DInfo.tktkRes_rftk1_eta[DInfo.size]       = tktkRes_4vecs[0].Eta();
-      DInfo.tktkRes_rftk1_phi[DInfo.size]       = tktkRes_4vecs[0].Phi();
+      // DInfo.tktkRes_rftk1_mass[DInfo.size]      = tktkRes_4vecs[0].Mag();
+      // DInfo.tktkRes_rftk1_pt[DInfo.size]        = tktkRes_4vecs[0].Pt();
+      // DInfo.tktkRes_rftk1_eta[DInfo.size]       = tktkRes_4vecs[0].Eta();
+      // DInfo.tktkRes_rftk1_phi[DInfo.size]       = tktkRes_4vecs[0].Phi();
       DInfo.tktkRes_rftk1_index[DInfo.size]     = pushbackResTrkIdx[0];
       DInfo.tktkRes_rftk1_MassHypo[DInfo.size]     = pushbackResTrkMassHypo[0];
-      DInfo.tktkRes_rftk2_mass[DInfo.size]      = tktkRes_4vecs[1].Mag();
-      DInfo.tktkRes_rftk2_pt[DInfo.size]        = tktkRes_4vecs[1].Pt();
-      DInfo.tktkRes_rftk2_eta[DInfo.size]       = tktkRes_4vecs[1].Eta();
-      DInfo.tktkRes_rftk2_phi[DInfo.size]       = tktkRes_4vecs[1].Phi();
+      // DInfo.tktkRes_rftk2_mass[DInfo.size]      = tktkRes_4vecs[1].Mag();
+      // DInfo.tktkRes_rftk2_pt[DInfo.size]        = tktkRes_4vecs[1].Pt();
+      // DInfo.tktkRes_rftk2_eta[DInfo.size]       = tktkRes_4vecs[1].Eta();
+      // DInfo.tktkRes_rftk2_phi[DInfo.size]       = tktkRes_4vecs[1].Phi();
       DInfo.tktkRes_rftk2_index[DInfo.size]     = pushbackResTrkIdx[1];
       DInfo.tktkRes_rftk2_MassHypo[DInfo.size]     = pushbackResTrkMassHypo[1];
       if(tktkResCands.size()>2){
-        DInfo.tktkRes_rftk3_mass[DInfo.size]      = tktkRes_4vecs[2].Mag();
-        DInfo.tktkRes_rftk3_pt[DInfo.size]        = tktkRes_4vecs[2].Pt();
-        DInfo.tktkRes_rftk3_eta[DInfo.size]       = tktkRes_4vecs[2].Eta();
-        DInfo.tktkRes_rftk3_phi[DInfo.size]       = tktkRes_4vecs[2].Phi();
+        // DInfo.tktkRes_rftk3_mass[DInfo.size]      = tktkRes_4vecs[2].Mag();
+        // DInfo.tktkRes_rftk3_pt[DInfo.size]        = tktkRes_4vecs[2].Pt();
+        // DInfo.tktkRes_rftk3_eta[DInfo.size]       = tktkRes_4vecs[2].Eta();
+        // DInfo.tktkRes_rftk3_phi[DInfo.size]       = tktkRes_4vecs[2].Phi();
         DInfo.tktkRes_rftk3_index[DInfo.size]     = pushbackResTrkIdx[2];
         DInfo.tktkRes_rftk3_MassHypo[DInfo.size]     = pushbackResTrkMassHypo[2];
       }
       if(tktkResCands.size()>3){
-        DInfo.tktkRes_rftk4_mass[DInfo.size]      = tktkRes_4vecs[3].Mag();
-        DInfo.tktkRes_rftk4_pt[DInfo.size]        = tktkRes_4vecs[3].Pt();
-        DInfo.tktkRes_rftk4_eta[DInfo.size]       = tktkRes_4vecs[3].Eta();
-        DInfo.tktkRes_rftk4_phi[DInfo.size]       = tktkRes_4vecs[3].Phi();
+        // DInfo.tktkRes_rftk4_mass[DInfo.size]      = tktkRes_4vecs[3].Mag();
+        // DInfo.tktkRes_rftk4_pt[DInfo.size]        = tktkRes_4vecs[3].Pt();
+        // DInfo.tktkRes_rftk4_eta[DInfo.size]       = tktkRes_4vecs[3].Eta();
+        // DInfo.tktkRes_rftk4_phi[DInfo.size]       = tktkRes_4vecs[3].Phi();
         DInfo.tktkRes_rftk4_index[DInfo.size]     = pushbackResTrkIdx[3];
         DInfo.tktkRes_rftk4_MassHypo[DInfo.size]     = pushbackResTrkMassHypo[3];
       }
@@ -1947,14 +1956,14 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     DInfo.alpha[DInfo.size] = svpvVec.Angle(dVec);
     if( DInfo.alpha[DInfo.size] > alphaCut_[Dchannel_number-1]) continue;
 
-    DInfo.rftk1_mass[DInfo.size]      = tktk_4vecs[0].Mag();
-    DInfo.rftk1_pt[DInfo.size]        = tktk_4vecs[0].Pt();
-    DInfo.rftk1_eta[DInfo.size]       = tktk_4vecs[0].Eta();
-    DInfo.rftk1_phi[DInfo.size]       = tktk_4vecs[0].Phi();
-    DInfo.rftk2_mass[DInfo.size]      = tktk_4vecs[1].Mag();
-    DInfo.rftk2_pt[DInfo.size]        = tktk_4vecs[1].Pt();
-    DInfo.rftk2_eta[DInfo.size]       = tktk_4vecs[1].Eta();
-    DInfo.rftk2_phi[DInfo.size]       = tktk_4vecs[1].Phi();
+    // DInfo.rftk1_mass[DInfo.size]      = tktk_4vecs[0].Mag();
+    // DInfo.rftk1_pt[DInfo.size]        = tktk_4vecs[0].Pt();
+    // DInfo.rftk1_eta[DInfo.size]       = tktk_4vecs[0].Eta();
+    // DInfo.rftk1_phi[DInfo.size]       = tktk_4vecs[0].Phi();
+    // DInfo.rftk2_mass[DInfo.size]      = tktk_4vecs[1].Mag();
+    // DInfo.rftk2_pt[DInfo.size]        = tktk_4vecs[1].Pt();
+    // DInfo.rftk2_eta[DInfo.size]       = tktk_4vecs[1].Eta();
+    // DInfo.rftk2_phi[DInfo.size]       = tktk_4vecs[1].Phi();
 
     //Index initialize to -2
     DInfo.rftk1_index[DInfo.size] = -2;
@@ -1978,26 +1987,26 @@ void Dfinder::BranchOutNTk(//input 2~4 tracks
     if( DInfo.rftk1_index[DInfo.size] == -1) DInfo.rftk1_MassHypo[DInfo.size] = D0_MASS;
 
     if(tktkCands.size()>2){
-      DInfo.rftk3_mass[DInfo.size]  = tktk_4vecs[2].Mag();
-      DInfo.rftk3_pt[DInfo.size]    = tktk_4vecs[2].Pt();
-      DInfo.rftk3_eta[DInfo.size]   = tktk_4vecs[2].Eta();
-      DInfo.rftk3_phi[DInfo.size]   = tktk_4vecs[2].Phi();
+      // DInfo.rftk3_mass[DInfo.size]  = tktk_4vecs[2].Mag();
+      // DInfo.rftk3_pt[DInfo.size]    = tktk_4vecs[2].Pt();
+      // DInfo.rftk3_eta[DInfo.size]   = tktk_4vecs[2].Eta();
+      // DInfo.rftk3_phi[DInfo.size]   = tktk_4vecs[2].Phi();
       DInfo.rftk3_index[DInfo.size] = pushbackTrkIdx[2];
       DInfo.rftk3_MassHypo[DInfo.size] = pushbackTrkMassHypo[2];
     }
     if(tktkCands.size()>3){
-      DInfo.rftk4_mass[DInfo.size]  = tktk_4vecs[3].Mag();
-      DInfo.rftk4_pt[DInfo.size]    = tktk_4vecs[3].Pt();
-      DInfo.rftk4_eta[DInfo.size]   = tktk_4vecs[3].Eta();
-      DInfo.rftk4_phi[DInfo.size]   = tktk_4vecs[3].Phi();
+      // DInfo.rftk4_mass[DInfo.size]  = tktk_4vecs[3].Mag();
+      // DInfo.rftk4_pt[DInfo.size]    = tktk_4vecs[3].Pt();
+      // DInfo.rftk4_eta[DInfo.size]   = tktk_4vecs[3].Eta();
+      // DInfo.rftk4_phi[DInfo.size]   = tktk_4vecs[3].Phi();
       DInfo.rftk4_index[DInfo.size] = pushbackTrkIdx[3];
       DInfo.rftk4_MassHypo[DInfo.size] = pushbackTrkMassHypo[3];
     }
     if(tktkCands.size()>4){
-      DInfo.rftk5_mass[DInfo.size]  = tktk_4vecs[4].Mag();
-      DInfo.rftk5_pt[DInfo.size]    = tktk_4vecs[4].Pt();
-      DInfo.rftk5_eta[DInfo.size]   = tktk_4vecs[4].Eta();
-      DInfo.rftk5_phi[DInfo.size]   = tktk_4vecs[4].Phi();
+      // DInfo.rftk5_mass[DInfo.size]  = tktk_4vecs[4].Mag();
+      // DInfo.rftk5_pt[DInfo.size]    = tktk_4vecs[4].Pt();
+      // DInfo.rftk5_eta[DInfo.size]   = tktk_4vecs[4].Eta();
+      // DInfo.rftk5_phi[DInfo.size]   = tktk_4vecs[4].Phi();
       DInfo.rftk5_index[DInfo.size] = pushbackTrkIdx[4];
       DInfo.rftk5_MassHypo[DInfo.size] = pushbackTrkMassHypo[4];
     }

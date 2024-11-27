@@ -2139,6 +2139,10 @@ public:
     DsGen[typesize] = 0;//gen init
     DgenIndex[typesize] = -1;
     DgennDa[typesize] = -1;
+    Dgenda1pdgId[typesize] = -1;
+    Dgenda2pdgId[typesize] = -1;
+    Dgenda3pdgId[typesize] = -1;
+    Dgenda4pdgId[typesize] = -1;
     Dgenpt[typesize] = -1;
     DgenpdgId[typesize] = -1;
     Dgeneta[typesize] = -20;
