@@ -93,7 +93,7 @@ private:
   std::vector<int> Dchannel_;
   edm::EDGetTokenT< std::vector<reco::GenParticle> > genLabel_;
   edm::EDGetTokenT< edm::View<pat::PackedCandidate> > trackLabel_;
-  // edm::EDGetTokenT< std::vector<pat::PackedCandidate> > losttrackLabel_;
+  // edm::EDGetTokenT< edm::View<pat::PackedCandidate> > losttrackLabel_;
   edm::EDGetTokenT< edm::ValueMap<float> > chi2Map_;
   edm::EDGetTokenT< edm::ValueMap<reco::DeDxData> > dedxMap_;
   edm::EDGetTokenT< reco::BeamSpot > bsLabel_;
@@ -125,6 +125,7 @@ private:
   bool doDntupleSkim_;
   bool printInfo_;
   bool readDedx_;
+  bool dropUnusedTracks_;
 
   edm::Service<TFileService> fs;
   TTree *root;
@@ -176,7 +177,7 @@ Dfinder::Dfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   Dchannel_ = iConfig.getParameter<std::vector<int> >("Dchannel");
   genLabel_ = consumes< std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenLabel"));
   trackLabel_ = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
-  // losttrackLabel_ = consumes< std::vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTrackLabel"));
+  // losttrackLabel_ = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTrackLabel"));
   chi2Map_ = consumes< edm::ValueMap<float> >(iConfig.getParameter< edm::InputTag >("TrackChi2Label"));
   dedxMap_ = consumes< edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("TrackDedxLabel"));
   bsLabel_ = consumes< reco::BeamSpot >(iConfig.getParameter<edm::InputTag>("BSLabel"));
@@ -207,6 +208,7 @@ Dfinder::Dfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   doDntupleSkim_ = iConfig.getParameter<bool>("doDntupleSkim");
   printInfo_ = iConfig.getParameter<bool>("printInfo");
   readDedx_ = iConfig.getParameter<bool>("readDedx");
+  dropUnusedTracks_ = iConfig.getParameter<bool>("dropUnusedTracks");
 
   if (iConfig.exists("tktkRes_masswindowCut")) { tktkRes_masswindowCut_ = iConfig.getParameter<double>("tktkRes_masswindowCut"); }
     
@@ -257,7 +259,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bField = iSetup.getHandle(idealMagneticFieldRecordToken_);
 
   // Change used muon and track collections
-  auto tks = iEvent.getHandle( trackLabel_ ); // edm::Handle< std::vector<pat::PackedCandidate> >
+  auto tks = iEvent.getHandle( trackLabel_ ); // edm::Handle< edm::View<pat::PackedCandidate> >
   // auto losttks = iEvent.getHandle(losttrackLabel_);
   auto chi2Handle = iEvent.getHandle(chi2Map_); // edm::Handle<edm::ValueMap<float>>
   auto dedxHandle = iEvent.getHandle(dedxMap_); // edm::Handle<edm::ValueMap<reco::DeDxData>>
@@ -374,7 +376,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     D_counter.push_back(0);
   }
 
-  auto input_pc_tracks = *tks; // std::vector<pat::PackedCandidate>
+  auto input_pc_tracks = *tks; // edm::View<pat::PackedCandidate>
   std::vector<const reco::Track*> input_tracks;
   for(auto tk_it=tks->begin(); tk_it != tks->end(); tk_it++){
       // static const reco::Track* getFromPC(const reco::Candidate& rc) {
@@ -405,8 +407,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           fprintf(stderr,"ERROR: number of tracks exceeds the size of array.\n");
           break;
         }
-        auto tk_it = (*tk_it_it);
-        // std::cout<<tk_it<<std::endl;
+        auto tk_it = (*tk_it_it); // edm::View<pat::PackedCandidate>
         isNeededTrack.push_back(false);
         if (!tk_it) continue;
         // if(!tk_it->hasTrackDetails()) continue;
@@ -814,8 +815,8 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
         // drop unused tracks
-        // if(listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 &&
-        //    listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;
+        if(dropUnusedTracks_ && listOfRelativeDCand1.size() == 0 && listOfRelativeDCand2.size() == 0 && listOfRelativeDCand3.size() == 0 && listOfRelativeDCand4.size() == 0 && listOfRelativeDCand5.size() == 0 &&
+           listOfRelativeDResCand1.size() == 0 && listOfRelativeDResCand2.size() == 0 && listOfRelativeDResCand3.size() == 0 && listOfRelativeDResCand4.size() == 0) continue;
 
                     
         TrackInfo.index          [TrackInfo.size] = TrackInfo.size;
@@ -844,8 +845,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         TrackInfo.dzerror        [TrackInfo.size] = tk_it->/*pseudoTrack().*/dzError();
         TrackInfo.dxy            [TrackInfo.size] = tk_it->/*pseudoTrack().*/dxy();
         TrackInfo.dxyerror       [TrackInfo.size] = tk_it->/*pseudoTrack().*/dxyError();
-        TrackInfo.dz             [TrackInfo.size] = tk_it->/*pseudoTrack().*/dz();
-        TrackInfo.dzerror        [TrackInfo.size] = tk_it->/*pseudoTrack().*/dzError();
         TrackInfo.dxy1           [TrackInfo.size] = tk_it->/*pseudoTrack().*/dxy(RefVtx);
         TrackInfo.dxyerror1      [TrackInfo.size] = TMath::Sqrt(tk_it->/*pseudoTrack().*/dxyError()*tk_it->/*pseudoTrack().*/dxyError() + thePrimaryV.xError()*thePrimaryV.yError());
         TrackInfo.dz1            [TrackInfo.size] = tk_it->/*pseudoTrack().*/dz(RefVtx);
@@ -859,12 +858,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         TrackInfo.dedx           [TrackInfo.size] = -1;
         if (dedxHandle.isValid() && !dedxHandle.failedToGet())
           TrackInfo.dedx           [TrackInfo.size] = ((*dedxHandle)[ tks->ptrAt( tk_hindex ) ]).dEdx();
-
-        /* Under construction */
-        // if(tk_it->/*pseudoTrack().*/isNonnull()){
-        //     for(int tq = 0; tq < reco::TrackBase::qualitySize; tq++){
-        //         if (tk_it->/*pseudoTrack().*/quality(static_cast<reco::TrackBase::TrackQuality>(tq))) TrackInfo.trackQuality[TrackInfo.size] += 1 << (tq);
-        //     }}
 
         // Gen-match
         // https://github.com/cms-sw/cmssw/blob/CMSSW_11_2_X/CommonTools/UtilAlgos/interface/MatchByDRDPt.h
@@ -938,8 +931,6 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
     // GenInfo section{{{
     if (!iEvent.isRealData()) {
-      // edm::Handle<std::vector<reco::GenParticle>> gens;
-      // iEvent.getByToken(genLabel_, gens);
 
       std::vector<const reco::Candidate *> sel_cands;
 
@@ -961,7 +952,7 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       //end fill gen PV
 
-      for(std::vector<reco::GenParticle>::const_iterator it_gen=gens->begin();
+      for(auto it_gen=gens->begin(); // std::vector<reco::GenParticle>::const_iterator
           it_gen != gens->end(); it_gen++){
         if (it_gen->status() > 2 && it_gen->status() != 8) continue;//only status 1(final state), 2(decayed), 8(simulated)
         if(GenInfo.size >= MAX_GEN){
@@ -1027,9 +1018,9 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (!isGenSignal) continue;
 
         for(int trackIdx = 0; trackIdx < TrackInfo.size; trackIdx++){ //# saving gen-track ref index 
-          // match by pat::GenericParticle
+          // hope for match by pat::GenericParticle
           if (genTrackPtr[trackIdx] < 0 ) continue;
-          if ((it_gen - gens->begin()) == genTrackPtr[trackIdx]) {
+          if (int(it_gen - gens->begin()) == genTrackPtr[trackIdx]) {
             TrackInfo.geninfo_index[trackIdx] = GenInfo.size;
             TrackInfo.geninfo_pdgId[trackIdx] = it_gen->pdgId();
             // break;
@@ -1044,8 +1035,8 @@ void Dfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         GenInfo.mass[GenInfo.size]          = it_gen->mass();
         GenInfo.pdgId[GenInfo.size]         = it_gen->pdgId();
         GenInfo.status[GenInfo.size]        = it_gen->status();
-        // GenInfo.collisionId[GenInfo.size]   = it_gen->collisionId(); // !
-        GenInfo.collisionId[GenInfo.size]   = -1;
+        GenInfo.collisionId[GenInfo.size]   = it_gen->collisionId();
+        // GenInfo.collisionId[GenInfo.size]   = -1;
         GenInfo.nMo[GenInfo.size]           = it_gen->numberOfMothers();
         GenInfo.nDa[GenInfo.size]           = it_gen->numberOfDaughters();
         GenInfo.vtxX[GenInfo.size]          = it_gen->vx(); //it should be the production vx of the particle, better to double check
@@ -1218,7 +1209,7 @@ void Dfinder::TkCombinationPermutation(
   TLorentzVector v4_tk1, v4_tk2, v4_tk3, v4_tk4, v4_tk5;// all tracks
   TLorentzVector v4_Restk1, v4_Restk2, v4_Restk3, v4_Restk4, v4_Restk5;// resonance tracks
   TLorentzVector v4_NonRestk1, v4_NonRestk2, v4_NonRestk3, v4_NonRestk4, v4_NonRestk5;// non-resonance tracks, i.e., all - resonance tracks
-  //for(std::vector<pat::PackedCandidate>::const_iterator tk_it1=input_tracks.begin();
+  //for(edm::View<pat::PackedCandidate>::const_iterator tk_it1=input_tracks.begin();
   //        tk_it1 != input_tracks.end() ; tk_it1++){
   for(int tk1idx = 0; tk1idx < (int)isNeededTrackIdx.size(); tk1idx++){
     v4_D.Clear(); v4_Res.Clear();
@@ -1241,7 +1232,7 @@ void Dfinder::TkCombinationPermutation(
     v4_Res.SetPxPyPzE(v4_Restk1.Px(), v4_Restk1.Py(), v4_Restk1.Pz(), v4_Restk1.E());
     v4_NonRes.SetPxPyPzE(v4_NonRestk1.Px(), v4_NonRestk1.Py(), v4_NonRestk1.Pz(), v4_NonRestk1.E());
 
-    //for(std::vector<pat::PackedCandidate>::const_iterator tk_it2=tk_it1+1;
+    //for(edm::View<pat::PackedCandidate>::const_iterator tk_it2=tk_it1+1;
     //        tk_it2 != input_tracks.end() ; tk_it2++){
     for(int tk2idx = tk1idx+1; tk2idx < (int)isNeededTrackIdx.size(); tk2idx++){
       //tk2_hindex = int(tk_it2 - input_tracks.begin());
@@ -1316,7 +1307,7 @@ void Dfinder::TkCombinationPermutation(
           selectedTkhidx.clear();
           continue;
         }
-        //for(std::vector<pat::PackedCandidate>::const_iterator tk_it4=tk_it3+1;
+        //for(edm::View<pat::PackedCandidate>::const_iterator tk_it4=tk_it3+1;
         //        tk_it4 != input_tracks.end() ; tk_it4++){
         for(int tk4idx = tk3idx+1; tk4idx < (int)isNeededTrackIdx.size(); tk4idx++){
           //tk4_hindex = int(tk_it4 - input_tracks.begin());
@@ -1359,7 +1350,7 @@ void Dfinder::TkCombinationPermutation(
             selectedTkhidx.clear();
             continue;
           }
-          //for(std::vector<pat::PackedCandidate>::const_iterator tk_it5=tk_it4+1;
+          //for(edm::View<pat::PackedCandidate>::const_iterator tk_it5=tk_it4+1;
           //        tk_it5 != input_tracks.end() ; tk_it5++){
           for(int tk5idx = tk4idx+1; tk5idx < (int)isNeededTrackIdx.size(); tk5idx++){
             //tk5_hindex = int(tk_it5 - input_tracks.begin());

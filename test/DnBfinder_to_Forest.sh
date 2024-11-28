@@ -5,7 +5,7 @@ FORESTS=(forest_miniAOD_run3_DATA forest_miniAOD_run3_UPC_DATA forest_miniAOD_ru
 RUNONMC=(False False True)
 INFILES=(
     "/store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v1/000/388/350/00000/60ad5c5a-8835-49c9-a031-77671c00b56e.root"
-    "/store/hidata/HIRun2024B/HIForward0/MINIAOD/PromptReco-v1/000/388/305/00000/e7d52f63-4bde-4b69-93c8-2f307b69ed67.root"
+    "/store/hidata/HIRun2024B/HIForward0/MINIAOD/PromptReco-v2/000/388/468/00000/062e9301-3fac-495a-849c-fe6233892da1.root"
     "root://eoscms.cern.ch//store/group/phys_heavyions/jviinika/PythiaHydjetRun3_5p36TeV_dijet_ptHat15_100kEvents_miniAOD_2023_08_30/PythiaHydjetDijetRun3/PythiaHydjetRun3_dijet_ptHat15_5p36TeV_miniAOD/230830_165931/0000/pythiaHydjet_miniAOD_11.root"
 )
 MINIMUMTREES=0
@@ -25,10 +25,10 @@ TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X,setCutForAllChannelsDfinder
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
-process.Dfinder.tkPtCut = cms.double(0.5) # before fit
+process.Dfinder.tkPtCut = cms.double(0.05) # before fit
 process.Dfinder.tkEtaCut = cms.double(2.4) # before fit
 process.Dfinder.Dchannel = cms.vint32(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-setCutForAllChannelsDfinder(process, dPtCut = 1, VtxChiProbCut = 0.05, svpvDistanceCut = 2.5, alphaCut = 0.2)
+setCutForAllChannelsDfinder(process, dPtCut = 0, VtxChiProbCut = 0.05, svpvDistanceCut = 2.5, alphaCut = 0.2)
 
 process.dfinder = cms.Path(process.DfinderSequence)
 
@@ -46,14 +46,12 @@ TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
-process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
-process.Bfinder.makeBntuple = cms.bool(True)
-process.Bfinder.tkPtCut = cms.double(0.8) # before fit
+process.Bfinder.tkPtCut = cms.double(1.) # before fit
 process.Bfinder.tkEtaCut = cms.double(2.4) # before fit
 process.Bfinder.jpsiPtCut = cms.double(0.0) # before fit
-process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0) # before fit
-process.Bfinder.Bchannel = cms.vint32(1, 0, 0, 1, 1, 1, 1)
-process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.10)
+process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 5.0, 1.0) # before fit
+process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
+process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05)
 process.Bfinder.svpvDistanceCut = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
 process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)

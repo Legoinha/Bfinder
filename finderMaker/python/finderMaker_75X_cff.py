@@ -100,8 +100,8 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          GenLabel = cms.InputTag(GenParticleLabel),
                                          MuonLabel = cms.InputTag('patMuonsWithTrigger'),
                                          TrackLabel = cms.InputTag(TrkLabel),
-                                         # Dedx_Token1 = cms.InputTag('dedxHarmonic2'),
-                                         PUInfoLabel = cms.InputTag("addPileupInfo"),
+                                         TrackChi2Label = cms.InputTag(TrkChi2Label),
+                                         TrackDedxLabel = cms.InputTag('dedxEstimator:dedxAllLikelihood'),
                                          BSLabel = cms.InputTag("offlineBeamSpot"),
                                          PVLabel = cms.InputTag(VtxLabel),
                                          tkPtCut = cms.double(1.0),#before fit
@@ -119,7 +119,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          makeBntuple = cms.bool(True),
                                          doBntupleSkim = cms.bool(False),
                                          printInfo = cms.bool(True),
-                                         # readDedx = cms.bool(True),
+                                         readDedx = cms.bool(True),
         )
 
         ### Set Dfinder option
@@ -174,6 +174,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
         makeDntuple = cms.bool(True),
         doDntupleSkim = cms.bool(False),
         printInfo = cms.bool(True),
+        dropUnusedTracks = cms.bool(True),
         )
         
         process.BfinderSequence = cms.Sequence(process.patMuonSequence*process.Bfinder)
