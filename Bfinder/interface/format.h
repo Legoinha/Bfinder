@@ -6,7 +6,7 @@
 #define MAX_XB       20000
 #define MAX_MUON     10000
 #define MAX_TRACK    6000
-#define MAX_GEN      10000
+#define MAX_GEN      20000
 #define MAX_BX       150
 #define MAX_Vertices 4000
 #define MAX_TRIGGER  30
