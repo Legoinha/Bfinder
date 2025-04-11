@@ -2,7 +2,7 @@ Setup the envoriment for
 **2024/2023 pp/PbPb data/MC** from miniAOD
 Ref: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiForestSetup
 
-To setup Bfinder
+To setup Bfinder:
 =====
 ```
 cmsrel CMSSW_14_1_4_patch5 #
@@ -26,8 +26,6 @@ cmsRun forest_miniAOD_run3_DATA_wBfinder_2023.py   # taking data as an example
 
 If a (basic) config. file is needed the steps bellow show how to generate one
 
-To add D/Bfinder to forest:
-=====
 ```
 cd $CMSSW_BASE/src
 cmsenv
