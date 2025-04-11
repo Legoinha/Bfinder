@@ -95,6 +95,12 @@ private:
   edm::EDGetTokenT< reco::BeamSpot > bsLabel_;
   edm::EDGetTokenT< reco::VertexCollection > pvLabel_;
 
+  //CENTRALITY
+  edm::EDGetTokenT<int> centralityBinTags_;
+  double centmin_;
+  double centmax_;
+
+
   double tkPtCut_;
   double tkEtaCut_;
   double jpsiPtCut_;
@@ -184,6 +190,11 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   bsLabel_        = consumes< reco::BeamSpot >(iConfig.getParameter<edm::InputTag>("BSLabel"));
   pvLabel_        = consumes< reco::VertexCollection >(iConfig.getParameter<edm::InputTag>("PVLabel"));
 
+  //CENTRALITY
+  centralityBinTags_ = consumes<int>(iConfig.getParameter<edm::InputTag>("centralityBinSrc"));
+  centmin_ = iConfig.getParameter<double>("centmin");
+  centmax_ = iConfig.getParameter<double>("centmax");
+
   tkPtCut_ = iConfig.getParameter<double>("tkPtCut");
   tkEtaCut_ = iConfig.getParameter<double>("tkEtaCut");
   jpsiPtCut_ = iConfig.getParameter<double>("jpsiPtCut");
@@ -257,6 +268,13 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     gens = iEvent.getHandle(genLabel_);
   }
   
+
+      //=============== get centrality information ====================                                                                                                                         
+      edm::Handle< int > cbin;                                                                                                                                                                
+      iEvent.getByToken(centralityBinTags_,cbin);                                                                                                                                             
+      int centBin = *cbin;                                                                                                                                                                    
+      //===============================================================
+
   // edm::Handle< std::vector<reco::Track> > etracks;
   // iEvent.getByToken(trackLabelReco_, etracks);
   // if(etracks->size() != tks->size()) 
@@ -282,6 +300,12 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.McFlag  = !iEvent.isRealData();
   //EvtInfo.hltnames->clear();
   //EvtInfo.nTrgBook= N_TRIGGER_BOOKINGS;
+
+      //Nihar
+      EvtInfo.CentBin  = centBin/2;                                                                                                                                                                         
+      if(centBin < 0){edm::LogWarning ("Invalid value") <<"Invalid centrality value";}                                                                  
+      if(EvtInfo.CentBin < centmin_ ||EvtInfo.CentBin > centmax_) return;                                                                                   
+      //std::cout<<"centrality is: "<<EvtInfo.CentBin<<endl;
 
   // Handle primary vertex properties
   Vertex thePrimaryV; //, thePrimaryVmaxPt, thePrimaryVmaxMult;
@@ -706,7 +730,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               }
             }
             if (isMuonTrack)                                    continue;
-            if (abs(tk_it->charge()) != 1) continue;
+            if (abs(tk_it->charge()) != 1)                      continue;
             if (tk_it->pt()<tkPtCut_)                           continue;
             if (fabs(tk_it->eta())>tkEtaCut_)                   continue;
             if(doTkPreCut_){
@@ -1133,7 +1157,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               {
                 genTrackPtr[TrackInfo.size] = -1;
                 float currentdR = 1.e+10;//, currentptRel=0.;
-                bool isGenSignal = false;
+                //bool isGenSignal = false;
                 reco::GenParticle _deRef;
                 for(auto it_gen=gens->begin();
                     it_gen != gens->end(); it_gen++)
@@ -1157,16 +1181,16 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                       currentdR = dR;
 
                       _deRef = (*it_gen);
-                      reco::Candidate* Myself = dynamic_cast<reco::Candidate*>(&_deRef);
-                      isGenSignal = (Functs.GetAncestor(Myself, 5) | Functs.GetAncestor(Myself, 4));
+                      //reco::Candidate* Myself = dynamic_cast<reco::Candidate*>(&_deRef);
+                      //isGenSignal = (Functs.GetAncestor(Myself, 5) | Functs.GetAncestor(Myself, 4));
                     }
                   }
                 // genTrackPtr[TrackInfo.size] = tk_it->genParticle();                
-                if (genTrackPtr[TrackInfo.size] >= 0)
+                /*if (genTrackPtr[TrackInfo.size] >= 0)
                   
                   std::cout<<"\e[32m"<<TrackInfo.size<<": "<<genTrackPtr[TrackInfo.size]
                            <<" -> "<<isGenSignal
-                           <<"\e[0m"<<std::endl;
+                           <<"\e[0m"<<std::endl;*/
               }
             // <--------------
 
@@ -1204,31 +1228,31 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (
             abs(int(it_gen->pdgId()/100) % 100) == 4  ||//c menson
             abs(int(it_gen->pdgId()/100) % 100) == 5  ||//b menson
-            abs(it_gen->pdgId()) == 511 ||//B_0
-            abs(it_gen->pdgId()) == 521 ||//B_+-
-            abs(it_gen->pdgId()) == 531 ||//B_s
+            //abs(it_gen->pdgId()) == 511 ||//B_0
+            //abs(it_gen->pdgId()) == 521 ||//B_+-
+            //abs(it_gen->pdgId()) == 531 ||//B_s
             //abs(it_gen->pdgId()) == 311 ||//K0
             //abs(it_gen->pdgId()) == 321 ||//K+
             //abs(it_gen->pdgId()) == 310 ||//KS
             //abs(it_gen->pdgId()) == 313 ||//K*0(892)
             //abs(it_gen->pdgId()) == 323 ||//K*+-(892)
             //abs(it_gen->pdgId()) == 333 ||//phi(1020)
-            it_gen->pdgId() == 443      ||//Jpsi
-            it_gen->pdgId() == 100443   ||//Psi(2S)
+            it_gen->pdgId() == 443     ||//Jpsi
+            it_gen->pdgId() == 100443  ||//Psi(2S)
             it_gen->pdgId() == 20443   ||//chi_c1(1P)
             it_gen->pdgId() == 9920443 ||//X3872
-            it_gen->pdgId() == 553      ||//Upsilon
-            it_gen->pdgId() == 100553     //Upsilon(2S)
-            ) isGenSignal = true;//b, c, s mesons
+            it_gen->pdgId() == 553     ||//Upsilon
+            it_gen->pdgId() == 100553    //Upsilon(2S)
+            ) isGenSignal = true; //b, c
 
         if (abs(it_gen->pdgId()) == 13) isGenSignal = true;//all mu
 
         if (
             abs(int(it_gen->pdgId()/100) % 100) == 3  ||//s menson
-            abs(it_gen->pdgId()) == 111 || //pi0
+            abs(it_gen->pdgId()) == 111 ||//pi0
             abs(it_gen->pdgId()) == 113 ||//rho0
             abs(it_gen->pdgId()) == 130 ||//KL
-            abs(it_gen->pdgId()) == 211 //pi+
+            abs(it_gen->pdgId()) == 211   //pi+
             ){
           reco::GenParticle _deRef = (*it_gen);
           reco::Candidate* Myself = dynamic_cast<reco::Candidate*>(&_deRef);
@@ -1251,7 +1275,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           // hope for match by pat::GenericParticle
           if (genTrackPtr[trackIdx] < 0 ) continue;
           if (int(it_gen - gens->begin()) == genTrackPtr[trackIdx]) {
-            std::cout<<"\e[33m"<<trackIdx<<": "<<genTrackPtr[trackIdx]<<"\e[0m"<<std::endl;
+            //std::cout<<"\e[33m"<<trackIdx<<": "<<genTrackPtr[trackIdx]<<"\e[0m"<<std::endl;
             TrackInfo.geninfo_index[trackIdx] = GenInfo.size;
             TrackInfo.geninfo_pdgId[trackIdx] = it_gen->pdgId();
             // break;
@@ -1322,8 +1346,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Made a Bntuple on the fly
   if(makeBntuple_){
     int ifchannel[8];
-    for(int ichannel=0; ichannel<8; ichannel++)
-      { ifchannel[ichannel] = Bchannel_[ichannel]; }
+    for(int ichannel=0; ichannel<8; ichannel++){ ifchannel[ichannel] = Bchannel_[ichannel]; }
     bool REAL = iEvent.isRealData();
     int Btypesize[8]={0,0,0,0,0,0,0,0};
     Bntuple->makeNtuple(ifchannel, Btypesize, REAL, doBntupleSkim_, &EvtInfo, &VtxInfo, &MuonInfo, &TrackInfo, &BInfo, &GenInfo, nt0, nt1, nt2, nt3, nt5, nt6, nt7);

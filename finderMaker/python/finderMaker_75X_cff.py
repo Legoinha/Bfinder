@@ -100,6 +100,12 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          GenLabel = cms.InputTag(GenParticleLabel),
                                          MuonLabel = cms.InputTag('patMuonsWithTrigger'),
                                          TrackLabel = cms.InputTag(TrkLabel),
+
+                                         centrality    = cms.InputTag("hiCentrality","","reRECO"),
+                                         centralityBinSrc = cms.InputTag("centralityBin","HFtowers"),   #CENTRALITY
+                                         centmin = cms.double(0),
+                                         centmax = cms.double(50),
+
                                          TrackChi2Label = cms.InputTag(TrkChi2Label),
                                          TrackDedxLabel = cms.InputTag('dedxEstimator:dedxAllLikelihood'),
                                          BSLabel = cms.InputTag("offlineBeamSpot"),

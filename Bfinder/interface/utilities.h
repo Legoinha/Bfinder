@@ -18,6 +18,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"//calculate trajectory distance
 
+#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"//added by Nihar
+#include "DataFormats/HeavyIonEvent/interface/Centrality.h" //added by Nihar            
+
 // #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 //#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

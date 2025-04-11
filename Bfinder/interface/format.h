@@ -6,7 +6,8 @@
 #define MAX_XB       20000
 #define MAX_MUON     10000
 #define MAX_TRACK    6000
-#define MAX_GEN      20000
+//#define MAX_GEN      20000 test if 50k works
+#define MAX_GEN      45000
 #define MAX_BX       150
 #define MAX_Vertices 4000
 #define MAX_TRIGGER  30
@@ -110,6 +111,7 @@ public:
   int	    EvtNo;
   int	    BxNo;
   int	    LumiNo;
+  int CentBin;  // <- Add this
   int	    Orbit;
   bool	McFlag;
   int     nBX;
@@ -153,6 +155,7 @@ public:
     root->Branch("EvtInfo.RunNo"        , &RunNo                     , "EvtInfo.RunNo/I"			);
     root->Branch("EvtInfo.EvtNo"        , &EvtNo                     , "EvtInfo.EvtNo/I"			);
     root->Branch("EvtInfo.BxNo"         , &BxNo                      , "EvtInfo.BxNo/I"			);
+    root->Branch("EvtInfo.CentBin"      , &CentBin                 , "EvtInfo.CentBin/I"                  );  //CENATRLITY
     root->Branch("EvtInfo.LumiNo"       , &LumiNo                    , "EvtInfo.LumiNo/I"			);
     root->Branch("EvtInfo.Orbit"        , &Orbit                     , "EvtInfo.Orbit/I"			);
     root->Branch("EvtInfo.McFlag"       , &McFlag                    , "EvtInfo.McFlag/O"			);
@@ -190,6 +193,7 @@ public:
     root->SetBranchAddress("EvtInfo.EvtNo"          ,&EvtNo       );
     root->SetBranchAddress("EvtInfo.BxNo"           ,&BxNo        );
     root->SetBranchAddress("EvtInfo.LumiNo"         ,&LumiNo      );
+    root->SetBranchAddress("EvtInfo.CentBin"        ,&CentBin       );
     root->SetBranchAddress("EvtInfo.Orbit"          ,&Orbit       );
     root->SetBranchAddress("EvtInfo.McFlag"         ,&McFlag      );
     root->SetBranchAddress("EvtInfo.nBX"            ,&nBX         );

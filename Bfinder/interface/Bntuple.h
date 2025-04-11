@@ -15,6 +15,7 @@ public:
   int      EvtNo;
   int      LumiNo;
   int      Bsize;
+  int     CentBin;   // centrality bin
   int      Jsize;
   float    PVx;
   float    PVy;
@@ -344,6 +345,7 @@ public:
   {
     //EvtInfo
     nt->Branch("RunNo",&RunNo);
+    nt ->Branch("CentBin", &CentBin);  //centrality
     nt->Branch("EvtNo",&EvtNo);
     nt->Branch("LumiNo",&LumiNo);
     nt->Branch("PVx",&PVx);
@@ -896,6 +898,8 @@ public:
     RunNo = EvtInfo->RunNo;
     EvtNo = EvtInfo->EvtNo;
     LumiNo = EvtInfo->LumiNo;
+    CentBin = EvtInfo->CentBin; //centrality
+
     PVx = EvtInfo->PVx;
     PVy = EvtInfo->PVy;
     PVz = EvtInfo->PVz;
@@ -1711,6 +1715,9 @@ public:
         int tgenIndex=BgenIndex[typesize];
         if(Bgen[typesize]==23333 || Bgen[typesize]==41000 || Bgen[typesize]==24433 || Bgen[typesize]==24333 || Bgen[typesize]==23433)
           {
+            std::cout << "Signal found ("<< GenInfo->pdgId[tgenIndex] <<") with Bgenmass= " << GenInfo->mass[tgenIndex] << std::endl;
+
+
             Bgenpt[typesize] = GenInfo->pt[tgenIndex];
             BgenpdgId[typesize] = GenInfo->pdgId[tgenIndex];
             Bgenmass[typesize] = GenInfo->mass[tgenIndex];
@@ -2023,13 +2030,13 @@ public:
             twoTks = 1;
           }
         if(Btype==7)
-          {
-            BId.push_back(20443);//chic1
-            BId.push_back(100443);//psi'
-            BId.push_back(9920443);//X3872
-            MId = 113;//rho
-            tk1Id = 211;//pi+
-            tk2Id = -211;//pi-
+          {            
+            BId.push_back(20443);   //chic1
+            BId.push_back(100443);  //psi'
+            BId.push_back(9920443); //X3872
+            MId = 113;    //rho
+            tk1Id = 211;  //pi+
+            tk2Id = -211; //pi-
             twoTks = 1;
           }
         
