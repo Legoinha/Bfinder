@@ -55,14 +55,13 @@ process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 
 process.Bfinder.svpvDistanceCut = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
 process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)
-process.Bfinder.MuonTriggerMatchingPath = cms.vstring("")
-process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("")
+process.Bfinder.MuonTriggerMatchingPath = cms.vstring(
+    "HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1")
+process.Bfinder.MuonTriggerMatchingFilter = cms.vstring(
+    "hltL3f0L3Mu0L2Mu0DR3p5FilteredNHitQ10M1to5")
 process.BfinderSequence.insert(0, process.unpackedMuons)
 process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
 # process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
-
-process.Bfinder.centmin = cms.double(0)
-process.Bfinder.centmax = cms.double(100)
 
 process.p = cms.Path(process.BfinderSequence)
 ' >> ${PATHTOTEST}/${FOREST}_wBfinder.py
