@@ -18,7 +18,7 @@ To run:
 =====
 
 ```
-cmsRun forest_miniAOD_run3_DATA_wDfinder.py
+cmsRun forest_miniAOD_run3_DATA_wBfinder_2023.py   # taking data as an example
 ```
 
 
