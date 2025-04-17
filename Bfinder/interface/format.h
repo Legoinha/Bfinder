@@ -112,6 +112,9 @@ public:
   int	    BxNo;
   int	    LumiNo;
   int CentBin;  // <- Add this
+  int PixelMultiplicity;
+  int NPixelTracks;
+  int NTracks;
   int	    Orbit;
   bool	McFlag;
   int     nBX;
@@ -155,7 +158,11 @@ public:
     root->Branch("EvtInfo.RunNo"        , &RunNo                     , "EvtInfo.RunNo/I"			);
     root->Branch("EvtInfo.EvtNo"        , &EvtNo                     , "EvtInfo.EvtNo/I"			);
     root->Branch("EvtInfo.BxNo"         , &BxNo                      , "EvtInfo.BxNo/I"			);
-    root->Branch("EvtInfo.CentBin"      , &CentBin                 , "EvtInfo.CentBin/I"                  );  //CENATRLITY
+    root->Branch("EvtInfo.PixelMultiplicity"      , &PixelMultiplicity                 , "EvtInfo.PixelMultiplicity/I"                  );  //Multiplicity
+    root->Branch("EvtInfo.NPixelTracks"      , &NPixelTracks                 , "EvtInfo.NPixelTracks/I"                  );  //Multiplicity    
+    root->Branch("EvtInfo.NTracks"      , &NTracks                 , "EvtInfo.NTracks/I"                  );  //Multiplicity    
+
+    root->Branch("EvtInfo.CentBin"      , &CentBin                 , "EvtInfo.CentBin/I"                  );  //CENTRALITY
     root->Branch("EvtInfo.LumiNo"       , &LumiNo                    , "EvtInfo.LumiNo/I"			);
     root->Branch("EvtInfo.Orbit"        , &Orbit                     , "EvtInfo.Orbit/I"			);
     root->Branch("EvtInfo.McFlag"       , &McFlag                    , "EvtInfo.McFlag/O"			);
@@ -193,6 +200,10 @@ public:
     root->SetBranchAddress("EvtInfo.EvtNo"          ,&EvtNo       );
     root->SetBranchAddress("EvtInfo.BxNo"           ,&BxNo        );
     root->SetBranchAddress("EvtInfo.LumiNo"         ,&LumiNo      );
+    root->SetBranchAddress("EvtInfo.PixelMultiplicity"        ,&PixelMultiplicity       );
+    root->SetBranchAddress("EvtInfo.NPixelTracks"        ,&NPixelTracks       );
+    root->SetBranchAddress("EvtInfo.NTracks"        ,&NTracks       );
+
     root->SetBranchAddress("EvtInfo.CentBin"        ,&CentBin       );
     root->SetBranchAddress("EvtInfo.Orbit"          ,&Orbit       );
     root->SetBranchAddress("EvtInfo.McFlag"         ,&McFlag      );

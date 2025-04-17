@@ -191,6 +191,7 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   pvLabel_        = consumes< reco::VertexCollection >(iConfig.getParameter<edm::InputTag>("PVLabel"));
 
   //CENTRALITY
+  centralityTagToken_ = consumes<reco::Centrality>(iConfig.getParameter<edm::InputTag>("centralitySrc"));
   centralityBinTags_ = consumes<int>(iConfig.getParameter<edm::InputTag>("centralityBinSrc"));
   centmin_ = iConfig.getParameter<double>("centmin");
   centmax_ = iConfig.getParameter<double>("centmax");
@@ -269,10 +270,14 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
 
-      //=============== get centrality information ====================                                                                                                                         
+      //=============== get centrality information ====================
+
+
+  edm::Handle<reco::Centrality> centrality;
+  iEvent.getByToken(centralityTagToken_, centrality);
+  
       edm::Handle< int > cbin;                                                                                                                                                                
       iEvent.getByToken(centralityBinTags_,cbin);                                                                                                                                             
-      int centBin = *cbin;                                                                                                                                                                    
       //===============================================================
 
   // edm::Handle< std::vector<reco::Track> > etracks;
@@ -302,10 +307,21 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //EvtInfo.nTrgBook= N_TRIGGER_BOOKINGS;
 
       //Nihar
-      EvtInfo.CentBin  = centBin/2;                                                                                                                                                                         
-      if(centBin < 0){edm::LogWarning ("Invalid value") <<"Invalid centrality value";}                                                                  
-      if(EvtInfo.CentBin < centmin_ ||EvtInfo.CentBin > centmax_) return;                                                                                   
+  if (centrality.isValid() && cbin.isValid()) {
+    EvtInfo.PixelMulti = centrality->multiplicityPixel();
+    EvtInfo.NPixelTracks = centrality->NpixelTracks();
+    EvtInfo.NTracks = centrality->Ntracks();
+
+    int centBin = *cbin;
+
+    EvtInfo.CentBin  = centBin/2;                                                                                                                                                                         
+    if(centBin < 0){edm::LogWarning ("Invalid value") <<"Invalid centrality value";}                                                                  
+    if(EvtInfo.CentBin < centmin_ ||EvtInfo.CentBin > centmax_) return;                                                                                   
       //std::cout<<"centrality is: "<<EvtInfo.CentBin<<endl;
+
+  }
+  
+      
 
   // Handle primary vertex properties
   Vertex thePrimaryV; //, thePrimaryVmaxPt, thePrimaryVmaxMult;

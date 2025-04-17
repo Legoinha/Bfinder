@@ -101,7 +101,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          MuonLabel = cms.InputTag('patMuonsWithTrigger'),
                                          TrackLabel = cms.InputTag(TrkLabel),
 
-                                         centrality    = cms.InputTag("hiCentrality","","reRECO"),
+                                         centralitySrc    = cms.InputTag("hiCentrality","","reRECO"),
                                          centralityBinSrc = cms.InputTag("centralityBin","HFtowers"),   #CENTRALITY
                                          centmin = cms.double(0),
                                          centmax = cms.double(50),
