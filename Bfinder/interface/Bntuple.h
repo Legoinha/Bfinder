@@ -15,6 +15,9 @@ public:
   int      EvtNo;
   int      LumiNo;
   int      Bsize;
+  int      PixelMultiplicity;
+  int      NPixelTracks;
+  int      NTracks;
   int     CentBin;   // centrality bin
   int      Jsize;
   float    PVx;
@@ -345,6 +348,9 @@ public:
   {
     //EvtInfo
     nt->Branch("RunNo",&RunNo);
+    nt->Branch("PixelMultiplicity", &PixelMultiplicity);
+    nt->Branch("NPixelTracks", &NPixelTracks);
+    nt->Branch("NTracks", &NTracks);
     nt ->Branch("CentBin", &CentBin);  //centrality
     nt->Branch("EvtNo",&EvtNo);
     nt->Branch("LumiNo",&LumiNo);
@@ -898,6 +904,9 @@ public:
     RunNo = EvtInfo->RunNo;
     EvtNo = EvtInfo->EvtNo;
     LumiNo = EvtInfo->LumiNo;
+    PixelMultiplicity = EvtInfo->PixelMultiplicity;
+    NPixelTracks = EvtInfo->NPixelTracks;
+    NTracks = EvtInfo->NTracks;
     CentBin = EvtInfo->CentBin; //centrality
 
     PVx = EvtInfo->PVx;
