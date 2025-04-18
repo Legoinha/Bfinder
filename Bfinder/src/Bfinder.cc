@@ -96,6 +96,7 @@ private:
   edm::EDGetTokenT< reco::VertexCollection > pvLabel_;
 
   //CENTRALITY
+  edm::EDGetTokenT< reco::Centrality > centralityTagToken_;
   edm::EDGetTokenT<int> centralityBinTags_;
   double centmin_;
   double centmax_;
@@ -270,14 +271,14 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
 
-      //=============== get centrality information ====================
+  //=============== get centrality information ====================
 
 
   edm::Handle<reco::Centrality> centrality;
   iEvent.getByToken(centralityTagToken_, centrality);
   
-      edm::Handle< int > cbin;                                                                                                                                                                
-      iEvent.getByToken(centralityBinTags_,cbin);                                                                                                                                             
+  edm::Handle< int > cbin;                                                                                                                                                                
+  iEvent.getByToken(centralityBinTags_,cbin);                                                                                                                                             
       //===============================================================
 
   // edm::Handle< std::vector<reco::Track> > etracks;
@@ -308,9 +309,9 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Nihar
   if (centrality.isValid() && cbin.isValid()) {
-    EvtInfo.PixelMulti = centrality->multiplicityPixel();
-    EvtInfo.NPixelTracks = centrality->NpixelTracks();
-    EvtInfo.NTracks = centrality->Ntracks();
+    EvtInfo.PixelMultiplicity = (int)centrality->multiplicityPixel();
+    EvtInfo.NPixelTracks = (int)centrality->NpixelTracks();
+    EvtInfo.NTracks = (int)centrality->Ntracks();
 
     int centBin = *cbin;
 
