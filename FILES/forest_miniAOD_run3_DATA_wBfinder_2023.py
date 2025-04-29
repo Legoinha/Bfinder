@@ -9,6 +9,8 @@ process = cms.Process('HiForest', Run3_pp_on_PbPb_2023)
 process.options = cms.untracked.PSet(
         numberOfThreads = cms.untracked.uint32(4)
 )
+process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+
 process.options.numberOfConcurrentLuminosityBlocks = 1
 ###############################################################################
 
@@ -122,12 +124,13 @@ process.forest = cms.Path(
     process.hltanalysis +
     process.hltobject +
     process.l1object +
-    process.trackSequencePbPb +
+    #process.trackSequencePbPb +
     #process.particleFlowAnalyser +
     #process.ggHiNtuplizer +
     #process.zdcdigi +
     #process.QWzdcreco +
     #process.zdcanalyzer +
+    process.unpackedTracksAndVertices +
     process.unpackedMuons #+
     #process.muonAnalyzer +
     #process.akPu4CaloJetAnalyzer
@@ -301,7 +304,7 @@ process.Bfinder.centmax = cms.double(100)
 #######################################################################################################################
 #######################################################################################################################
 # Muon filtering before running Bfinder to significantly speed up the processing
-MUONCUT = "isTrackerMuon && ((abs(eta) <= 1.0 && pt > 3.5) || (1.0 < abs(eta) <= 2.4 && pt > 1.2)) && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && innerTrack.hitPattern.pixelLayersWithMeasurement > 0"
+MUONCUT = "isTrackerMuon && isGlobalMuon && ((abs(eta) <= 1.0 && pt > 3.5) || (1.0 < abs(eta) <= 2.4 && pt > 1.2)) && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && innerTrack.hitPattern.pixelLayersWithMeasurement > 0"
 process.muonSelector = cms.EDFilter("PATMuonRefSelector",
                                         src = cms.InputTag("slimmedMuons"),
                                         cut = cms.string(MUONCUT),
