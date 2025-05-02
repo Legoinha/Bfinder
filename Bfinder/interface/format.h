@@ -164,7 +164,7 @@ public:
 
     root->Branch("EvtInfo.CentBin"      , &CentBin                 , "EvtInfo.CentBin/I"                  );  //CENTRALITY
     root->Branch("EvtInfo.LumiNo"       , &LumiNo                    , "EvtInfo.LumiNo/I"			);
-    root->Branch("EvtInfo.Orbit"        , &Orbit                     , "EvtInfo.Orbit/I"			);
+    //root->Branch("EvtInfo.Orbit"        , &Orbit                     , "EvtInfo.Orbit/I"			);
     root->Branch("EvtInfo.McFlag"       , &McFlag                    , "EvtInfo.McFlag/O"			);
     root->Branch("EvtInfo.nBX"          , &nBX                       , "EvtInfo.nBX/I" 			);
     root->Branch("EvtInfo.BXPU"         , BXPU                       , "EvtInfo.BXPU[EvtInfo.nBX]/I");
@@ -205,7 +205,7 @@ public:
     root->SetBranchAddress("EvtInfo.NTracks"        ,&NTracks       );
 
     root->SetBranchAddress("EvtInfo.CentBin"        ,&CentBin       );
-    root->SetBranchAddress("EvtInfo.Orbit"          ,&Orbit       );
+    //root->SetBranchAddress("EvtInfo.Orbit"          ,&Orbit       );
     root->SetBranchAddress("EvtInfo.McFlag"         ,&McFlag      );
     root->SetBranchAddress("EvtInfo.nBX"            ,&nBX         );
     root->SetBranchAddress("EvtInfo.BXPU"           ,BXPU         );
@@ -385,8 +385,8 @@ public:
     root->Branch("MuonInfo.i_nPixelLayer" , i_nPixelLayer , "MuonInfo.i_nPixelLayer[MuonInfo.size]/I"	);
     root->Branch("MuonInfo.i_chi2"        , i_chi2        , "MuonInfo.i_chi2[MuonInfo.size]/F"	);
     root->Branch("MuonInfo.i_ndf"         , i_ndf         , "MuonInfo.i_ndf[MuonInfo.size]/F"	);
-    root->Branch("MuonInfo.fpbarrelhit"   , fpbarrelhit   , "MuonInfo.fpbarrelhit[MuonInfo.size]/I");
-    root->Branch("MuonInfo.fpendcaphit"   , fpendcaphit   , "MuonInfo.fpendcaphit[MuonInfo.size]/I");
+    //root->Branch("MuonInfo.fpbarrelhit"   , fpbarrelhit   , "MuonInfo.fpbarrelhit[MuonInfo.size]/I");
+    //root->Branch("MuonInfo.fpendcaphit"   , fpendcaphit   , "MuonInfo.fpendcaphit[MuonInfo.size]/I");
     root->Branch("MuonInfo.d0"            , d0            , "MuonInfo.d0[MuonInfo.size]/F"		);
     root->Branch("MuonInfo.dz"            , dz            , "MuonInfo.dz[MuonInfo.size]/F"		);
     root->Branch("MuonInfo.dzPV"          , dzPV          , "MuonInfo.dzPV[MuonInfo.size]/F"		);
@@ -464,8 +464,8 @@ public:
     root->SetBranchAddress("MuonInfo.i_nPixelLayer" , i_nPixelLayer);
     root->SetBranchAddress("MuonInfo.i_chi2"        , i_chi2		);
     root->SetBranchAddress("MuonInfo.i_ndf"         , i_ndf		);
-    root->SetBranchAddress("MuonInfo.fpbarrelhit"   , fpbarrelhit    );
-    root->SetBranchAddress("MuonInfo.fpendcaphit"   , fpendcaphit    );
+    //root->SetBranchAddress("MuonInfo.fpbarrelhit"   , fpbarrelhit    );
+    //root->SetBranchAddress("MuonInfo.fpendcaphit"   , fpendcaphit    );
     root->SetBranchAddress("MuonInfo.d0"            , d0             );
     root->SetBranchAddress("MuonInfo.dz"            , dz             );
     root->SetBranchAddress("MuonInfo.dzPV"          , dzPV             );
@@ -585,9 +585,9 @@ public:
     root->Branch("TrackInfo.trackQuality"   ,trackQuality   ,"TrackInfo.trackQuality[TrackInfo.size]/I");
     root->Branch("TrackInfo.highPurity"     ,highPurity     ,"TrackInfo.highPurity[TrackInfo.size]/O");
     root->Branch("TrackInfo.trkMVAVal"      ,trkMVAVal      ,"TrackInfo.trkMVAVal[TrackInfo.size]/F");
-    root->Branch("TrackInfo.trkAlgo"        ,trkAlgo        ,"TrackInfo.trkAlgo[TrackInfo.size]/I");
-    root->Branch("TrackInfo.originalTrkAlgo",originalTrkAlgo,"TrackInfo.originalTrkAlgo[TrackInfo.size]/I");
-    root->Branch("TrackInfo.dedx"           ,dedx           ,"TrackInfo.dedx[TrackInfo.size]/F");
+    //root->Branch("TrackInfo.trkAlgo"        ,trkAlgo        ,"TrackInfo.trkAlgo[TrackInfo.size]/I");
+    //root->Branch("TrackInfo.originalTrkAlgo",originalTrkAlgo,"TrackInfo.originalTrkAlgo[TrackInfo.size]/I");
+    //root->Branch("TrackInfo.dedx"           ,dedx           ,"TrackInfo.dedx[TrackInfo.size]/F");
 
     if(detailMode){
     }
@@ -627,9 +627,9 @@ public:
     root->SetBranchAddress("TrackInfo.trackQuality"  , trackQuality  );
     root->SetBranchAddress("TrackInfo.highPurity"    , highPurity  );
     root->SetBranchAddress("TrackInfo.trkMVAVal"     , trkMVAVal  );
-    root->SetBranchAddress("TrackInfo.trkAlgo"       , trkAlgo  );
-    root->SetBranchAddress("TrackInfo.originalTrkAlgo", originalTrkAlgo);
-    root->SetBranchAddress("TrackInfo.dedx"          , dedx);
+    //root->SetBranchAddress("TrackInfo.trkAlgo"       , trkAlgo  );
+    //root->SetBranchAddress("TrackInfo.originalTrkAlgo", originalTrkAlgo);
+    //root->SetBranchAddress("TrackInfo.dedx"          , dedx);
 
     if(detailMode){
     }

@@ -92,7 +92,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                                  0,#RECONSTRUCTION: J/psi + phi
                                                  0,#RECONSTRUCTION: J/psi + pi pi <= psi', X(3872), Bs->J/psi f0
                                          ),
-                                         detailMode = cms.bool(True),
+                                         detailMode = cms.bool(False),
                                          dropUnusedTracks = cms.bool(True),
                                          MuonTriggerMatchingPath = cms.vstring(""),
                                          MuonTriggerMatchingFilter = cms.vstring(""),
@@ -101,7 +101,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          MuonLabel = cms.InputTag('patMuonsWithTrigger'),
                                          TrackLabel = cms.InputTag(TrkLabel),
 
-                                         centralitySrc    = cms.InputTag("hiCentrality","","reRECO"),
+                                         centralitySrc    = cms.InputTag("hiCentrality"),
                                          centralityBinSrc = cms.InputTag("centralityBin","HFtowers"),   #CENTRALITY
                                          centmin = cms.double(0),
                                          centmax = cms.double(50),
