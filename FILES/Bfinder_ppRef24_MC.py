@@ -3,14 +3,14 @@
 # Type: mc
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_pp_on_PbPb_2023_cff import Run3_pp_on_PbPb_2023
-process = cms.Process('HiForest', Run3_pp_on_PbPb_2023)
+from Configuration.Eras.Era_Run3_pp_on_PbPb_2024_cff import Run3_pp_on_PbPb_2024
+process = cms.Process('HiForest', Run3_pp_on_PbPb_2024)
 
 ###############################################################################
 
 # HiForest info
 process.load("HeavyIonsAnalysis.EventAnalysis.HiForestInfo_cfi")
-process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 140X, mc")
+process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 141X, mc")
 
 ###############################################################################
 
@@ -39,20 +39,20 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '132X_mcRun3_2023_realistic_HI_v10', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '141X_mcRun3_2024_realistic_ppRef5TeV_v7', '')
 process.HiForestInfo.GlobalTagLabel = process.GlobalTag.globaltag
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("BTagTrackProbability3DRcd"),
-             tag = cms.string("JPcalib_MC103X_2018PbPb_v4"),
+             tag = cms.string("JPcalib_MC94X_2017pp_v2"),
              connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
          )
 ])
 
 # Define centrality binning
-process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
-process.centralityBin.Centrality = cms.InputTag("hiCentrality")
-process.centralityBin.centralityVariable = cms.string("HFtowers")
+#process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
+#process.centralityBin.Centrality = cms.InputTag("hiCentrality")
+#process.centralityBin.centralityVariable = cms.string("HFtowers")
 
 ###############################################################################
 
@@ -112,13 +112,13 @@ process.muonAnalyzer.doGen = cms.bool(True)
 # main forest sequence
 process.forest = cms.Path(
     process.HiForestInfo +
-    process.centralityBin +
-    process.hltanalysis +
+    #process.centralityBin +
+    process.hltanalysis #+
 #    process.hltobject +
 #    process.l1object +
     # process.trackSequencePbPb +
 #    process.particleFlowAnalyser +
-    process.hiEvtAnalyzer  #+
+#    process.hiEvtAnalyzer  #+
     #process.HiGenParticleAna #+
     # process.ggHiNtuplizer +
 #    process.zdcdigi +
@@ -232,8 +232,8 @@ if addCandidateTagging:
 process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
 process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilter)
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter)
-process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
-process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
+#process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
+#process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
 process.pAna = cms.EndPath(process.skimanalysis)
 
 
@@ -246,7 +246,7 @@ TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
-process.Bfinder.tkPtCut = cms.double(1) # //1.      before fit
+process.Bfinder.tkPtCut = cms.double(1.) # before fit
 process.Bfinder.tkEtaCut = cms.double(2.4) # before fit
 process.Bfinder.jpsiPtCut = cms.double(0.0) # before fit
 process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 5.0, 1.0) # before fit
@@ -255,30 +255,22 @@ process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 
 process.Bfinder.svpvDistanceCut = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
 process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)
-process.Bfinder.MuonTriggerMatchingPath = cms.vstring("")
-process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("")
+process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1")
+process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL3f0L3Mu0L2Mu0DR3p5FilteredNHitQ10M1to5")
 process.BfinderSequence.insert(0, process.unpackedMuons)
 process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
-# process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
+process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
 
 process.p = cms.Path(process.BfinderSequence)
-
-process.Bfinder.centmin = cms.double(0)
-process.Bfinder.centmax = cms.double(100)
 
 ###############################
 import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
-ivars.maxEvents = 100
+ivars.maxEvents = -1
 ivars.outputFile='HiForestMINIAOD.root'
-ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_X3872/prompt_PSI2S_to_Jpsi_pipi_phat5_miniAOD/250317_095831/0000/step4_miniAOD_102.root'     #   PSI2S -> JPSI pi pi
-#ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_Bmesons/Bu_phat5_miniAOD/250402_160115/0000/step4_miniAOD_1.root'  #Bu
 
-
-import os
-if os.path.exists(ivars.outputFile):
-    os.remove(ivars.outputFile)
+ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/ppRef_X3872/prompt_X3872_to_Jpsi_Rho_phat5_miniAOD/250324_155722/0000/step3_miniAOD_1.root'
 
 
 ivars.parseArguments() # get and parse the command line arguments
@@ -289,3 +281,4 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(ivars.maxEvents))
 process.TFileService = cms.Service("TFileService", fileName = cms.string(ivars.outputFile))
+
