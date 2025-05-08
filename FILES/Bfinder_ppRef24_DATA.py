@@ -3,8 +3,8 @@
 # Type: data
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_pp_on_PbPb_2024_cff import Run3_pp_on_PbPb_2024
-process = cms.Process('HiForest', Run3_pp_on_PbPb_2024)
+from Configuration.Eras.Era_Run3_2024_ppRef_cff import Run3_2024_ppRef
+process = cms.Process('HiForest', Run3_2024_ppRef)
 
 ###############################################################################
 
@@ -25,7 +25,7 @@ process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 141X, data")
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-         '/store/hidata/HIRun2024A/HIPhysicsRawPrime2/MINIAOD/PromptReco-v1/000/387/908/00000/93a76f4f-4e90-4357-9a7f-3c64a1be8e29.root'
+         '/store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/522/00000/fb334a7e-2e35-4485-963c-a8ce2f07b79a.root'
     ), 
 )
 
@@ -108,11 +108,11 @@ process.hiEvtAnalyzer.doHFfilters = cms.bool(False)
 #from HeavyIonsAnalysis.EventAnalysis.hltobject_cfi import trigger_list_data_2023_skimmed
 #process.hltobject.triggerNames = trigger_list_data_2023_skimmed
 
-process.load('HeavyIonsAnalysis.EventAnalysis.particleFlowAnalyser_cfi')
+#process.load('HeavyIonsAnalysis.EventAnalysis.particleFlowAnalyser_cfi')
 ################################
 # electrons, photons, muons
-process.load('HeavyIonsAnalysis.EGMAnalysis.ggHiNtuplizer_cfi')
-process.ggHiNtuplizer.doMuons = cms.bool(False)
+#process.load('HeavyIonsAnalysis.EGMAnalysis.ggHiNtuplizer_cfi')
+#process.ggHiNtuplizer.doMuons = cms.bool(False)
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 ################################
 # jet reco sequence
@@ -124,7 +124,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("HeavyIonsAnalysis.TrackAnalysis.TrackAnalyzers_cff")
 # muons (FTW)
 process.load("HeavyIonsAnalysis.MuonAnalysis.unpackedMuons_cfi")
-process.load("HeavyIonsAnalysis.MuonAnalysis.muonAnalyzer_cfi")
+#process.load("HeavyIonsAnalysis.MuonAnalysis.muonAnalyzer_cfi")
 ###############################################################################
 
 #########################
@@ -143,12 +143,13 @@ process.forest = cms.Path(
     process.hltanalysis +
     #process.hltobject +
     process.l1object +
-    process.trackSequencePP +
-    process.particleFlowAnalyser +
+   # process.trackSequencePP +
+   # process.particleFlowAnalyser +
 #    process.ggHiNtuplizer +
-    process.zdcSequencePbPb +
-    process.unpackedMuons +
-    process.muonAnalyzer
+   # process.zdcSequencePbPb +
+    process.unpackedTracksAndVertices +
+    process.unpackedMuons #+
+    #process.muonAnalyzer
     )
 
 #customisation
@@ -233,6 +234,10 @@ if addR3FlowJets or addR4FlowJets or addUnsubtractedR4Jets :
 # Event Selection -> add the needed filters here
 #########################
 
+process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
+process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter)
+
+process.pAna = cms.EndPath(process.skimanalysis)
 
 
 #from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
@@ -263,7 +268,7 @@ GenLabel = "prunedGenParticles"
 
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
-process.Bfinder.tkPtCut = cms.double(1.) # before fit
+process.Bfinder.tkPtCut = cms.double(0.5) # before fit
 process.Bfinder.tkEtaCut = cms.double(2.4) # before fit
 process.Bfinder.jpsiPtCut = cms.double(0.0) # before fit
 process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 5.0, 1.0) # before fit
@@ -272,8 +277,8 @@ process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 
 process.Bfinder.svpvDistanceCut = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
 process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)
-process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1")
-process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL3f0L3Mu0L2Mu0DR3p5FilteredNHitQ10M1to5")
+process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_PPRefL1DoubleMu0_v6")
+process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL1fL1sDoubleMu0L1Filtered0PPRef")
 process.BfinderSequence.insert(0, process.unpackedMuons)
 process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
 process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
@@ -283,7 +288,7 @@ process.p = cms.Path(process.BfinderSequence)
 #######################################################################################################################
 #######################################################################################################################
 # Muon filtering before running Bfinder to significantly speed up the processing
-MUONCUT = "isTrackerMuon && isGlobalMuon && ((abs(eta) <= 1.0 && pt > 3.5) || (1.0 < abs(eta) <= 2.4 && pt > 1.2)) && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && innerTrack.hitPattern.pixelLayersWithMeasurement > 0"
+MUONCUT = "isTrackerMuon && ((abs(eta) <= 1.0 && pt > 3.5) || (1.0 < abs(eta) <= 2.4 && pt > 1.0)) && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && innerTrack.hitPattern.pixelLayersWithMeasurement > 0"
 process.muonSelector = cms.EDFilter("PATMuonRefSelector",
                                         src = cms.InputTag("slimmedMuons"),
                                         cut = cms.string(MUONCUT),
@@ -314,7 +319,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1 #1000
-ivars.outputFile='HiForestMINIAOD.root'
+ivars.outputFile='HiForestMINIAOD_ppRefData.root'
 ivars.inputFiles='root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon1/MINIAOD/PromptReco-v1/000/387/574/00000/04ec4e96-7888-4124-ad89-f0264c56c13a.root'
 #ivars.inputFiles='root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/396/00000/6cb77b24-8565-40a0-9332-116068728a09.root'
 

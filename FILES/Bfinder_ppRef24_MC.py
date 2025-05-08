@@ -3,8 +3,8 @@
 # Type: mc
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_pp_on_PbPb_2024_cff import Run3_pp_on_PbPb_2024
-process = cms.Process('HiForest', Run3_pp_on_PbPb_2024)
+from Configuration.Eras.Era_Run3_2024_ppRef_cff import Run3_2024_ppRef
+process = cms.Process('HiForest', Run3_2024_ppRef)
 
 ###############################################################################
 
@@ -230,7 +230,7 @@ if addCandidateTagging:
 #########################
 
 process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
-process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilter)
+#process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilter)
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter)
 #process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
 #process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
@@ -253,10 +253,10 @@ process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 5.0, 1.0) # before
 process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
 process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05)
 process.Bfinder.svpvDistanceCut = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
-process.Bfinder.doTkPreCut = cms.bool(True)
-process.Bfinder.doMuPreCut = cms.bool(True)
-process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1")
-process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL3f0L3Mu0L2Mu0DR3p5FilteredNHitQ10M1to5")
+process.Bfinder.doTkPreCut = cms.bool(False)
+process.Bfinder.doMuPreCut = cms.bool(False)
+process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_PPRefL1DoubleMu0_v6")
+process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL1fL1sDoubleMu0L1Filtered0PPRef")
 process.BfinderSequence.insert(0, process.unpackedMuons)
 process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
 process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
@@ -268,7 +268,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1
-ivars.outputFile='HiForestMINIAOD.root'
+ivars.outputFile='HiForestMINIAOD_ppRefMC.root'
 
 ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/ppRef_X3872/prompt_X3872_to_Jpsi_Rho_phat5_miniAOD/250324_155722/0000/step3_miniAOD_1.root'
 
