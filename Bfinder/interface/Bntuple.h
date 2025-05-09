@@ -15,9 +15,6 @@ public:
   int      EvtNo;
   int      LumiNo;
   int      Bsize;
-  int      PixelMultiplicity;
-  int      NPixelTracks;
-  int      NTracks;
   int     CentBin;   // centrality bin
   int      Jsize;
   float    PVx;
@@ -42,6 +39,8 @@ public:
   float    BSWidthXErr;
   float    BSWidthY;
   float    BSWidthYErr;
+  int      nChargedTracks;
+  int      nSelectedChargedTracks;
   
   //BInfo
   int       Bindex[MAX_XB];
@@ -348,10 +347,7 @@ public:
   {
     //EvtInfo
     nt->Branch("RunNo",&RunNo);
-    nt->Branch("PixelMultiplicity", &PixelMultiplicity);
-    nt->Branch("NPixelTracks", &NPixelTracks);
-    nt->Branch("NTracks", &NTracks);
-    nt ->Branch("CentBin", &CentBin);  //centrality
+    nt->Branch("CentBin", &CentBin);  //centrality
     nt->Branch("EvtNo",&EvtNo);
     nt->Branch("LumiNo",&LumiNo);
     nt->Branch("PVx",&PVx);
@@ -376,6 +372,8 @@ public:
     nt->Branch("BSWidthXErr",&BSWidthXErr);
     nt->Branch("BSWidthY",&BSWidthY);
     nt->Branch("BSWidthYErr",&BSWidthYErr);
+    nt->Branch("nChargedTracks",&nChargedTracks);
+    nt->Branch("nSelectedChargedTracks",&nSelectedChargedTracks);
     
     if(isJpsi)
       {
@@ -904,9 +902,6 @@ public:
     RunNo = EvtInfo->RunNo;
     EvtNo = EvtInfo->EvtNo;
     LumiNo = EvtInfo->LumiNo;
-    PixelMultiplicity = EvtInfo->PixelMultiplicity;
-    NPixelTracks = EvtInfo->NPixelTracks;
-    NTracks = EvtInfo->NTracks;
     CentBin = EvtInfo->CentBin; //centrality
 
     PVx = EvtInfo->PVx;
@@ -931,6 +926,9 @@ public:
     BSWidthXErr = EvtInfo->BSWidthXErr;
     BSWidthY = EvtInfo->BSWidthY;
     BSWidthYErr = EvtInfo->BSWidthYErr;
+    nChargedTracks = EvtInfo->nChargedTracks;
+    nSelectedChargedTracks = EvtInfo->nSelectedChargedTracks;
+
   }
   
   void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, bool REAL, EvtInfoBranches *EvtInfo, VtxInfoBranches *VtxInfo, MuonInfoBranches *MuonInfo, TrackInfoBranches *TrackInfo, BInfoBranches *BInfo, GenInfoBranches *GenInfo, int &bestindex)

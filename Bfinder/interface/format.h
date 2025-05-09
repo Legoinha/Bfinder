@@ -112,9 +112,6 @@ public:
   int	    BxNo;
   int	    LumiNo;
   int CentBin;  // <- Add this
-  int PixelMultiplicity;
-  int NPixelTracks;
-  int NTracks;
   int	    Orbit;
   bool	McFlag;
   int     nBX;
@@ -153,23 +150,21 @@ public:
   float  BSWidthY;
   float  BSWidthYErr;
   //float	PVc2p;
+  int nChargedTracks;
+  int nSelectedChargedTracks;
 		
   void regTree(TTree *root){//{{{
     root->Branch("EvtInfo.RunNo"        , &RunNo                     , "EvtInfo.RunNo/I"			);
     root->Branch("EvtInfo.EvtNo"        , &EvtNo                     , "EvtInfo.EvtNo/I"			);
     root->Branch("EvtInfo.BxNo"         , &BxNo                      , "EvtInfo.BxNo/I"			);
-    root->Branch("EvtInfo.PixelMultiplicity"      , &PixelMultiplicity                 , "EvtInfo.PixelMultiplicity/I"                  );  //Multiplicity
-    root->Branch("EvtInfo.NPixelTracks"      , &NPixelTracks                 , "EvtInfo.NPixelTracks/I"                  );  //Multiplicity    
-    root->Branch("EvtInfo.NTracks"      , &NTracks                 , "EvtInfo.NTracks/I"                  );  //Multiplicity    
-
     root->Branch("EvtInfo.CentBin"      , &CentBin                 , "EvtInfo.CentBin/I"                  );  //CENTRALITY
     root->Branch("EvtInfo.LumiNo"       , &LumiNo                    , "EvtInfo.LumiNo/I"			);
     //root->Branch("EvtInfo.Orbit"        , &Orbit                     , "EvtInfo.Orbit/I"			);
     root->Branch("EvtInfo.McFlag"       , &McFlag                    , "EvtInfo.McFlag/O"			);
-    root->Branch("EvtInfo.nBX"          , &nBX                       , "EvtInfo.nBX/I" 			);
-    root->Branch("EvtInfo.BXPU"         , BXPU                       , "EvtInfo.BXPU[EvtInfo.nBX]/I");
-    root->Branch("EvtInfo.nPU"          , nPU                        , "EvtInfo.nPU[EvtInfo.nBX]/I");
-    root->Branch("EvtInfo.trueIT"       , trueIT                     , "EvtInfo.trueIT[EvtInfo.nBX]/F");
+    //root->Branch("EvtInfo.nBX"          , &nBX                       , "EvtInfo.nBX/I" 			);
+    //root->Branch("EvtInfo.BXPU"         , BXPU                       , "EvtInfo.BXPU[EvtInfo.nBX]/I");
+    //root->Branch("EvtInfo.nPU"          , nPU                        , "EvtInfo.nPU[EvtInfo.nBX]/I");
+    //root->Branch("EvtInfo.trueIT"       , trueIT                     , "EvtInfo.trueIT[EvtInfo.nBX]/F");
     root->Branch("EvtInfo.PVx"          , &PVx                       , "EvtInfo.PVx/F"			);
     root->Branch("EvtInfo.PVy"          , &PVy                       , "EvtInfo.PVy/F"			);
     root->Branch("EvtInfo.PVz"          , &PVz                       , "EvtInfo.PVz/F"			);
@@ -193,6 +188,9 @@ public:
     root->Branch("EvtInfo.BSWidthY"     , &BSWidthY                  , "EvtInfo.BSWidthY/F"		);
     root->Branch("EvtInfo.BSWidthYErr"  , &BSWidthYErr               , "EvtInfo.BSWidthYErr/F"	);
     //root->Branch("EvtInfo.PVc2p"      , &PVc2p                     , "EvtInfo.PVc2p/F"			);//
+    root->Branch("EvtInfo.nChargedTracks"  , &nChargedTracks         , "EvtInfo.nChargedTracks/I"	);
+    root->Branch("EvtInfo.nSelectedChargedTracks", &nSelectedChargedTracks , "EvtInfo.nSelectedChargedTracks/I"	);
+
   }//}}}
 
   void setbranchadd(TTree *root){ //{{{
@@ -200,17 +198,13 @@ public:
     root->SetBranchAddress("EvtInfo.EvtNo"          ,&EvtNo       );
     root->SetBranchAddress("EvtInfo.BxNo"           ,&BxNo        );
     root->SetBranchAddress("EvtInfo.LumiNo"         ,&LumiNo      );
-    root->SetBranchAddress("EvtInfo.PixelMultiplicity"        ,&PixelMultiplicity       );
-    root->SetBranchAddress("EvtInfo.NPixelTracks"        ,&NPixelTracks       );
-    root->SetBranchAddress("EvtInfo.NTracks"        ,&NTracks       );
-
     root->SetBranchAddress("EvtInfo.CentBin"        ,&CentBin       );
     //root->SetBranchAddress("EvtInfo.Orbit"          ,&Orbit       );
     root->SetBranchAddress("EvtInfo.McFlag"         ,&McFlag      );
-    root->SetBranchAddress("EvtInfo.nBX"            ,&nBX         );
-    root->SetBranchAddress("EvtInfo.BXPU"           ,BXPU         );
-    root->SetBranchAddress("EvtInfo.nPU"            ,nPU          );
-    root->SetBranchAddress("EvtInfo.trueIT"         ,trueIT       );
+    //root->SetBranchAddress("EvtInfo.nBX"            ,&nBX         );
+    //root->SetBranchAddress("EvtInfo.BXPU"           ,BXPU         );
+    //root->SetBranchAddress("EvtInfo.nPU"            ,nPU          );
+    //root->SetBranchAddress("EvtInfo.trueIT"         ,trueIT       );
     root->SetBranchAddress("EvtInfo.PVx"            ,&PVx		);
     root->SetBranchAddress("EvtInfo.PVy"            ,&PVy		);
     root->SetBranchAddress("EvtInfo.PVz"            ,&PVz		);
@@ -234,6 +228,8 @@ public:
     root->SetBranchAddress("EvtInfo.BSWidthY"       ,&BSWidthY  );
     root->SetBranchAddress("EvtInfo.BSWidthYErr"    ,&BSWidthYErr  );
     //root->SetBranchAddress("EvtInfo.PVc2p"    ,&PVc2p	);
+    root->Branch("EvtInfo.nChargedTracks"           , &nChargedTracks 	);
+    root->Branch("EvtInfo.nSelectedChargedTracks"   , &nSelectedChargedTracks);
   } //}}}
 }; //}}}
 
@@ -365,9 +361,9 @@ public:
     root->Branch("MuonInfo.phiErr"        , phiErr        , "MuonInfo.phiErr[MuonInfo.size]/F"	);
     root->Branch("MuonInfo.isTrackerMuon" , isTrackerMuon , "MuonInfo.isTrackerMuon[MuonInfo.size]/O");
     root->Branch("MuonInfo.isGlobalMuon"  , isGlobalMuon  , "MuonInfo.isGlobalMuon[MuonInfo.size]/O");
-    root->Branch("MuonInfo.muqual"        , muqual        , "MuonInfo.muqual[MuonInfo.size]/I"	);
-    root->Branch("MuonInfo.type"          , type         ,  "MuonInfo.type[MuonInfo.size]/I"   );
-    root->Branch("MuonInfo.n_matches"     , n_matches     , "MuonInfo.n_matches[MuonInfo.size]/F");
+    //root->Branch("MuonInfo.muqual"        , muqual        , "MuonInfo.muqual[MuonInfo.size]/I"	);
+    //root->Branch("MuonInfo.type"          , type         ,  "MuonInfo.type[MuonInfo.size]/I"   );
+    //root->Branch("MuonInfo.n_matches"     , n_matches     , "MuonInfo.n_matches[MuonInfo.size]/F");
     root->Branch("MuonInfo.TMOneStationTight" ,TMOneStationTight, "MuonInfo.TMOneStationTight[MuonInfo.size]/O");
     root->Branch("MuonInfo.TrackerMuonArbitrated" ,TrackerMuonArbitrated, "MuonInfo.TrackerMuonArbitrated[MuonInfo.size]/O");
     root->Branch("MuonInfo.isSoftMuon" ,isSoftMuon, "MuonInfo.isSoftMuon[MuonInfo.size]/O");
@@ -444,9 +440,9 @@ public:
     root->SetBranchAddress("MuonInfo.phiErr"        , phiErr         );
     root->SetBranchAddress("MuonInfo.isTrackerMuon" , isTrackerMuon);
     root->SetBranchAddress("MuonInfo.isGlobalMuon"  , isGlobalMuon);
-    root->SetBranchAddress("MuonInfo.muqual"        , muqual         );
-    root->SetBranchAddress("MuonInfo.type"          , type          );
-    root->SetBranchAddress("MuonInfo.n_matches"     , n_matches);
+    //root->SetBranchAddress("MuonInfo.muqual"        , muqual         );
+    //root->SetBranchAddress("MuonInfo.type"          , type          );
+    //root->SetBranchAddress("MuonInfo.n_matches"     , n_matches);
     root->SetBranchAddress("MuonInfo.TMOneStationTight" , TMOneStationTight);
     root->SetBranchAddress("MuonInfo.TrackerMuonArbitrated" , TrackerMuonArbitrated);
     root->SetBranchAddress("MuonInfo.isSoftMuon" , isSoftMuon);

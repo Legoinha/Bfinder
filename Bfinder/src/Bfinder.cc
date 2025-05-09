@@ -309,9 +309,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Nihar
   if (centrality.isValid() && cbin.isValid()) {
-    EvtInfo.PixelMultiplicity = (int)centrality->multiplicityPixel();
-    EvtInfo.NPixelTracks = (int)centrality->NpixelTracks();
-    EvtInfo.NTracks = (int)centrality->Ntracks();
 
     int centBin = *cbin;
 
@@ -430,6 +427,40 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.PVnchi2 = thePrimaryV.normalizedChi2();
   EvtInfo.PVchi2  = thePrimaryV.chi2();
 
+  // std::vector<pat::Muon>              input_muons;
+  auto input_muons = *muons;
+  // std::vector<pat::PackedCandidate>   input_tracks;
+  // input_tracks = *tks;
+  auto input_pc_tracks = *tks; // std::vector<pat::PackedCandidate>
+  std::vector<const reco::Track*> input_tracks;
+
+  EvtInfo.nChargedTracks = 0;
+  EvtInfo.nSelectedChargedTracks = 0;
+  
+  for(auto tk_it = tks->begin(); tk_it != tks->end(); tk_it++){
+      // static const reco::Track* getFromPC(const reco::Candidate& rc) {
+    auto track = getFromPC((*tk_it));
+
+    if (!track) continue;
+
+    if (abs(track->charge()) != 1) continue;
+
+    if (abs(track->eta()) > 2.4) continue;
+
+    if (track->pt() < 0.3) continue;
+
+    input_tracks.push_back(track);
+    EvtInfo.nChargedTracks++;
+    
+    if (track->quality(reco::TrackBase::qualityByName("highPurity")) &&
+	  fabs(track->dxy(RefVtx) / track->dxyError()) < 3 && fabs(track->dz(RefVtx) / track->dzError()) < 3 &&
+	  fabs(track->ptError() / track->pt()) < 0.1) {
+	    EvtInfo.nSelectedChargedTracks++;
+    }
+    
+  }
+  
+
   //printf("-----*****DEBUG:End of EvtInfo.\n");
 
   // Double check size=0.
@@ -442,18 +473,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<int> B_counter;
   for(unsigned int i = 0; i < Bchannel_.size(); i++){
     B_counter.push_back(0);
-  }
-
-  // std::vector<pat::Muon>              input_muons;
-  auto input_muons = *muons;
-  // std::vector<pat::PackedCandidate>   input_tracks;
-  // input_tracks = *tks;
-  auto input_pc_tracks = *tks; // std::vector<pat::PackedCandidate>
-  std::vector<const reco::Track*> input_tracks;
-  for(auto tk_it=tks->begin(); tk_it != tks->end(); tk_it++){
-      // static const reco::Track* getFromPC(const reco::Candidate& rc) {
-    auto rt = getFromPC((*tk_it));
-    input_tracks.push_back(rt);
   }
 
   try{
