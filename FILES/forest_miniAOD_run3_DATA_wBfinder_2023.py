@@ -325,7 +325,15 @@ process.atLeastOneDimuon = cms.EDFilter("CandViewCountFilter",
                                         src = cms.InputTag("dimuonSelection"),
                                         minNumber = cms.uint32(1)
                                         )
-process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.BfinderSequence)
+
+# HLT trigger firing events
+  import HLTrigger.HLTfilters.hltHighLevel_cfi
+  process.hltHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+  process.hltHI.HLTPaths = ["HLT_HIMinimumBiasHF1AND*_v*"]
+  process.hltHI.throw = False
+  process.hltHI.andOr = True
+
+process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.hltHI * process.BfinderSequence)
 #######################################################################################################################
 #######################################################################################################################
 

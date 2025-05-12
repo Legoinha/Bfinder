@@ -137,7 +137,7 @@ process.load('HeavyIonsAnalysis.ZDCAnalysis.ZDCAnalyzersPbPb_cff')
 ###############################################################################
 # main forest sequence
 process.forest = cms.Path(
-    process.HiForestInfo +
+    #process.HiForestInfo +
     #process.centralityBin +
     process.hiEvtAnalyzer +
     process.hltanalysis +
@@ -309,7 +309,15 @@ process.atLeastOneDimuon = cms.EDFilter("CandViewCountFilter",
                                         src = cms.InputTag("dimuonSelection"),
                                         minNumber = cms.uint32(1)
                                         )
-process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.BfinderSequence)
+
+# HLT trigger firing events
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+process.hltHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+process.hltHI.HLTPaths = ["HLT_PPRefL1DoubleMu0_v*"]
+process.hltHI.throw = False
+process.hltHI.andOr = True
+
+process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.hltHI * process.BfinderSequence)
 #######################################################################################################################
 #######################################################################################################################
 
