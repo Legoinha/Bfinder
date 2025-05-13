@@ -154,11 +154,11 @@ private:
 void Bfinder::beginJob()
 {//{{{
   root = fs->make<TTree>("root","root");
-  nt0   = fs->make<TTree>("ntKp","");     Bntuple->buildBranch(nt0);
-  nt1   = fs->make<TTree>("ntpi","");     Bntuple->buildBranch(nt1);
-  nt2   = fs->make<TTree>("ntKs","");     Bntuple->buildBranch(nt2);
-  nt3   = fs->make<TTree>("ntKstar","");  Bntuple->buildBranch(nt3);
-  nt5   = fs->make<TTree>("ntphi","");    Bntuple->buildBranch(nt5);
+  //nt0   = fs->make<TTree>("ntKp","");     Bntuple->buildBranch(nt0);
+  //nt1   = fs->make<TTree>("ntpi","");     Bntuple->buildBranch(nt1);
+  //nt2   = fs->make<TTree>("ntKs","");     Bntuple->buildBranch(nt2);
+  //nt3   = fs->make<TTree>("ntKstar","");  Bntuple->buildBranch(nt3);
+  //nt5   = fs->make<TTree>("ntphi","");    Bntuple->buildBranch(nt5);
   nt6   = fs->make<TTree>("ntmix","");    Bntuple->buildBranch(nt6);
   nt7   = fs->make<TTree>("ntJpsi","");    Bntuple->buildBranch(nt7,true);
   ntGen = fs->make<TTree>("ntGen","");    Bntuple->buildGenBranch(ntGen);
@@ -447,7 +447,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if (abs(track->eta()) > 2.4) continue;
 
-    if (track->pt() < 0.3) continue;
+    if (track->pt() < 0.4) continue;
 
     input_tracks.push_back(track);
     EvtInfo.nChargedTracks++;
@@ -1078,7 +1078,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               //mass_window[0] = 3.4;
               //mass_window[1] = 4.2;
               mass_window[0] = 2.5;
-              mass_window[1] = 4.5;
+              mass_window[1] = 4.2;
               TkTk_window = 0;
               if(Bchannel_[6] == 1){
                 BranchOut2MuX_XtoTkTk(
