@@ -317,7 +317,7 @@ process.hltHI.HLTPaths = ["HLT_PPRefL1DoubleMu0_v*"]
 process.hltHI.throw = False
 process.hltHI.andOr = True
 
-process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.hltHI * process.BfinderSequence)
+process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.primaryVertexFilter * process.hltHI * process.BfinderSequence)
 #######################################################################################################################
 #######################################################################################################################
 

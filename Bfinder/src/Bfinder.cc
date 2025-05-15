@@ -142,12 +142,12 @@ private:
   TTree* ntGen;
 
   //histograms
-  TH1F *MuonCutLevel;
-  TH1F *TrackCutLevel;
-  TH1F *XbujCutLevel;
+  //TH1F *MuonCutLevel;
+  //TH1F *TrackCutLevel;
+  //TH1F *XbujCutLevel;
   //How many channel
   static int const Nchannel = 20;
-  std::vector<TH1F*> XbMassCutLevel;
+  //std::vector<TH1F*> XbMassCutLevel;
 
 };//}}}
 
@@ -163,7 +163,7 @@ void Bfinder::beginJob()
   nt7   = fs->make<TTree>("ntJpsi","");    Bntuple->buildBranch(nt7,true);
   ntGen = fs->make<TTree>("ntGen","");    Bntuple->buildGenBranch(ntGen);
   EvtInfo.regTree(root);
-  VtxInfo.regTree(root);
+  //VtxInfo.regTree(root);
   MuonInfo.regTree(root, detailMode_, MuonTriggerMatchingPath_.size(), MuonTriggerMatchingFilter_.size());
   TrackInfo.regTree(root, detailMode_);
   BInfo.regTree(root, detailMode_);
@@ -218,7 +218,7 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   // MVAMapLabelpA_ = consumes< std::vector<float> >(iConfig.getParameter<edm::InputTag>("MVAMapLabel"));
   // Dedx_Token1_ = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("Dedx_Token1"));
   // Dedx_Token2_ = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("Dedx_Token2"));
-
+  /*
   MuonCutLevel        = fs->make<TH1F>("MuonCutLevel"     , "MuonCutLevel"    , 10, 0, 10);
   TrackCutLevel       = fs->make<TH1F>("TrackCutLevel"    , "TrackCutLevel"   , 10, 0, 10);
   XbujCutLevel        = fs->make<TH1F>("XbujCutLevel"     , "XbujCutLevel"    , 10, 0, 10);
@@ -226,6 +226,7 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
     TH1F* XbMassCutLevel_temp      = fs->make<TH1F>(TString::Format("XbMassCutLevel_i")   ,TString::Format("XbMassCutLevel_i")  , 10, 0, 10);
     XbMassCutLevel.push_back(XbMassCutLevel_temp);
   }
+  */
 }//}}}
 
 Bfinder::~Bfinder()
@@ -447,8 +448,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if (abs(track->eta()) > 2.4) continue;
 
-    if (track->pt() < 0.4) continue;
-
     input_tracks.push_back(track);
     EvtInfo.nChargedTracks++;
     
@@ -505,7 +504,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               fprintf(stderr,"ERROR: number of muons exceeds the size of array.\n");
               break;//exit(0);
             }
-
+            /*
             //Muon cut level
             MuonCutLevel->Fill(0);
             if (!(mu_it->isTrackerMuon() || mu_it->isGlobalMuon())) ;
@@ -535,7 +534,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 }
               }
             }
-
+            */
             //Muon Id flag
             // *Bfinder* 
             MuonInfo.BfinderMuID[MuonInfo.size] = false;
@@ -852,7 +851,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               RefCountedKinematicTree         ujVFT;
               ujVFT = fitter.fit(muonParticles); 
               if (!ujVFT->isValid()) continue;
-              XbujCutLevel->Fill(3); 
+              //XbujCutLevel->Fill(3); 
 
               ujVFT->movePointerToTheTop();
     
@@ -864,7 +863,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               KinematicParameters         ujmu2KP     = ujVFT->currentParticle()->currentState().kinematicParameters();
               double chi2_prob_uj = TMath::Prob(ujVFPvtx->chiSquared(), ujVFPvtx->degreesOfFreedom());
               if(chi2_prob_uj < uj_VtxChiProbCut_) continue;
-              XbujCutLevel->Fill(4);
+              //XbujCutLevel->Fill(4);
 
               if (fabs(ujVFP->currentState().mass()-JPSI_MASS)>0.3) continue;
 
@@ -1465,13 +1464,13 @@ void Bfinder::BranchOut2MuTk(
   
     //if ((v4_mu1+v4_mu2+v4_tk1).Mag()<mass_window[0]-0.2 || (v4_mu1+v4_mu2+v4_tk1).Mag()>mass_window[1]+0.2) continue;
     if ((v4_mu1+v4_mu2+v4_tk1).Mag()<mass_window[0] || (v4_mu1+v4_mu2+v4_tk1).Mag()>mass_window[1]) continue;
-    XbMassCutLevel[channel_number-1]->Fill(0);
+    //XbMassCutLevel[channel_number-1]->Fill(0);
     if((v4_mu1+v4_mu2+v4_tk1).Pt()<bPtCut_[channel_number-1])continue;
-    XbMassCutLevel[channel_number-1]->Fill(1);
+    //XbMassCutLevel[channel_number-1]->Fill(1);
       
     reco::TransientTrack kaonTT(*tk_it1, &(*bField) );
     if (!kaonTT.isValid()) continue;
-    XbMassCutLevel[channel_number-1]->Fill(2);
+    //XbMassCutLevel[channel_number-1]->Fill(2);
       
     ParticleMass kaon_mass = Tk_MASS;
     float kaon_sigma = Functs.getParticleSigma(kaon_mass);
@@ -1484,26 +1483,26 @@ void Bfinder::BranchOut2MuTk(
 
     double MaximumDoca = Functs.getMaxDoca(Xb_candidate);
     if (MaximumDoca > MaxDocaCut_[channel_number-1]) continue;
-    XbMassCutLevel[channel_number-1]->Fill(3);
+    //XbMassCutLevel[channel_number-1]->Fill(3);
       
     ParticleMass uj_mass = MuMu_MASS;
     MultiTrackKinematicConstraint *uj_c = new TwoTrackMassKinematicConstraint(uj_mass);
     KinematicConstrainedVertexFitter kcvFitter;
     xbVFT = kcvFitter.fit(Xb_candidate, uj_c);
     if (!xbVFT->isValid()) continue;
-    XbMassCutLevel[channel_number-1]->Fill(4);
+    //XbMassCutLevel[channel_number-1]->Fill(4);
 
     xbVFT->movePointerToTheTop();
     RefCountedKinematicParticle     xbVFP       = xbVFT->currentParticle();
     RefCountedKinematicVertex       xbVFPvtx    = xbVFT->currentDecayVertex();
     if (!xbVFPvtx->vertexIsValid()) continue;
-    XbMassCutLevel[channel_number-1]->Fill(5);
+    //XbMassCutLevel[channel_number-1]->Fill(5);
 
     std::vector<RefCountedKinematicParticle> xCands  = xbVFT->finalStateParticles();
       
     double chi2_prob = TMath::Prob(xbVFPvtx->chiSquared(),xbVFPvtx->degreesOfFreedom());
     if (chi2_prob < VtxChiProbCut_[channel_number-1]) continue;
-    XbMassCutLevel[channel_number-1]->Fill(6);
+    //XbMassCutLevel[channel_number-1]->Fill(6);
       
     //if (xbVFP->currentState().mass()<mass_window[0] || xbVFP->currentState().mass()>mass_window[1]) continue;
       
@@ -1545,7 +1544,7 @@ void Bfinder::BranchOut2MuTk(
     BInfo.svpvDistance[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).value();
     BInfo.svpvDisErr[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).error();
     if( (BInfo.svpvDistance[BInfo.size]/BInfo.svpvDisErr[BInfo.size]) < svpvDistanceCut_[channel_number-1]) continue;
-    XbMassCutLevel[channel_number-1]->Fill(7);
+    //XbMassCutLevel[channel_number-1]->Fill(7);
 
     reco::Vertex::Point vp1(thePrimaryV.position().x(), thePrimaryV.position().y(), 0.);
     reco::Vertex::Point vp2(xbVFPvtx->vertexState().position().x(), xbVFPvtx->vertexState().position().y(), 0.);
@@ -1576,7 +1575,7 @@ void Bfinder::BranchOut2MuTk(
     dVec.SetXYZ(BInfo.px[BInfo.size], BInfo.py[BInfo.size], BInfo.pz[BInfo.size]);
     BInfo.alpha[BInfo.size] = svpvVec.Angle(dVec);
     if( BInfo.alpha[BInfo.size] > alphaCut_[channel_number-1]) continue;
-    XbMassCutLevel[channel_number-1]->Fill(8);
+    //XbMassCutLevel[channel_number-1]->Fill(8);
       
     BInfo.rftk1_index[BInfo.size] = -2;
     BInfo.rftk2_index[BInfo.size] = -2;
@@ -1668,13 +1667,13 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       v4_tk2.SetPtEtaPhiM(tk_it2->pt(),tk_it2->eta(),tk_it2->phi(),Tk2_MASS);
       if(TkTk_MASS > 0) {if (fabs((v4_tk1+v4_tk2).Mag()-TkTk_MASS)>TkTk_window) continue;}
       //else {if (fabs((v4_tk1+v4_tk2).Mag())>TkTk_window) continue;}//if no tktk mass constrain, require it to be at least < some mass value
-      XbMassCutLevel[channel_number-1]->Fill(0);
+      //XbMassCutLevel[channel_number-1]->Fill(0);
             
       //if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()<mass_window[0]-0.2 || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()>mass_window[1]+0.2) continue;
       if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()<mass_window[0] || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()>mass_window[1]) continue;
-      XbMassCutLevel[channel_number-1]->Fill(1);
+      //XbMassCutLevel[channel_number-1]->Fill(1);
       if((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Pt()<bPtCut_[channel_number-1])continue;
-      XbMassCutLevel[channel_number-1]->Fill(2);
+      //XbMassCutLevel[channel_number-1]->Fill(2);
             
       reco::TransientTrack tk1PTT(*tk_it1, &(*bField) );
       reco::TransientTrack tk2MTT(*tk_it2, &(*bField) );
@@ -1682,7 +1681,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       // reco::TransientTrack tk2MTT(tk_it2->pseudoTrack(), &(*bField) );
       if (!tk1PTT.isValid()) continue;
       if (!tk2MTT.isValid()) continue;
-      XbMassCutLevel[channel_number-1]->Fill(3);
+      //XbMassCutLevel[channel_number-1]->Fill(3);
             
       ParticleMass tk1_mass = Tk1_MASS;
       float tk1_sigma = Functs.getParticleSigma(tk1_mass);
@@ -1700,15 +1699,15 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       tktk_candidate.push_back(pFactory.particle(tk2MTT,tk2_mass,chi,ndf,tk2_sigma));
       tktk_VFT = tktk_fitter.fit(tktk_candidate);
       if (tktk_VFT->isValid()){
-        XbMassCutLevel[channel_number-1]->Fill(4);
+        //XbMassCutLevel[channel_number-1]->Fill(4);
         tktk_VFT->movePointerToTheTop();
         tktk_VFP   = tktk_VFT->currentParticle();
         tktk_VFPvtx = tktk_VFT->currentDecayVertex();
         if (tktk_VFPvtx->vertexIsValid()){
-          XbMassCutLevel[channel_number-1]->Fill(5);
+          //XbMassCutLevel[channel_number-1]->Fill(5);
           double chi2_prob_tktk = TMath::Prob(tktk_VFPvtx->chiSquared(),tktk_VFPvtx->degreesOfFreedom());
           if (chi2_prob_tktk >= VtxChiProbCut_[channel_number-1]){
-            XbMassCutLevel[channel_number-1]->Fill(6);
+            //XbMassCutLevel[channel_number-1]->Fill(6);
           }
           else if (TkTk_MASS > 0) continue;
         }
@@ -1741,23 +1740,23 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
 
       double MaximumDoca = Functs.getMaxDoca(Xb_candidate);
       if (MaximumDoca > MaxDocaCut_[channel_number-1]) continue;
-      XbMassCutLevel[channel_number-1]->Fill(7);
+      //XbMassCutLevel[channel_number-1]->Fill(7);
             
       ParticleMass uj_mass = MuMu_MASS;
       MultiTrackKinematicConstraint *uj_c = new  TwoTrackMassKinematicConstraint(uj_mass);
       xbVFT = kcvFitter.fit(Xb_candidate, uj_c);
       if (!xbVFT->isValid()) continue;
-      XbMassCutLevel[channel_number-1]->Fill(8);
+      //XbMassCutLevel[channel_number-1]->Fill(8);
 
       xbVFT->movePointerToTheTop();
       xbVFP       = xbVFT->currentParticle();
       xbVFPvtx    = xbVFT->currentDecayVertex();
       if (!xbVFPvtx->vertexIsValid()) continue;
-      XbMassCutLevel[channel_number-1]->Fill(9);
+      //XbMassCutLevel[channel_number-1]->Fill(9);
             
       double chi2_prob = TMath::Prob(xbVFPvtx->chiSquared(),xbVFPvtx->degreesOfFreedom());
       if (chi2_prob < VtxChiProbCut_[channel_number-1]) continue;
-      XbMassCutLevel[channel_number-1]->Fill(10);
+      //XbMassCutLevel[channel_number-1]->Fill(10);
             
       //Cut out a mass window
       //if (xbVFP->currentState().mass()<mass_window[0]|| xbVFP->currentState().mass()>mass_window[1]) continue;
@@ -1816,7 +1815,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       BInfo.svpvDistance[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).value();
       BInfo.svpvDisErr[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).error();
       if( (BInfo.svpvDistance[BInfo.size]/BInfo.svpvDisErr[BInfo.size]) < svpvDistanceCut_[channel_number-1]) continue;
-      XbMassCutLevel[channel_number-1]->Fill(11);
+      //XbMassCutLevel[channel_number-1]->Fill(11);
            
       reco::Vertex::Point vp1(thePrimaryV.position().x(), thePrimaryV.position().y(), 0.);
       reco::Vertex::Point vp2(xbVFPvtx->vertexState().position().x(), xbVFPvtx->vertexState().position().y(), 0.);
@@ -1847,7 +1846,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       dVec.SetXYZ(BInfo.px[BInfo.size], BInfo.py[BInfo.size], BInfo.pz[BInfo.size]);
       BInfo.alpha[BInfo.size] = svpvVec.Angle(dVec);
       if( BInfo.alpha[BInfo.size] > alphaCut_[channel_number-1]) continue;
-      XbMassCutLevel[channel_number-1]->Fill(12);
+      //XbMassCutLevel[channel_number-1]->Fill(12);
             
       BInfo.rftk1_index[BInfo.size] = -2;
       BInfo.rftk2_index[BInfo.size] = -2;

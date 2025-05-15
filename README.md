@@ -5,8 +5,8 @@ Ref: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiForestSetup
 To setup Bfinder:
 =====
 ```
-cmsrel CMSSW_14_1_4_patch5 #
-cd CMSSW_14_1_4_patch5/src
+cmsrel CMSSW_14_1_8 #
+cd CMSSW_14_1_8/src
 cmsenv
 git cms-merge-topic CmsHI:forest_CMSSW_14_1_X
 git clone -b Dfinder_14XX_miniAOD https://github.com/Legoinha/Bfinder.git --depth 1
