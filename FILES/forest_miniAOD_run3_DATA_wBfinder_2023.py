@@ -83,7 +83,7 @@ process.TFileService = cms.Service("TFileService",
 # event analysis
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_data_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cfi')
-process.load('HeavyIonsAnalysis.EventAnalysis.skimanalysis_cfi')
+#process.load('HeavyIonsAnalysis.EventAnalysis.skimanalysis_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.hltobject_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.l1object_cfi')
 
@@ -251,7 +251,7 @@ process.pphfCoincFilter3Th5 = cms.Path(process.phfCoincFilter3Th5)
 process.pphfCoincFilter4Th5 = cms.Path(process.phfCoincFilter4Th5)
 process.pphfCoincFilter5Th5 = cms.Path(process.phfCoincFilter5Th5)
 
-process.pAna = cms.EndPath(process.skimanalysis)
+#process.pAna = cms.EndPath(process.skimanalysis)
 
 #from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
 #process.hltfilter = hltHighLevel.clone(
@@ -327,13 +327,13 @@ process.atLeastOneDimuon = cms.EDFilter("CandViewCountFilter",
                                         )
 
 # HLT trigger firing events
-  import HLTrigger.HLTfilters.hltHighLevel_cfi
-  process.hltHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-  process.hltHI.HLTPaths = ["HLT_HIMinimumBiasHF1AND*_v*"]
-  process.hltHI.throw = False
-  process.hltHI.andOr = True
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+process.hltHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+process.hltHI.HLTPaths = ["HLT_HIMinimumBiasHF1AND*_v*"]
+process.hltHI.throw = False
+process.hltHI.andOr = True
 
-process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.hltHI * process.BfinderSequence)
+process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.phfCoincFilter2Th4 * process.primaryVertexFilter * process.clusterCompatibilityFilter * process.hltHI * process.BfinderSequence)
 #######################################################################################################################
 #######################################################################################################################
 

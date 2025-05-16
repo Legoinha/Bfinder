@@ -372,7 +372,7 @@ public:
     root->Branch("MuonInfo.SoftMuID" ,SoftMuID, "MuonInfo.SoftMuID[MuonInfo.size]/O");
     root->Branch("MuonInfo.OptMuID" ,OptMuID, "MuonInfo.OptMuID[MuonInfo.size]/O");
 
-    root->Branch("MuonInfo.innerTrackQuality"    , innerTrackQuality    , "MuonInfo.innerTrackQuality[MuonInfo.size]/I"	);
+    //root->Branch("MuonInfo.innerTrackQuality"    , innerTrackQuality    , "MuonInfo.innerTrackQuality[MuonInfo.size]/I"	);
     root->Branch("MuonInfo.highPurity"    , highPurity    , "MuonInfo.highPurity[MuonInfo.size]/O"	);
     root->Branch("MuonInfo.normchi2"      , normchi2      , "MuonInfo.normchi2[MuonInfo.size]/F");
     root->Branch("MuonInfo.i_striphit"    , i_striphit    , "MuonInfo.i_striphit[MuonInfo.size]/I"	);

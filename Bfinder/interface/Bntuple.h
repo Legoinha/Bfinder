@@ -358,6 +358,7 @@ public:
     nt->Branch("PVzE",&PVzE);
     nt->Branch("PVnchi2",&PVnchi2);
     nt->Branch("PVchi2",&PVchi2);
+    /*
     nt->Branch("BSx",&BSx);
     nt->Branch("BSy",&BSy);
     nt->Branch("BSz",&BSz);
@@ -372,6 +373,7 @@ public:
     nt->Branch("BSWidthXErr",&BSWidthXErr);
     nt->Branch("BSWidthY",&BSWidthY);
     nt->Branch("BSWidthYErr",&BSWidthYErr);
+    */
     nt->Branch("nChargedTracks",&nChargedTracks);
     nt->Branch("nSelectedChargedTracks",&nSelectedChargedTracks);
     
@@ -541,12 +543,12 @@ public:
         nt->Branch("Btrk2nStripLayer",Btrk2nStripLayer,"Btrk2nStripLayer[Bsize]/F");
         nt->Branch("Btrk1Chi2ndf",Btrk1Chi2ndf,"Btrk1Chi2ndf[Bsize]/F");
         nt->Branch("Btrk2Chi2ndf",Btrk2Chi2ndf,"Btrk2Chi2ndf[Bsize]/F");
-        nt->Branch("Btrk1MVAVal",Btrk1MVAVal,"Btrk1MVAVal[Bsize]/F");
-        nt->Branch("Btrk2MVAVal",Btrk2MVAVal,"Btrk2MVAVal[Bsize]/F");
-        nt->Branch("Btrk1Algo",Btrk1Algo,"Btrk1Algo[Bsize]/I");
-        nt->Branch("Btrk2Algo",Btrk2Algo,"Btrk2Algo[Bsize]/I");
-        nt->Branch("Btrk1originalAlgo",Btrk1originalAlgo,"Btrk1originalAlgo[Bsize]/I");
-        nt->Branch("Btrk2originalAlgo",Btrk2originalAlgo,"Btrk2originalAlgo[Bsize]/I");
+        //nt->Branch("Btrk1MVAVal",Btrk1MVAVal,"Btrk1MVAVal[Bsize]/F");
+        //nt->Branch("Btrk2MVAVal",Btrk2MVAVal,"Btrk2MVAVal[Bsize]/F");
+        //nt->Branch("Btrk1Algo",Btrk1Algo,"Btrk1Algo[Bsize]/I");
+        //nt->Branch("Btrk2Algo",Btrk2Algo,"Btrk2Algo[Bsize]/I");
+        //nt->Branch("Btrk1originalAlgo",Btrk1originalAlgo,"Btrk1originalAlgo[Bsize]/I");
+        //nt->Branch("Btrk2originalAlgo",Btrk2originalAlgo,"Btrk2originalAlgo[Bsize]/I");
         nt->Branch("Btrk1highPurity",Btrk1highPurity,"Btrk1highPurity[Bsize]/O");
         nt->Branch("Btrk2highPurity",Btrk2highPurity,"Btrk2highPurity[Bsize]/O");
         nt->Branch("Btrk1Quality",Btrk1Quality,"Btrk1Quality[Bsize]/I");
@@ -603,8 +605,8 @@ public:
         nt->Branch("Bmu2normchi2",Bmu2normchi2,"Bmu2normchi2[Bsize]/F");
         nt->Branch("Bmu1Chi2ndf",Bmu1Chi2ndf,"Bmu1Chi2ndf[Bsize]/F");
         nt->Branch("Bmu2Chi2ndf",Bmu2Chi2ndf,"Bmu2Chi2ndf[Bsize]/F");
-        nt->Branch("Bmu1muqual",Bmu1muqual,"Bmu1muqual[Bsize]/I");
-        nt->Branch("Bmu2muqual",Bmu2muqual,"Bmu2muqual[Bsize]/I");
+        //nt->Branch("Bmu1muqual",Bmu1muqual,"Bmu1muqual[Bsize]/I");
+        //nt->Branch("Bmu2muqual",Bmu2muqual,"Bmu2muqual[Bsize]/I");
         nt->Branch("Bmu1TrackerMuArbitrated",Bmu1TrackerMuArbitrated,"Bmu1TrackerMuArbitrated[Bsize]/O");
         nt->Branch("Bmu2TrackerMuArbitrated",Bmu2TrackerMuArbitrated,"Bmu2TrackerMuArbitrated[Bsize]/O");
         nt->Branch("Bmu1isTrackerMuon",Bmu1isTrackerMuon,"Bmu1isTrackerMuon[Bsize]/O");
