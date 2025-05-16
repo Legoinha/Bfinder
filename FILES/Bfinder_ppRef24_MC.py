@@ -111,7 +111,7 @@ process.muonAnalyzer.doGen = cms.bool(True)
 ###############################################################################
 # main forest sequence
 process.forest = cms.Path(
-    process.HiForestInfo +
+    #process.HiForestInfo +
     #process.centralityBin +
     process.hltanalysis #+
 #    process.hltobject +
@@ -272,6 +272,10 @@ ivars.outputFile='HiForestMINIAOD_ppRefMC.root'
 
 ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/ppRef_X3872/prompt_X3872_to_Jpsi_Rho_phat5_miniAOD/250324_155722/0000/step3_miniAOD_1.root'
 
+
+import os
+if os.path.exists(ivars.outputFile):
+    os.remove(ivars.outputFile)
 
 ivars.parseArguments() # get and parse the command line arguments
 

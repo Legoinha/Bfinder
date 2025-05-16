@@ -154,11 +154,11 @@ private:
 void Bfinder::beginJob()
 {//{{{
   root = fs->make<TTree>("root","root");
-  //nt0   = fs->make<TTree>("ntKp","");     Bntuple->buildBranch(nt0);
-  //nt1   = fs->make<TTree>("ntpi","");     Bntuple->buildBranch(nt1);
-  //nt2   = fs->make<TTree>("ntKs","");     Bntuple->buildBranch(nt2);
-  //nt3   = fs->make<TTree>("ntKstar","");  Bntuple->buildBranch(nt3);
-  //nt5   = fs->make<TTree>("ntphi","");    Bntuple->buildBranch(nt5);
+  nt0   = fs->make<TTree>("ntKp","");     Bntuple->buildBranch(nt0);
+  nt1   = fs->make<TTree>("ntpi","");     Bntuple->buildBranch(nt1);
+  nt2   = fs->make<TTree>("ntKs","");     Bntuple->buildBranch(nt2);
+  nt3   = fs->make<TTree>("ntKstar","");  Bntuple->buildBranch(nt3);
+  nt5   = fs->make<TTree>("ntphi","");    Bntuple->buildBranch(nt5);
   nt6   = fs->make<TTree>("ntmix","");    Bntuple->buildBranch(nt6);
   nt7   = fs->make<TTree>("ntJpsi","");    Bntuple->buildBranch(nt7,true);
   ntGen = fs->make<TTree>("ntGen","");    Bntuple->buildGenBranch(ntGen);

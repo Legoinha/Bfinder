@@ -61,6 +61,8 @@ public:
   float     Bchi2ndf[MAX_XB];
   float     Bchi2cl[MAX_XB];
   float     Bdtheta[MAX_XB];
+    float     Bcos_dtheta[MAX_XB];
+
   float     Blxy[MAX_XB];
   float     BlxyBS[MAX_XB];
   float     BlxyBSErr[MAX_XB];
@@ -70,6 +72,9 @@ public:
   float     BsvpvDisErr[MAX_XB];
   float     BsvpvDistance_2D[MAX_XB];
   float     BsvpvDisErr_2D[MAX_XB];
+    float     Bnorm_svpvDistance[MAX_XB];
+    float     Bnorm_svpvDistance_2D[MAX_XB];
+
   int       Bisbestchi2[MAX_XB];
   float     BQvalue[MAX_XB];
   float     BQvalueuj[MAX_XB];
@@ -156,6 +161,8 @@ public:
   int       Btrk2Idx[MAX_XB];
   float     Btrk1Pt[MAX_XB];
   float     Btrk2Pt[MAX_XB];
+    float     BtrkPtimb[MAX_XB];
+
   float     Btrk1Eta[MAX_XB];
   float     Btrk2Eta[MAX_XB];
   float     Btrk1Phi[MAX_XB];
@@ -174,6 +181,9 @@ public:
   float     Btrk2DzError[MAX_XB];
   float     Btrk1Dxy[MAX_XB];
   float     Btrk2Dxy[MAX_XB];
+    float     Bnorm_trk1Dxy[MAX_XB];
+    float     Bnorm_trk2Dxy[MAX_XB];
+
   float     Btrk1DxyError[MAX_XB];
   float     Btrk2DxyError[MAX_XB];
   float     Btrk1Dz1[MAX_XB];
@@ -486,6 +496,8 @@ public:
         nt->Branch("Bchi2ndf",Bchi2ndf,"Bchi2ndf[Bsize]/F");
         nt->Branch("Bchi2cl",Bchi2cl,"Bchi2cl[Bsize]/F");
         nt->Branch("Bdtheta",Bdtheta,"Bdtheta[Bsize]/F");
+          nt->Branch("Bcos_dtheta",Bcos_dtheta,"Bcos_dtheta[Bsize]/F");
+
         nt->Branch("Blxy",Blxy,"Blxy[Bsize]/F");
         nt->Branch("BlxyBS",BlxyBS,"BlxyBS[Bsize]/F");
         nt->Branch("BlxyBSErr",BlxyBSErr,"BlxyBSErr[Bsize]/F");
@@ -494,6 +506,9 @@ public:
         nt->Branch("BsvpvDisErr",BsvpvDisErr,"BsvpvDisErr[Bsize]/F");
         nt->Branch("BsvpvDistance_2D",BsvpvDistance_2D,"BsvpvDistance_2D[Bsize]/F");
         nt->Branch("BsvpvDisErr_2D",BsvpvDisErr_2D,"BsvpvDisErr_2D[Bsize]/F");
+          nt->Branch("Bnorm_svpvDistance",Bnorm_svpvDistance,"Bnorm_svpvDistance[Bsize]/F");
+          nt->Branch("Bnorm_svpvDistance_2D",Bnorm_svpvDistance_2D,"Bnorm_svpvDistance_2D[Bsize]/F");
+
         nt->Branch("BMaxDoca",BMaxDoca,"BMaxDoca[Bsize]/F");
         nt->Branch("Bisbestchi2",Bisbestchi2,"Bisbestchi2[Bsize]/I");
         nt->Branch("BQvalue",BQvalue,"BQvalue[Bsize]/F");
@@ -505,6 +520,8 @@ public:
         nt->Branch("Btrk2Idx",Btrk2Idx,"Btrk2Idx[Bsize]/I");
         nt->Branch("Btrk1Pt",Btrk1Pt,"Btrk1Pt[Bsize]/F");
         nt->Branch("Btrk2Pt",Btrk2Pt,"Btrk2Pt[Bsize]/F");
+          nt->Branch("BtrkPtimb",BtrkPtimb,"BtrkPtimb[Bsize]/F");
+
         nt->Branch("Btrk1Eta",Btrk1Eta,"Btrk1Eta[Bsize]/F");  
         nt->Branch("Btrk2Eta",Btrk2Eta,"Btrk2Eta[Bsize]/F");  
         nt->Branch("Btrk1Phi",Btrk1Phi,"Btrk1Phi[Bsize]/F");  
@@ -523,6 +540,9 @@ public:
         nt->Branch("Btrk2DzError",Btrk2DzError,"Btrk2DzError[Bsize]/F");
         nt->Branch("Btrk1Dxy",Btrk1Dxy,"Btrk1Dxy[Bsize]/F");
         nt->Branch("Btrk2Dxy",Btrk2Dxy,"Btrk2Dxy[Bsize]/F");
+          nt->Branch("Bnorm_trk1Dxy",Bnorm_trk1Dxy,"Bnorm_trk1Dxy[Bsize]/F");
+          nt->Branch("Bnorm_trk2Dxy",Bnorm_trk2Dxy,"Bnorm_trk2Dxy[Bsize]/F");
+
         nt->Branch("Btrk1DxyError",Btrk1DxyError,"Btrk1DxyError[Bsize]/F");
         nt->Branch("Btrk2DxyError",Btrk2DxyError,"Btrk2DxyError[Bsize]/F");
         nt->Branch("Btrk1Dz1",Btrk1Dz1,"Btrk1Dz1[Bsize]/F");
@@ -960,6 +980,8 @@ public:
     Bchi2ndf[typesize] = BInfo->vtxchi2[j]/BInfo->vtxdof[j];
     Bchi2cl[typesize] = TMath::Prob(BInfo->vtxchi2[j],BInfo->vtxdof[j]);
     Bdtheta[typesize] = bP->Angle(*bVtx);
+        Bcos_dtheta[typesize] = TMath::Cos(bP->Angle(*bVtx));
+
     Blxy[typesize] = ((BInfo->vtxX[j]-EvtInfo->PVx)*b4P->Px() + (BInfo->vtxY[j]-EvtInfo->PVy)*b4P->Py())/BInfo->pt[j];
     float r2lxyBS = (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz) * (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz)
       + (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz) * (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz);
@@ -972,6 +994,10 @@ public:
     BsvpvDisErr[typesize] = BInfo->svpvDisErr[j];
     BsvpvDistance_2D[typesize] = BInfo->svpvDistance_2D[j];
     BsvpvDisErr_2D[typesize] = BInfo->svpvDisErr_2D[j];
+
+      Bnorm_svpvDistance[typesize] = (BInfo->svpvDistance[j])/(BInfo->svpvDisErr[j]);
+      Bnorm_svpvDistance_2D[typesize] = (BInfo->svpvDistance_2D[j])/(BInfo->svpvDisErr_2D[j]);
+
     BMaxDoca[typesize] = BInfo->MaxDoca[j];
     
     b4P->SetPtEtaPhiM(MuonInfo->pt[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]],MuonInfo->eta[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]],MuonInfo->phi[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]],MUON_MASS);
@@ -1354,6 +1380,10 @@ public:
                         tk1pz+tk2pz,
                         tk1EK+tk2EK);
         BtktkmassKK[typesize] = b4P->Mag();
+        
+          BtrkPtimb[typesize] = TMath::Abs(TrackInfo->pt[BInfo->rftk1_index[j]] - TrackInfo->pt[BInfo->rftk2_index[j]]) / TMath::Abs(TrackInfo->pt[BInfo->rftk1_index[j]]+TrackInfo->pt[BInfo->rftk2_index[j]]);
+          Bnorm_trk1Dxy[typesize] = (TrackInfo->dxy[BInfo->rftk1_index[j]]) / (TrackInfo->dxyerror[BInfo->rftk1_index[j]]) ;
+          Bnorm_trk2Dxy[typesize] = (TrackInfo->dxy[BInfo->rftk2_index[j]]) / (TrackInfo->dxyerror[BInfo->rftk2_index[j]]) ;
       }
 
     BQvalue[typesize] = (Bmass[typesize]-3.096916-Btktkmass[typesize]);
