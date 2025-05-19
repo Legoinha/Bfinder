@@ -127,6 +127,8 @@ public:
   bool      Bmu2highPurity[MAX_XB];
   bool      Bmu1SoftMuID[MAX_XB];
   bool      Bmu2SoftMuID[MAX_XB];
+  bool      Bmu1HybridSoftMuID[MAX_XB];
+  bool      Bmu2HybridSoftMuID[MAX_XB];  
   bool      Bmu1isAcc[MAX_XB];
   bool      Bmu2isAcc[MAX_XB];
   float     Bmu1TrgMatchFilterE[MAX_XB];
@@ -358,8 +360,8 @@ public:
     //EvtInfo
     nt->Branch("RunNo",&RunNo);
     nt->Branch("CentBin", &CentBin);  //centrality
-    //nt->Branch("EvtNo",&EvtNo);
-    nt->Branch("LumiNo",&LumiNo);
+    nt->Branch("EvtNo",&EvtNo);
+    //nt->Branch("LumiNo",&LumiNo);
     nt->Branch("PVx",&PVx);
     nt->Branch("PVy",&PVy);
     nt->Branch("PVz",&PVz);
@@ -496,18 +498,18 @@ public:
         //nt->Branch("Bchi2ndf",Bchi2ndf,"Bchi2ndf[Bsize]/F");
         nt->Branch("Bchi2cl",Bchi2cl,"Bchi2cl[Bsize]/F");
         nt->Branch("Bdtheta",Bdtheta,"Bdtheta[Bsize]/F");
-          nt->Branch("Bcos_dtheta",Bcos_dtheta,"Bcos_dtheta[Bsize]/F");
+        nt->Branch("Bcos_dtheta",Bcos_dtheta,"Bcos_dtheta[Bsize]/F");
 
         nt->Branch("Blxy",Blxy,"Blxy[Bsize]/F");
         nt->Branch("BlxyBS",BlxyBS,"BlxyBS[Bsize]/F");
         nt->Branch("BlxyBSErr",BlxyBSErr,"BlxyBSErr[Bsize]/F");
-          nt->Branch("Balpha",Balpha,"Balpha[Bsize]/F");
+        nt->Branch("Balpha",Balpha,"Balpha[Bsize]/F");
         nt->Branch("BsvpvDistance",BsvpvDistance,"BsvpvDistance[Bsize]/F");
         nt->Branch("BsvpvDisErr",BsvpvDisErr,"BsvpvDisErr[Bsize]/F");
         nt->Branch("BsvpvDistance_2D",BsvpvDistance_2D,"BsvpvDistance_2D[Bsize]/F");
         nt->Branch("BsvpvDisErr_2D",BsvpvDisErr_2D,"BsvpvDisErr_2D[Bsize]/F");
-          nt->Branch("Bnorm_svpvDistance",Bnorm_svpvDistance,"Bnorm_svpvDistance[Bsize]/F");
-          nt->Branch("Bnorm_svpvDistance_2D",Bnorm_svpvDistance_2D,"Bnorm_svpvDistance_2D[Bsize]/F");
+        nt->Branch("Bnorm_svpvDistance",Bnorm_svpvDistance,"Bnorm_svpvDistance[Bsize]/F");
+        nt->Branch("Bnorm_svpvDistance_2D",Bnorm_svpvDistance_2D,"Bnorm_svpvDistance_2D[Bsize]/F");
 
         /*
         nt->Branch("BMaxDoca",BMaxDoca,"BMaxDoca[Bsize]/F");
@@ -522,28 +524,29 @@ public:
         nt->Branch("Btrk2Idx",Btrk2Idx,"Btrk2Idx[Bsize]/I");
         nt->Branch("Btrk1Pt",Btrk1Pt,"Btrk1Pt[Bsize]/F");
         nt->Branch("Btrk2Pt",Btrk2Pt,"Btrk2Pt[Bsize]/F");
-          nt->Branch("BtrkPtimb",BtrkPtimb,"BtrkPtimb[Bsize]/F");
+        nt->Branch("BtrkPtimb",BtrkPtimb,"BtrkPtimb[Bsize]/F");
 
-        //nt->Branch("Btrk1Eta",Btrk1Eta,"Btrk1Eta[Bsize]/F");  
-        //nt->Branch("Btrk2Eta",Btrk2Eta,"Btrk2Eta[Bsize]/F");  
+        nt->Branch("Btrk1Eta",Btrk1Eta,"Btrk1Eta[Bsize]/F");  
+        nt->Branch("Btrk2Eta",Btrk2Eta,"Btrk2Eta[Bsize]/F");  
         //nt->Branch("Btrk1Phi",Btrk1Phi,"Btrk1Phi[Bsize]/F");  
         //nt->Branch("Btrk2Phi",Btrk2Phi,"Btrk2Phi[Bsize]/F");  
-        //nt->Branch("Btrk1PtErr",Btrk1PtErr,"Btrk1PtErr[Bsize]/F");  
-        //nt->Branch("Btrk2PtErr",Btrk2PtErr,"Btrk2PtErr[Bsize]/F");
+        nt->Branch("Btrk1PtErr",Btrk1PtErr,"Btrk1PtErr[Bsize]/F");  
+        nt->Branch("Btrk2PtErr",Btrk2PtErr,"Btrk2PtErr[Bsize]/F");
         //nt->Branch("Btrk1EtaErr",Btrk1EtaErr,"Btrk1EtaErr[Bsize]/F");
         //nt->Branch("Btrk2EtaErr",Btrk2EtaErr,"Btrk2EtaErr[Bsize]/F");
         //nt->Branch("Btrk1PhiErr",Btrk1PhiErr,"Btrk1PhiErr[Bsize]/F");
         //nt->Branch("Btrk2PhiErr",Btrk2PhiErr,"Btrk2PhiErr[Bsize]/F");
-        nt->Branch("Btrk1Y",Btrk1Y,"Btrk1Y[Bsize]/F");  
-        nt->Branch("Btrk2Y",Btrk2Y,"Btrk2Y[Bsize]/F");  
+        //nt->Branch("Btrk1Y",Btrk1Y,"Btrk1Y[Bsize]/F");  
+        //nt->Branch("Btrk2Y",Btrk2Y,"Btrk2Y[Bsize]/F");  
         nt->Branch("Btrk1Dz",Btrk1Dz,"Btrk1Dz[Bsize]/F");
         nt->Branch("Btrk2Dz",Btrk2Dz,"Btrk2Dz[Bsize]/F");
         nt->Branch("Btrk1DzError",Btrk1DzError,"Btrk1DzError[Bsize]/F");
         nt->Branch("Btrk2DzError",Btrk2DzError,"Btrk2DzError[Bsize]/F");
         nt->Branch("Btrk1Dxy",Btrk1Dxy,"Btrk1Dxy[Bsize]/F");
         nt->Branch("Btrk2Dxy",Btrk2Dxy,"Btrk2Dxy[Bsize]/F");
-          nt->Branch("Bnorm_trk1Dxy",Bnorm_trk1Dxy,"Bnorm_trk1Dxy[Bsize]/F");
-          nt->Branch("Bnorm_trk2Dxy",Bnorm_trk2Dxy,"Bnorm_trk2Dxy[Bsize]/F");
+          
+        nt->Branch("Bnorm_trk1Dxy",Bnorm_trk1Dxy,"Bnorm_trk1Dxy[Bsize]/F");
+        nt->Branch("Bnorm_trk2Dxy",Bnorm_trk2Dxy,"Bnorm_trk2Dxy[Bsize]/F");
 
         nt->Branch("Btrk1DxyError",Btrk1DxyError,"Btrk1DxyError[Bsize]/F");
         nt->Branch("Btrk2DxyError",Btrk2DxyError,"Btrk2DxyError[Bsize]/F");
@@ -566,6 +569,7 @@ public:
         nt->Branch("Btrk2nStripLayer",Btrk2nStripLayer,"Btrk2nStripLayer[Bsize]/F");
         nt->Branch("Btrk1Chi2ndf",Btrk1Chi2ndf,"Btrk1Chi2ndf[Bsize]/F");
         nt->Branch("Btrk2Chi2ndf",Btrk2Chi2ndf,"Btrk2Chi2ndf[Bsize]/F");
+        */
         //nt->Branch("Btrk1MVAVal",Btrk1MVAVal,"Btrk1MVAVal[Bsize]/F");
         //nt->Branch("Btrk2MVAVal",Btrk2MVAVal,"Btrk2MVAVal[Bsize]/F");
         //nt->Branch("Btrk1Algo",Btrk1Algo,"Btrk1Algo[Bsize]/I");
@@ -574,11 +578,11 @@ public:
         //nt->Branch("Btrk2originalAlgo",Btrk2originalAlgo,"Btrk2originalAlgo[Bsize]/I");
         nt->Branch("Btrk1highPurity",Btrk1highPurity,"Btrk1highPurity[Bsize]/O");
         nt->Branch("Btrk2highPurity",Btrk2highPurity,"Btrk2highPurity[Bsize]/O");
-        nt->Branch("Btrk1Quality",Btrk1Quality,"Btrk1Quality[Bsize]/I");
-        nt->Branch("Btrk2Quality",Btrk2Quality,"Btrk2Quality[Bsize]/I");
-        */
-          nt->Branch("Btrk1dR",Btrk1dR,"Btrk1dR[Bsize]/F");
-          nt->Branch("Btrk2dR",Btrk2dR,"Btrk2dR[Bsize]/F");
+        //nt->Branch("Btrk1Quality",Btrk1Quality,"Btrk1Quality[Bsize]/I");
+        //nt->Branch("Btrk2Quality",Btrk2Quality,"Btrk2Quality[Bsize]/I");
+        
+        nt->Branch("Btrk1dR",Btrk1dR,"Btrk1dR[Bsize]/F");
+        nt->Branch("Btrk2dR",Btrk2dR,"Btrk2dR[Bsize]/F");
         
         /*
         nt->Branch("BtrkLH",BtrkLPt,"BtrkLH[Bsize]/I");
@@ -615,16 +619,16 @@ public:
         //BInfo.muonInfo
         nt->Branch("Bmu1pt",Bmu1pt,"Bmu1pt[Bsize]/F");
         nt->Branch("Bmu2pt",Bmu2pt,"Bmu2pt[Bsize]/F");
-        /*
-        nt->Branch("Bmu1p",Bmu1p,"Bmu1p[Bsize]/F");
-        nt->Branch("Bmu2p",Bmu2p,"Bmu2p[Bsize]/F");
+        
+        //nt->Branch("Bmu1p",Bmu1p,"Bmu1p[Bsize]/F");
+        //nt->Branch("Bmu2p",Bmu2p,"Bmu2p[Bsize]/F");
         nt->Branch("Bmu1eta",Bmu1eta,"Bmu1eta[Bsize]/F");
         nt->Branch("Bmu2eta",Bmu2eta,"Bmu2eta[Bsize]/F");
-        nt->Branch("Bmu1phi",Bmu1phi,"Bmu1phi[Bsize]/F");
-        nt->Branch("Bmu2phi",Bmu2phi,"Bmu2phi[Bsize]/F");
-        */
-        nt->Branch("Bmu1y",Bmu1y,"Bmu1y[Bsize]/F");
-        nt->Branch("Bmu2y",Bmu2y,"Bmu2y[Bsize]/F");
+        //nt->Branch("Bmu1phi",Bmu1phi,"Bmu1phi[Bsize]/F");
+        //nt->Branch("Bmu2phi",Bmu2phi,"Bmu2phi[Bsize]/F");
+        
+        //nt->Branch("Bmu1y",Bmu1y,"Bmu1y[Bsize]/F");
+        //nt->Branch("Bmu2y",Bmu2y,"Bmu2y[Bsize]/F");
         /*
         nt->Branch("Bmu1dzPV",Bmu1dzPV,"Bmu1dzPV[Bsize]/F");
         nt->Branch("Bmu2dzPV",Bmu2dzPV,"Bmu2dzPV[Bsize]/F");
@@ -660,11 +664,13 @@ public:
         nt->Branch("Bmu2TrkQuality",Bmu2TrkQuality,"Bmu2TrkQuality[Bsize]/I");
         nt->Branch("Bmu1highPurity",Bmu1highPurity,"Bmu1highPurity[Bsize]/O");
         nt->Branch("Bmu2highPurity",Bmu2highPurity,"Bmu2highPurity[Bsize]/O");
-        nt->Branch("Bmu1SoftMuID",Bmu1SoftMuID,"Bmu1SoftMuID[Bsize]/O");
-        nt->Branch("Bmu2SoftMuID",Bmu2SoftMuID,"Bmu2SoftMuID[Bsize]/O");
         nt->Branch("Bmu1isAcc",Bmu1isAcc,"Bmu1isAcc[Bsize]/O");
         nt->Branch("Bmu2isAcc",Bmu2isAcc,"Bmu2isAcc[Bsize]/O");
         */
+        nt->Branch("Bmu1SoftMuID",Bmu1SoftMuID,"Bmu1SoftMuID[Bsize]/O");
+        nt->Branch("Bmu2SoftMuID",Bmu2SoftMuID,"Bmu2SoftMuID[Bsize]/O");
+        nt->Branch("Bmu1HybridSoftMuID",Bmu1HybridSoftMuID,"Bmu1HybridSoftMuID[Bsize]/O");
+        nt->Branch("Bmu2HybridSoftMuID",Bmu2HybridSoftMuID,"Bmu2HybridSoftMuID[Bsize]/O");
         //nt->Branch("Bmu1TrgMatchFilterE"  ,Bmu1TrgMatchFilterE,  "Bmu1TrgMatchFilterE[Bsize]/F");
         //nt->Branch("Bmu1TrgMatchFilterPt" ,Bmu1TrgMatchFilterPt, "Bmu1TrgMatchFilterPt[Bsize]/F");
         //nt->Branch("Bmu1TrgMatchFilterEta",Bmu1TrgMatchFilterEta,"Bmu1TrgMatchFilterEta[Bsize]/F");
@@ -1070,6 +1076,8 @@ public:
     Bmu2highPurity[typesize] = MuonInfo->highPurity[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]];
     Bmu1SoftMuID[typesize] = MuonInfo->SoftMuID[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]];
     Bmu2SoftMuID[typesize] = MuonInfo->SoftMuID[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]];
+    Bmu1HybridSoftMuID[typesize] = MuonInfo->HybridSoftMuID[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]];
+    Bmu2HybridSoftMuID[typesize] = MuonInfo->HybridSoftMuID[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]];
     Bmu1isAcc[typesize] = (fabs(Bmu1eta[typesize]) < 2.4 && 
                            ((fabs(Bmu1eta[typesize]) < 1.2 && Bmu1pt[typesize] >= 3.5) ||
                             (fabs(Bmu1eta[typesize]) >= 1.2 && fabs(Bmu1eta[typesize]) < 2.1 && Bmu1pt[typesize] >= 5.47-1.89*fabs(Bmu1eta[typesize])) ||
