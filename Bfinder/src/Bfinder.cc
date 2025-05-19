@@ -153,7 +153,7 @@ private:
 
 void Bfinder::beginJob()
 {//{{{
-  root = fs->make<TTree>("root","root");
+  root  = fs->make<TTree>("root","root");
   nt0   = fs->make<TTree>("ntKp","");     Bntuple->buildBranch(nt0);
   nt1   = fs->make<TTree>("ntpi","");     Bntuple->buildBranch(nt1);
   nt2   = fs->make<TTree>("ntKs","");     Bntuple->buildBranch(nt2);
@@ -1375,7 +1375,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout  << "Exception during event number: " << iEvent.id()
                << "\n" << err.what() << "\n";
   }//catch 
-  root->Fill();
+  //root->Fill();
   //std::cout<<"filled!\n";
     
   //Made a Bntuple on the fly
