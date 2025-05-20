@@ -295,11 +295,11 @@ public:
   float  n_matches    [ MAX_MUON];
   bool    TMOneStationTight [MAX_MUON];
   bool    TrackerMuonArbitrated [MAX_MUON];
-  bool    isSoftMuon [MAX_MUON];
+  bool    SoftMuID [MAX_MUON];
   int     geninfo_index[ MAX_MUON];
   bool    isNeededMuon[MAX_MUON];//for intermediate Bfinder usage, not stored in output
   bool    BfinderMuID [MAX_MUON];
-  bool    SoftMuID [MAX_MUON];
+  bool    HybridSoftMuID [MAX_MUON];
   bool    OptMuID [MAX_MUON];
 
   bool    isStandAloneMuon            [ MAX_MUON];
@@ -366,10 +366,10 @@ public:
     //root->Branch("MuonInfo.n_matches"     , n_matches     , "MuonInfo.n_matches[MuonInfo.size]/F");
     root->Branch("MuonInfo.TMOneStationTight" ,TMOneStationTight, "MuonInfo.TMOneStationTight[MuonInfo.size]/O");
     root->Branch("MuonInfo.TrackerMuonArbitrated" ,TrackerMuonArbitrated, "MuonInfo.TrackerMuonArbitrated[MuonInfo.size]/O");
-    root->Branch("MuonInfo.isSoftMuon" ,isSoftMuon, "MuonInfo.isSoftMuon[MuonInfo.size]/O");
+    root->Branch("MuonInfo.SoftMuID" ,SoftMuID, "MuonInfo.SoftMuID[MuonInfo.size]/O");
     root->Branch("MuonInfo.geninfo_index"    , geninfo_index    , "MuonInfo.geninfo_index[MuonInfo.size]/I");
     //root->Branch("MuonInfo.BfinderMuID" ,BfinderMuID, "MuonInfo.BfinderMuID[MuonInfo.size]/O");
-    root->Branch("MuonInfo.SoftMuID" ,SoftMuID, "MuonInfo.SoftMuID[MuonInfo.size]/O");
+    root->Branch("MuonInfo.HybridSoftMuID" ,HybridSoftMuID, "MuonInfo.HybridSoftMuID[MuonInfo.size]/O");
     root->Branch("MuonInfo.OptMuID" ,OptMuID, "MuonInfo.OptMuID[MuonInfo.size]/O");
 
     //root->Branch("MuonInfo.innerTrackQuality"    , innerTrackQuality    , "MuonInfo.innerTrackQuality[MuonInfo.size]/I"	);
@@ -445,10 +445,10 @@ public:
     //root->SetBranchAddress("MuonInfo.n_matches"     , n_matches);
     root->SetBranchAddress("MuonInfo.TMOneStationTight" , TMOneStationTight);
     root->SetBranchAddress("MuonInfo.TrackerMuonArbitrated" , TrackerMuonArbitrated);
-    root->SetBranchAddress("MuonInfo.isSoftMuon" , isSoftMuon);
+    root->SetBranchAddress("MuonInfo.SoftMuID" , SoftMuID);
     root->SetBranchAddress("MuonInfo.geninfo_index"    , geninfo_index);
     //root->SetBranchAddress("MuonInfo.BfinderMuID" , BfinderMuID);
-    root->SetBranchAddress("MuonInfo.SoftMuID" , SoftMuID);
+    root->SetBranchAddress("MuonInfo.HybridSoftMuID" , HybridSoftMuID);
     root->SetBranchAddress("MuonInfo.OptMuID" , OptMuID);
 
     root->SetBranchAddress("MuonInfo.innerTrackQuality"    , innerTrackQuality	);

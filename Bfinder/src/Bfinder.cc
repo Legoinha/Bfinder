@@ -549,8 +549,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   )
                 MuonInfo.BfinderMuID[MuonInfo.size] = true;
             }
-            // *SoftMu*
-            MuonInfo.SoftMuID[MuonInfo.size] = false;
+            // *HybridSoftMu*
+            MuonInfo.HybridSoftMuID[MuonInfo.size] = false;
             if(mu_it->innerTrack().isNonnull()){
               if( (mu_it->isTrackerMuon() && mu_it->isGlobalMuon()) 
                   // && muon::isGoodMuon(*mu_it,muon::TMOneStationTight) 
@@ -560,7 +560,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   && fabs(mu_it->innerTrack()->dxy(RefVtx)) < 0.3
                   && fabs(mu_it->innerTrack()->dz(RefVtx))  < 20.
                   )
-                MuonInfo.SoftMuID[MuonInfo.size] = true;
+                MuonInfo.HybridSoftMuID[MuonInfo.size] = true;
             }
 
             //outdated selections
@@ -626,7 +626,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             MuonInfo.geninfo_index  [MuonInfo.size] = -1;//initialize for later use
             MuonInfo.TMOneStationTight[MuonInfo.size] = muon::isGoodMuon(*mu_it,muon::TMOneStationTight);//For Muon ID for convenience
             MuonInfo.TrackerMuonArbitrated[MuonInfo.size] = muon::isGoodMuon(*mu_it,muon::TrackerMuonArbitrated);//For Muon ID for convenience
-            MuonInfo.isSoftMuon[MuonInfo.size] = muon::isSoftMuon(*mu_it, thePrimaryV);
+            MuonInfo.SoftMuID[MuonInfo.size] = muon::isSoftMuon(*mu_it, thePrimaryV);
             genMuonPtr              [MuonInfo.size] = 0;
             if (!iEvent.isRealData()) genMuonPtr [MuonInfo.size] = mu_it->genParticle();
 
