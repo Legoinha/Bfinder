@@ -121,9 +121,9 @@ process.forest = cms.Path(
     #process.HiForestInfo +
     process.centralityBin +
     #process.hiEvtAnalyzer +
-    process.hltanalysis +
-    process.hltobject +
-    process.l1object +
+    #process.hltanalysis +
+    #process.hltobject +
+    #process.l1object +
     #process.trackSequencePbPb +
     #process.particleFlowAnalyser +
     #process.ggHiNtuplizer +
@@ -281,7 +281,7 @@ GenLabel = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
-process.Bfinder.tkPtCut = cms.double(1) # before fit
+process.Bfinder.tkPtCut = cms.double(0.9) # before fit
 process.Bfinder.tkEtaCut = cms.double(2.4) # before fit
 process.Bfinder.jpsiPtCut = cms.double(0.0) # before fit
 process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 3.0, 1.0) # before fit
