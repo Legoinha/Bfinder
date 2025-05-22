@@ -1076,8 +1076,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               //TkTk_window = 1.6;
               //mass_window[0] = 3.4;
               //mass_window[1] = 4.2;
-              mass_window[0] = 2.5;
-              mass_window[1] = 4.2;
+              mass_window[0] = 3.1;
+              mass_window[1] = 4.1;
               TkTk_window = 0;
               if(Bchannel_[6] == 1){
                 BranchOut2MuX_XtoTkTk(
@@ -1669,8 +1669,8 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       //else {if (fabs((v4_tk1+v4_tk2).Mag())>TkTk_window) continue;}//if no tktk mass constrain, require it to be at least < some mass value
       //XbMassCutLevel[channel_number-1]->Fill(0);
             
-      //if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()<mass_window[0]-0.2 || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()>mass_window[1]+0.2) continue;
-      if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()<mass_window[0] || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()>mass_window[1]) continue;
+      if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() < (mass_window[0]-0.2) || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() > (mass_window[1]+0.2)) continue;
+      //if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()<mass_window[0] || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()>mass_window[1]) continue;
       //XbMassCutLevel[channel_number-1]->Fill(1);
       if((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Pt()<bPtCut_[channel_number-1])continue;
       //XbMassCutLevel[channel_number-1]->Fill(2);
@@ -1759,7 +1759,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       //XbMassCutLevel[channel_number-1]->Fill(10);
             
       //Cut out a mass window
-      //if (xbVFP->currentState().mass()<mass_window[0]|| xbVFP->currentState().mass()>mass_window[1]) continue;
+      if (xbVFP->currentState().mass()<mass_window[0]|| xbVFP->currentState().mass()>mass_window[1]) continue;
       //
       std::vector<RefCountedKinematicParticle> xCands  = xbVFT->finalStateParticles();
             
