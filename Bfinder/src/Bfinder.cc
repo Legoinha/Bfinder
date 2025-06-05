@@ -28,7 +28,6 @@ private:
         
   virtual void BranchOut2MuTk(
                               BInfoBranches &BInfo,
-                              // std::vector<pat::PackedCandidate> input_tracks,
                               std::vector<const reco::Track*> input_tracks,
                               reco::Vertex thePrimaryV,
                               std::vector<bool> isNeededTrack,
@@ -44,7 +43,6 @@ private:
                               );
   virtual void BranchOut2MuX_XtoTkTk(
                                      BInfoBranches &BInfo,
-                                     // std::vector<pat::PackedCandidate> input_tracks,
                                      std::vector<const reco::Track*> input_tracks,
                                      reco::Vertex thePrimaryV,
                                      std::vector<bool> isNeededTrack,
@@ -160,7 +158,7 @@ void Bfinder::beginJob()
   nt3   = fs->make<TTree>("ntKstar","");  Bntuple->buildBranch(nt3);
   nt5   = fs->make<TTree>("ntphi","");    Bntuple->buildBranch(nt5);
   nt6   = fs->make<TTree>("ntmix","");    Bntuple->buildBranch(nt6);
-  nt7   = fs->make<TTree>("ntJpsi","");    Bntuple->buildBranch(nt7,true);
+  nt7   = fs->make<TTree>("ntJpsi","");   Bntuple->buildBranch(nt7,true);
   ntGen = fs->make<TTree>("ntGen","");    Bntuple->buildGenBranch(ntGen);
   EvtInfo.regTree(root);
   //VtxInfo.regTree(root);
@@ -183,36 +181,36 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   Bchannel_= iConfig.getParameter<std::vector<int> >("Bchannel");
   MuonTriggerMatchingPath_ = iConfig.getParameter<std::vector<std::string> >("MuonTriggerMatchingPath");
   MuonTriggerMatchingFilter_ = iConfig.getParameter<std::vector<std::string> >("MuonTriggerMatchingFilter");
-  genLabel_           = consumes< reco::GenParticleCollection >(iConfig.getParameter<edm::InputTag>("GenLabel"));
-  trackLabel_         = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
-  chi2Map_ = consumes< edm::ValueMap<float> >(iConfig.getParameter< edm::InputTag >("TrackChi2Label"));
-  dedxMap_ = consumes< edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("TrackDedxLabel"));
-  muonLabel_          = consumes< edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonLabel"));
+  genLabel_       = consumes< reco::GenParticleCollection >(iConfig.getParameter<edm::InputTag>("GenLabel"));
+  trackLabel_     = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
+  chi2Map_        = consumes< edm::ValueMap<float> >(iConfig.getParameter< edm::InputTag >("TrackChi2Label"));
+  dedxMap_        = consumes< edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("TrackDedxLabel"));
+  muonLabel_      = consumes< edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonLabel"));
   bsLabel_        = consumes< reco::BeamSpot >(iConfig.getParameter<edm::InputTag>("BSLabel"));
   pvLabel_        = consumes< reco::VertexCollection >(iConfig.getParameter<edm::InputTag>("PVLabel"));
 
   //CENTRALITY
   centralityTagToken_ = consumes<reco::Centrality>(iConfig.getParameter<edm::InputTag>("centralitySrc"));
-  centralityBinTags_ = consumes<int>(iConfig.getParameter<edm::InputTag>("centralityBinSrc"));
+  centralityBinTags_  = consumes<int>(iConfig.getParameter<edm::InputTag>("centralityBinSrc"));
   centmin_ = iConfig.getParameter<double>("centmin");
   centmax_ = iConfig.getParameter<double>("centmax");
 
-  tkPtCut_ = iConfig.getParameter<double>("tkPtCut");
-  tkEtaCut_ = iConfig.getParameter<double>("tkEtaCut");
+  tkPtCut_   = iConfig.getParameter<double>("tkPtCut");
+  tkEtaCut_  = iConfig.getParameter<double>("tkEtaCut");
   jpsiPtCut_ = iConfig.getParameter<double>("jpsiPtCut");
   uj_VtxChiProbCut_ = iConfig.getParameter<double>("uj_VtxChiProbCut");
-  bPtCut_ = iConfig.getParameter<std::vector<double> >("bPtCut");
-  bEtaCut_ = iConfig.getParameter<std::vector<double> >("bEtaCut");
-  VtxChiProbCut_ = iConfig.getParameter<std::vector<double> >("VtxChiProbCut");
-  svpvDistanceCut_ = iConfig.getParameter<std::vector<double> >("svpvDistanceCut");
-  MaxDocaCut_ = iConfig.getParameter<std::vector<double> >("MaxDocaCut");
-  alphaCut_ = iConfig.getParameter<std::vector<double> >("alphaCut");
-  doTkPreCut_ = iConfig.getParameter<bool>("doTkPreCut");
-  doMuPreCut_ = iConfig.getParameter<bool>("doMuPreCut");
-  makeBntuple_ = iConfig.getParameter<bool>("makeBntuple");
-  doBntupleSkim_ = iConfig.getParameter<bool>("doBntupleSkim");
-  printInfo_ = iConfig.getParameter<bool>("printInfo");
-  readDedx_ = iConfig.getParameter<bool>("readDedx");
+  bPtCut_           = iConfig.getParameter<std::vector<double> >("bPtCut");
+  bEtaCut_          = iConfig.getParameter<std::vector<double> >("bEtaCut");
+  VtxChiProbCut_    = iConfig.getParameter<std::vector<double> >("VtxChiProbCut");
+  svpvDistanceCut_  = iConfig.getParameter<std::vector<double> >("svpvDistanceCut");
+  MaxDocaCut_       = iConfig.getParameter<std::vector<double> >("MaxDocaCut");
+  alphaCut_         = iConfig.getParameter<std::vector<double> >("alphaCut");
+  doTkPreCut_       = iConfig.getParameter<bool>("doTkPreCut");
+  doMuPreCut_       = iConfig.getParameter<bool>("doMuPreCut");
+  makeBntuple_      = iConfig.getParameter<bool>("makeBntuple");
+  doBntupleSkim_    = iConfig.getParameter<bool>("doBntupleSkim");
+  printInfo_        = iConfig.getParameter<bool>("printInfo");
+  readDedx_         = iConfig.getParameter<bool>("readDedx");
   // MVAMapLabelInputTag_ = iConfig.getParameter<edm::InputTag>("MVAMapLabel");
   // MVAMapLabel_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("MVAMapLabel"));
   // MVAMapLabelpA_ = consumes< std::vector<float> >(iConfig.getParameter<edm::InputTag>("MVAMapLabel"));
@@ -273,14 +271,12 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 
   //=============== get centrality information ====================
-
-
   edm::Handle<reco::Centrality> centrality;
   iEvent.getByToken(centralityTagToken_, centrality);
   
   edm::Handle< int > cbin;                                                                                                                                                                
   iEvent.getByToken(centralityBinTags_,cbin);                                                                                                                                             
-      //===============================================================
+  //===============================================================
 
   // edm::Handle< std::vector<reco::Track> > etracks;
   // iEvent.getByToken(trackLabelReco_, etracks);
@@ -308,22 +304,17 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //EvtInfo.hltnames->clear();
   //EvtInfo.nTrgBook= N_TRIGGER_BOOKINGS;
 
-      //Nihar
+  //Nihar
   if (centrality.isValid() && cbin.isValid()) {
-
     int centBin = *cbin;
-
     EvtInfo.CentBin  = centBin/2;                                                                                                                                                                         
     if(centBin < 0){edm::LogWarning ("Invalid value") <<"Invalid centrality value";}                                                                  
     if(EvtInfo.CentBin < centmin_ ||EvtInfo.CentBin > centmax_) return;                                                                                   
-      //std::cout<<"centrality is: "<<EvtInfo.CentBin<<endl;
-
+    //std::cout<<"centrality is: "<<EvtInfo.CentBin<<endl;
   }
   
-      
-
   // Handle primary vertex properties
-  Vertex thePrimaryV; //, thePrimaryVmaxPt, thePrimaryVmaxMult;
+  Vertex thePrimaryV;    //, thePrimaryVmaxPt, thePrimaryVmaxMult;
   math::XYZPoint RefVtx; //, RefVtxmaxPt, RefVtxmaxMult;
   //get beamspot information
   Vertex theBeamSpotV;
@@ -428,38 +419,31 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.PVnchi2 = thePrimaryV.normalizedChi2();
   EvtInfo.PVchi2  = thePrimaryV.chi2();
 
-  // std::vector<pat::Muon>              input_muons;
   auto input_muons = *muons;
-  // std::vector<pat::PackedCandidate>   input_tracks;
-  // input_tracks = *tks;
-  auto input_pc_tracks = *tks; // std::vector<pat::PackedCandidate>
   std::vector<const reco::Track*> input_tracks;
 
   EvtInfo.nChargedTracks = 0;
   EvtInfo.nSelectedChargedTracks = 0;
   
   for(auto tk_it = tks->begin(); tk_it != tks->end(); tk_it++){
-      // static const reco::Track* getFromPC(const reco::Candidate& rc) {
     auto track = getFromPC((*tk_it));
 
     if (!track) continue;
-
     if (abs(track->charge()) != 1) continue;
 
-    if (abs(track->eta()) > 2.4) continue;
-
     input_tracks.push_back(track);
+
+    if (abs(track->eta())   > 2.4) continue;
+  
     EvtInfo.nChargedTracks++;
     
+    // FOR multiplicity 
     if (track->quality(reco::TrackBase::qualityByName("highPurity")) &&
-	  fabs(track->dxy(RefVtx) / track->dxyError()) < 3 && fabs(track->dz(RefVtx) / track->dzError()) < 3 &&
-	  fabs(track->ptError() / track->pt()) < 0.1) {
+	    fabs(track->dxy(RefVtx) / track->dxyError()) < 3 && fabs(track->dz(RefVtx) / track->dzError()) < 3 &&
+	    fabs(track->ptError() / track->pt()) < 0.1) {
 	    EvtInfo.nSelectedChargedTracks++;
     }
-    
   }
-  
-
   //printf("-----*****DEBUG:End of EvtInfo.\n");
 
   // Double check size=0.
@@ -476,7 +460,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   try{
     const reco::GenParticle* genMuonPtr[MAX_MUON];
-    // memset(genMuonPtr,0x00,MAX_MUON);
     memset(genMuonPtr,0x00,MAX_MUON*sizeof(genMuonPtr[0]));
     // const reco::GenParticle* genTrackPtr[MAX_TRACK];
     // memset(genTrackPtr,0x00,MAX_GEN);
@@ -497,14 +480,14 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           //MuonInfo section{{{
           int PassedMuon = 0;
           int mu_hindex = -1;
-          for(auto mu_it=input_muons.begin();
-              mu_it != input_muons.end() ; mu_it++){
+          for(auto mu_it=input_muons.begin(); mu_it != input_muons.end() ; mu_it++){
+
             mu_hindex = int(mu_it - input_muons.begin());
             if(MuonInfo.size >= MAX_MUON){
               fprintf(stderr,"ERROR: number of muons exceeds the size of array.\n");
               break;//exit(0);
             }
-            /*
+/*
             //Muon cut level
             MuonCutLevel->Fill(0);
             if (!(mu_it->isTrackerMuon() || mu_it->isGlobalMuon())) ;
@@ -534,7 +517,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 }
               }
             }
-            */
+*/
             //Muon Id flag
             // *Bfinder* 
             MuonInfo.BfinderMuID[MuonInfo.size] = false;
@@ -562,14 +545,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   )
                 MuonInfo.HybridSoftMuID[MuonInfo.size] = true;
             }
-
-            //outdated selections
-            //if(!(mu_it->innerTrack().isNonnull()*mu_it->globalTrack().isNonnull())) {continue;}
-            //if (!(mu_it->isGlobalMuon()*mu_it->track().isAvailable()*mu_it->globalTrack().isAvailable())) continue;
-            //if (mu_it->p()>200 || mu_it->pt()>200)                  continue;
-            //if (mu_it->innerTrack()->hitPattern().trackerLayersWithMeasurement()<6  &&
-            //    mu_it->innerTrack()->hitPattern().numberOfValidStripHits()<11
-            //   ) continue;
 
             //Get Muon HLT Trigger matching
             MuonInfo.MuTrgMatchPathSize = MuonTriggerMatchingPath_.size();
@@ -608,7 +583,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 MuonInfo.isTriggered[MuonInfo.size] = true;
               }
             }
-                        
+
             //Muon general info.
             MuonInfo.index          [MuonInfo.size] = MuonInfo.size;
             MuonInfo.handle_index   [MuonInfo.size] = mu_hindex;
@@ -705,24 +680,17 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             MuonInfo.muqual         [MuonInfo.size] = qm;   
 
-            // Basic Muon selection for fitting
-            // Muon in acceptance
-            //bool MuInAcc = false;
-            //if(fabs(mu_it->eta())<1.3 && mu_it->pt()>3.3) MuInAcc = true;
-            //if(fabs(mu_it->eta())>1.3 && fabs(mu_it->eta())<2.2 && mu_it->p()>2.9) MuInAcc = true;
-            //if(fabs(mu_it->eta())>2.2 && fabs(mu_it->eta())<2.4 && mu_it->pt()>0.8) MuInAcc = true;
+            // Muon loose acceptance
+            bool MuInAcc = false;
+            if(fabs(mu_it->eta())<1.3 && mu_it->pt()>3.3) MuInAcc = true;
+            if(fabs(mu_it->eta())>1.3 && fabs(mu_it->eta())<2.2 && mu_it->p()>2.9) MuInAcc = true;
+            if(fabs(mu_it->eta())>2.2 && fabs(mu_it->eta())<2.4 && mu_it->pt()>0.8) MuInAcc = true;
 
             //Can not be just CaloMuon or empty type
             if((MuonInfo.type[MuonInfo.size]|(1<<4))==(1<<4)){
               MuonInfo.isNeededMuon[MuonInfo.size] = false;
             }
-            else if(doMuPreCut_ &&
-                    (  // !muon::isGoodMuon(*mu_it,muon::TMOneStationTight)
-                     //|| !MuInAcc
-                     //||  some other cut
-                     !(mu_it->isTrackerMuon() || mu_it->isGlobalMuon())
-                       )
-                    ){
+            else if(doMuPreCut_ && (!MuInAcc || !(mu_it->isTrackerMuon() || mu_it->isGlobalMuon()) )){
               MuonInfo.isNeededMuon[MuonInfo.size] = false;
             }
             else {
@@ -738,24 +706,30 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           //Preselect tracks{{{
           std::vector<bool> isNeededTrack;// Are the tracks redundant?
           int PassedTrk = 0;
-          // for(std::vector<pat::PackedCandidate>::const_iterator tk_it=input_tracks.begin();
-          //     tk_it != input_tracks.end(); tk_it++){
-          for(auto tk_it_it=input_tracks.begin(); // edm::View<pat::PackedCandidate>::const_iterator tk_it
-              tk_it_it != input_tracks.end(); tk_it_it++){
+          for(auto tk_it_it=input_tracks.begin(); tk_it_it != input_tracks.end(); tk_it_it++){
             if(PassedTrk >= MAX_TRACK){
               fprintf(stderr,"ERROR: number of tracks exceeds the size of array.\n");
               break;
             }
-            auto tk_it = (*tk_it_it); // edm::View<pat::PackedCandidate>
 
+            auto tk_it = (*tk_it_it); 
             isNeededTrack.push_back(false);
             if (!tk_it) continue;
-            // if(!tk_it->hasTrackDetails()) continue;
             // TrackCutLevel->Fill(0);//number of all tracks
-            bool isMuonTrack = false; //remove muon track
-            for(auto it=input_muons.begin() ; // std::vector<pat::Muon>::iterator
-                it != input_muons.end(); it++){
-              if (!it->track().isNonnull())                   continue;
+            
+            // Track kinematic pre-selection
+            if(doTkPreCut_){
+              if (tk_it->pt()<tkPtCut_)           continue;
+              if (fabs(tk_it->eta())>tkEtaCut_)   continue;
+              if( !(tk_it->/*pseudoTrack().*/quality(reco::TrackBase::qualityByName("highPurity")))) continue;
+              if( fabs(tk_it->ptError() / tk_it->pt()) >= 0.1) continue;
+            }
+            // Track kinematic pre-selection
+
+            //reject if muon track 
+            bool isMuonTrack = false; 
+            for(auto it=input_muons.begin() ; it != input_muons.end(); it++){
+              if (!it->track().isNonnull()) continue;
               if((it->type()|(1<<4))==(1<<4)) continue;//Don't clean track w.r.t. calo muon 
               if (fabs(tk_it->pt() -it->track()->pt() )<0.00001 &&
                   fabs(tk_it->eta()-it->track()->eta())<0.00001 &&
@@ -764,13 +738,9 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 break;
               }
             }
-            if (isMuonTrack)                                    continue;
-            if (abs(tk_it->charge()) != 1)                      continue;
-            if (tk_it->pt()<tkPtCut_)                           continue;
-            if (fabs(tk_it->eta())>tkEtaCut_)                   continue;
-            if(doTkPreCut_){
-              if( !(tk_it->/*pseudoTrack().*/quality(reco::TrackBase::qualityByName("highPurity")))) continue;
-            }
+            if (isMuonTrack) continue;
+            //reject if muon track 
+
             isNeededTrack[tk_it_it-input_tracks.begin()] = true;
             PassedTrk++;
           }//end of track preselection}}}
@@ -781,10 +751,12 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           int mu1_index = -1;
           int mu1_hindex = -1;
           bool gogogo = false;
-          for(auto mu_it1=input_muons.begin(); // std::vector<pat::Muon>::const_iterator
-              mu_it1 != input_muons.end(); mu_it1++){
+
+          for(auto mu_it1=input_muons.begin(); mu_it1 != input_muons.end(); mu_it1++){
+            
             //check if muon track is non null
             if(!mu_it1->track().isNonnull()) continue;
+
             //Check if it in MuonInfo and isNeedeMuon
             mu1_hindex = int(mu_it1 - input_muons.begin());
             gogogo = false;
@@ -795,14 +767,14 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               }
             }
             if (!gogogo) continue;
-            //Get the corrisponding index in MuonInfo
+
+            //Get the corresponding index in MuonInfo
             mu1_index ++;
             if (mu_it1->charge()<0) continue;
 
             int mu2_index = -1;
             int mu2_hindex = -1; 
-            for(auto mu_it2=input_muons.begin();
-                mu_it2 != input_muons.end(); mu_it2++){
+            for(auto mu_it2=input_muons.begin(); mu_it2 != input_muons.end(); mu_it2++){
               //check if muon track is non null
               if(!mu_it2->track().isNonnull()) continue;
               //Check if it in MuonInfo and isNeedeMuon
@@ -885,8 +857,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               BInfo.uj_index         [BInfo.uj_size]= BInfo.uj_size;
               BInfo.uj_mass          [BInfo.uj_size]= uj_4vec.Mag();
               BInfo.uj_pt            [BInfo.uj_size]= uj_4vec.Pt();
-              BInfo.uj_eta            [BInfo.uj_size]= uj_4vec.Eta();
-              BInfo.uj_phi            [BInfo.uj_size]= uj_4vec.Phi();
+              BInfo.uj_eta           [BInfo.uj_size]= uj_4vec.Eta();
+              BInfo.uj_phi           [BInfo.uj_size]= uj_4vec.Phi();
               BInfo.uj_px            [BInfo.uj_size]= uj_4vec.Px();
               BInfo.uj_py            [BInfo.uj_size]= uj_4vec.Py();
               BInfo.uj_pz            [BInfo.uj_size]= uj_4vec.Pz();
@@ -916,9 +888,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               //////////////////////////////////////////////////////////////////////////
               // RECONSTRUCTION: J/psi + K
               //////////////////////////////////////////////////////////////////////////
-              //float mass_window[2] = {4.3, 6.4};
-              //float mass_window[2] = {5., 6.};
-              float mass_window[2] = {4.5, 6.5};
+
+              float mass_window[2] = {4.8, 6.1};
               if(Bchannel_[0] == 1){
                 BranchOut2MuTk(
                                BInfo,
@@ -939,6 +910,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               //////////////////////////////////////////////////////////////////////////
               // RECONSTRUCTION: J/psi + Pi
               //////////////////////////////////////////////////////////////////////////
+
               if(Bchannel_[1] == 1){
                 BranchOut2MuTk(
                                BInfo,
@@ -961,8 +933,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               // RECONSTRUCTION: J/psi + Ks
               //////////////////////////////////////////////////////////////////////////
 
-              float TkTk_window = 0;
-              TkTk_window = 0.3;
+              float TkTk_window = 0.3;
               if(Bchannel_[2] == 1){
                 BranchOut2MuX_XtoTkTk(
                                       BInfo,
@@ -989,7 +960,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               // RECONSTRUCTION: J/psi + K* (K+, Pi-)
               //////////////////////////////////////////////////////////////////////////
 
-              //TkTk_window = 0.4;
               TkTk_window = 0.25;
               if(Bchannel_[3] == 1){
                 BranchOut2MuX_XtoTkTk(
@@ -1071,11 +1041,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               //////////////////////////////////////////////////////////////////////////
               // RECONSTRUCTION: J/psi + pi pi <= psi', X(3872), Bs->J/psi f0
               //////////////////////////////////////////////////////////////////////////
-              //mass_window[0] = 3;
-              //mass_window[1] = 6.4;
-              //TkTk_window = 1.6;
-              //mass_window[0] = 3.4;
-              //mass_window[1] = 4.2;
+
               mass_window[0] = 3.1;
               mass_window[1] = 4.1;
               TkTk_window = 0;
@@ -1103,6 +1069,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             
             }//Mu2
           }//Mu1
+
           if(printInfo_){
             printf("B_counter: ");
             for(unsigned int i = 0; i < Bchannel_.size(); i++){
@@ -1110,17 +1077,14 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             printf("\n");
           }//}}}
-          //printf("-----*****DEBUG:End of BInfo.\n");
 
           // TrackInfo section {{{
           // Setup MVA
           /* Under construction !! */
-
           // Setup Dedx
           /* Under construction !! */
 
-          for(auto tk_it_it=input_tracks.begin();
-              tk_it_it != input_tracks.end() ; tk_it_it++){
+          for(auto tk_it_it=input_tracks.begin(); tk_it_it != input_tracks.end() ; tk_it_it++){
             int tk_hindex = int(tk_it_it - input_tracks.begin());
             auto tk_it = (*tk_it_it);
             if(TrackInfo.size >= MAX_TRACK){
@@ -1141,6 +1105,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 listOfRelativeXbCands2.push_back(iXb+1);
               }
             }
+
             if(dropUnusedTracks_ && listOfRelativeXbCands1.size() == 0 && listOfRelativeXbCands2.size() == 0) continue;//drop unused tracks
                         
             TrackInfo.index          [TrackInfo.size] = TrackInfo.size;
@@ -1194,27 +1159,24 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 float currentdR = 1.e+10;//, currentptRel=0.;
                 //bool isGenSignal = false;
                 reco::GenParticle _deRef;
-                for(auto it_gen=gens->begin();
-                    it_gen != gens->end(); it_gen++)
+                for(auto it_gen=gens->begin(); it_gen != gens->end(); it_gen++)
                   {
                     int abspdg = abs(int(it_gen->pdgId()));
                     if (it_gen->status() != 1) continue;
-                    if (abspdg != 211 &&
-                        abspdg != 321 &&
-                        abspdg != 2212) continue;
+                    if (abspdg != 211 && abspdg != 321 && abspdg != 2212) continue; //if track is not pion, kaon or proton
                     if (tk_it->charge() != it_gen->charge()) continue;
+                    
                     float ptRel = fabs(tk_it->pt() - it_gen->pt()) / tk_it->pt();
                     if(ptRel >= 0.2) continue; //
+                    
                     float deta = tk_it->eta() - it_gen->eta();
                     float dphi = std::abs(tk_it->phi() - it_gen->phi());
-                    if(dphi > float(M_PI))
-                      dphi -= float(2 * M_PI);
+                    if(dphi > float(M_PI)) dphi -= float(2 * M_PI);
                     float dR = sqrt(deta*deta + dphi*dphi);
                     if(dR >= 0.02) continue; //
                     if(dR < currentdR) {
                       genTrackPtr[TrackInfo.size] = int(it_gen - gens->begin());
                       currentdR = dR;
-
                       _deRef = (*it_gen);
                       //reco::Candidate* Myself = dynamic_cast<reco::Candidate*>(&_deRef);
                       //isGenSignal = (Functs.GetAncestor(Myself, 5) | Functs.GetAncestor(Myself, 4));
@@ -1247,53 +1209,38 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // GenInfo section{{{
     if (!iEvent.isRealData()){
 
-
       std::vector<const reco::Candidate *> sel_cands;
-      for(auto it_gen=gens->begin(); // std::vector<reco::GenParticle>::const_iterator
-          it_gen != gens->end(); it_gen++){
-        // if (it_gen->status() > 2 && it_gen->status() != 8 && it_gen->status() != 91 && abs(it_gen->pdgId())!=13) continue; //only status 1, 2, 8(simulated), save all muons
-        if (it_gen->status() > 2 && it_gen->status() != 8 && abs(it_gen->pdgId())!=13) continue; //only status 1, 2, 8(simulated), save all muons
+      for(auto it_gen=gens->begin(); it_gen != gens->end(); it_gen++){
+        if(it_gen->status() > 2 && it_gen->status() != 8 && abs(it_gen->pdgId())!=13) continue; //only status 1, 2, 8(simulated), save all muons
         if(GenInfo.size >= MAX_GEN){
           fprintf(stderr,"ERROR: number of gens exceeds the size of array.\n");
-          break;;
+          break;
         }
                 
         bool isGenSignal = false;
         //save target intermediate state particle
-        if (
-            abs(int(it_gen->pdgId()/100) % 100) == 4  ||//c menson
+        if(abs(int(it_gen->pdgId()/100) % 100) == 4  ||//c menson
             abs(int(it_gen->pdgId()/100) % 100) == 5  ||//b menson
-            //abs(it_gen->pdgId()) == 511 ||//B_0
-            //abs(it_gen->pdgId()) == 521 ||//B_+-
-            //abs(it_gen->pdgId()) == 531 ||//B_s
-            //abs(it_gen->pdgId()) == 311 ||//K0
-            //abs(it_gen->pdgId()) == 321 ||//K+
-            //abs(it_gen->pdgId()) == 310 ||//KS
-            //abs(it_gen->pdgId()) == 313 ||//K*0(892)
-            //abs(it_gen->pdgId()) == 323 ||//K*+-(892)
-            //abs(it_gen->pdgId()) == 333 ||//phi(1020)
-            it_gen->pdgId() == 443     ||//Jpsi
             it_gen->pdgId() == 100443  ||//Psi(2S)
             it_gen->pdgId() == 20443   ||//chi_c1(1P)
             it_gen->pdgId() == 9920443 ||//X3872
-            it_gen->pdgId() == 553     ||//Upsilon
             it_gen->pdgId() == 100553    //Upsilon(2S)
-            ) isGenSignal = true; //b, c
+            ) isGenSignal = true;
 
-        if (abs(it_gen->pdgId()) == 13) isGenSignal = true;//all mu
+        if(abs(it_gen->pdgId()) == 13) isGenSignal = true; //all mu
 
-        if (
-            abs(int(it_gen->pdgId()/100) % 100) == 3  ||//s menson
+        if(abs(int(it_gen->pdgId()/100) % 100) == 3  ||//s menson
             abs(it_gen->pdgId()) == 111 ||//pi0
             abs(it_gen->pdgId()) == 113 ||//rho0
             abs(it_gen->pdgId()) == 130 ||//KL
             abs(it_gen->pdgId()) == 211   //pi+
             ){
-          reco::GenParticle _deRef = (*it_gen);
-          reco::Candidate* Myself = dynamic_cast<reco::Candidate*>(&_deRef);
-          //std::cout<<Myself->pdgId()<<"-----------"<<std::endl;
-          isGenSignal = (Functs.GetAncestor(Myself, 5) | Functs.GetAncestor(Myself, 4));
-        }//all pi and K from b or c meson
+            reco::GenParticle _deRef = (*it_gen);
+            reco::Candidate* Myself = dynamic_cast<reco::Candidate*>(&_deRef);
+            //std::cout<<Myself->pdgId()<<"-----------"<<std::endl;
+            isGenSignal = (Functs.GetAncestor(Myself, 5) | Functs.GetAncestor(Myself, 4));
+             }//all pi and K from b or c meson
+
         if (!isGenSignal) continue;
 
         for(int muonIdx = 0; muonIdx < MuonInfo.size; muonIdx++){
@@ -1371,12 +1318,12 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //std::cout<<"Start to fill!\n";
 
   }//try
+
   catch (std::exception & err){
     std::cout  << "Exception during event number: " << iEvent.id()
                << "\n" << err.what() << "\n";
   }//catch 
   //root->Fill();
-  //std::cout<<"filled!\n";
     
   //Made a Bntuple on the fly
   if(makeBntuple_){
@@ -1440,7 +1387,6 @@ void Bfinder::BranchOut2MuTk(
                              float MuMu_MASS,
                              float Tk_MASS,
                              int channel_number
-
                              ){
   if(channel_number > (int)Bchannel_.size()){ printf("Exceeding defined # of channel, exit"); return;}
   float chi = 0.;
@@ -1450,8 +1396,7 @@ void Bfinder::BranchOut2MuTk(
   ParticleMass muon_mass = MUON_MASS; //pdg mass
   float muon_sigma = Functs.getParticleSigma(muon_mass);
 
-  for(auto tk_it_it1=input_tracks.begin(); //
-      tk_it_it1 != input_tracks.end() ; tk_it_it1++){
+  for(auto tk_it_it1=input_tracks.begin(); tk_it_it1 != input_tracks.end(); tk_it_it1++){
     tk1_hindex = int(tk_it_it1 - input_tracks.begin());
     if(tk1_hindex>=int(isNeededTrack.size())) break;
     if (!isNeededTrack[tk1_hindex]) continue;
@@ -1636,8 +1581,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
   int tk1_hindex = -1;
   int tk2_hindex = -1;
 
-  for(auto tk_it_it1=input_tracks.begin(); // 
-      tk_it_it1 != input_tracks.end() ; tk_it_it1++){
+  for(auto tk_it_it1=input_tracks.begin(); tk_it_it1 != input_tracks.end() ; tk_it_it1++){
     tk1_hindex = int(tk_it_it1 - input_tracks.begin());
     if(tk1_hindex>=int(isNeededTrack.size())) break;
     if (!isNeededTrack[tk1_hindex]) continue;
@@ -1648,8 +1592,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
 
     if (tk_it1->charge()<0) continue;
     
-    for(auto tk_it_it2=input_tracks.begin();
-        tk_it_it2 != input_tracks.end() ; tk_it_it2++){
+    for(auto tk_it_it2=input_tracks.begin(); tk_it_it2 != input_tracks.end() ; tk_it_it2++){
       if (BInfo.size >= MAX_XB) break;
       tk2_hindex = int(tk_it_it2 - input_tracks.begin());
       if(tk2_hindex>=int(isNeededTrack.size())) break;
@@ -1798,17 +1741,17 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       BInfo.index[BInfo.size]   = BInfo.size;
       BInfo.mass[BInfo.size]    = xb_4vec.Mag();
       BInfo.unfitted_mass[BInfo.size] = (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag();
-      BInfo.unfitted_pt[BInfo.size] = (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Pt();
-      BInfo.pt[BInfo.size]    = xb_4vec.Pt();
-      BInfo.eta[BInfo.size]    = xb_4vec.Eta();
-      BInfo.phi[BInfo.size]    = xb_4vec.Phi();
+      BInfo.unfitted_pt[BInfo.size]   = (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Pt();
+      BInfo.pt[BInfo.size]      = xb_4vec.Pt();
+      BInfo.eta[BInfo.size]     = xb_4vec.Eta();
+      BInfo.phi[BInfo.size]     = xb_4vec.Phi();
       BInfo.px[BInfo.size]      = xb_4vec.Px();
       BInfo.py[BInfo.size]      = xb_4vec.Py();
       BInfo.pz[BInfo.size]      = xb_4vec.Pz();
       BInfo.pxE[BInfo.size]     = sqrt(xbVFP->currentState().kinematicParametersError().matrix()(3,3));
       BInfo.pyE[BInfo.size]     = sqrt(xbVFP->currentState().kinematicParametersError().matrix()(4,4));
       BInfo.pzE[BInfo.size]     = sqrt(xbVFP->currentState().kinematicParametersError().matrix()(5,5));
-      BInfo.MaxDoca[BInfo.size]         = MaximumDoca;
+      BInfo.MaxDoca[BInfo.size] = MaximumDoca;
 
       VertexDistance3D a3d;
       //https://github.com/cms-sw/cmssw/blob/CMSSW_7_5_0/RecoVertex/VertexTools/src/VertexDistance3D.cc
@@ -1831,9 +1774,9 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       BInfo.vtxX[BInfo.size]    = xbVFPvtx->position().x();
       BInfo.vtxY[BInfo.size]    = xbVFPvtx->position().y();
       BInfo.vtxZ[BInfo.size]    = xbVFPvtx->position().z();
-      BInfo.vtxXErr[BInfo.size]        = xbVFPvtx->error().cxx();
-      BInfo.vtxYErr[BInfo.size]        = xbVFPvtx->error().cyy();
-      BInfo.vtxZErr[BInfo.size]        = xbVFPvtx->error().czz();
+      BInfo.vtxXErr[BInfo.size]      = xbVFPvtx->error().cxx();
+      BInfo.vtxYErr[BInfo.size]      = xbVFPvtx->error().cyy();
+      BInfo.vtxZErr[BInfo.size]      = xbVFPvtx->error().czz();
       BInfo.vtxYXErr[BInfo.size]     = xbVFPvtx->error().cyx();
       BInfo.vtxZXErr[BInfo.size]     = xbVFPvtx->error().czx();
       BInfo.vtxZYErr[BInfo.size]     = xbVFPvtx->error().czy();
@@ -1855,7 +1798,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       BInfo.rftk2_index[BInfo.size] = tk2_hindex;
             
       //tktk fit info
-      BInfo.tktk_unfitted_mass[BInfo.size]    = (v4_tk1+v4_tk2).Mag();
+      BInfo.tktk_unfitted_mass[BInfo.size]  = (v4_tk1+v4_tk2).Mag();
       BInfo.tktk_unfitted_pt[BInfo.size]    = (v4_tk1+v4_tk2).Pt();
       if(tktk_VFT->isValid() && tktk_VFPvtx->vertexIsValid()){
         std::vector<RefCountedKinematicParticle> tktkCands  = tktk_VFT->finalStateParticles();

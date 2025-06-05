@@ -486,7 +486,7 @@ public:
         //nt->Branch("Bprepref",Bprepref,"Bprepref[Bsize]/O");
         nt->Branch("Bmass_unfitted",Bmass_unfitted,"Bmass_unfitted[Bsize]/F");
         nt->Branch("Bpt",Bpt,"Bpt[Bsize]/F");
-        //nt->Branch("Beta",Beta,"Beta[Bsize]/F");
+        nt->Branch("Beta",Beta,"Beta[Bsize]/F");
         //nt->Branch("Bphi",Bphi,"Bphi[Bsize]/F");
         nt->Branch("By",By,"By[Bsize]/F");
         nt->Branch("BvtxX",BvtxX,"BvtxX[Bsize]/F");
@@ -495,7 +495,7 @@ public:
         nt->Branch("Bd0Err",Bd0Err,"Bd0Err[Bsize]/F");
         nt->Branch("Bdxyz",Bdxyz,"Bdxyz[Bsize]/F");
         nt->Branch("BdxyzErr",BdxyzErr,"BdxyzErr[Bsize]/F");
-        //nt->Branch("Bchi2ndf",Bchi2ndf,"Bchi2ndf[Bsize]/F");
+        nt->Branch("Bchi2ndf",Bchi2ndf,"Bchi2ndf[Bsize]/F");
         nt->Branch("Bchi2cl",Bchi2cl,"Bchi2cl[Bsize]/F");
         nt->Branch("Bdtheta",Bdtheta,"Bdtheta[Bsize]/F");
         nt->Branch("Bcos_dtheta",Bcos_dtheta,"Bcos_dtheta[Bsize]/F");
@@ -558,18 +558,18 @@ public:
         //nt->Branch("Btrk2Dxy1",Btrk2Dxy1,"Btrk2Dxy1[Bsize]/F");
         //nt->Branch("Btrk1DxyError1",Btrk1DxyError1,"Btrk1DxyError1[Bsize]/F");
         //nt->Branch("Btrk2DxyError1",Btrk2DxyError1,"Btrk2DxyError1[Bsize]/F");
-        /*
-        nt->Branch("Btrk1PixelHit",Btrk1PixelHit,"Btrk1PixelHit[Bsize]/F");
-        nt->Branch("Btrk2PixelHit",Btrk2PixelHit,"Btrk2PixelHit[Bsize]/F");
-        nt->Branch("Btrk1StripHit",Btrk1StripHit,"Btrk1StripHit[Bsize]/F");
-        nt->Branch("Btrk2StripHit",Btrk2StripHit,"Btrk2StripHit[Bsize]/F");
+        
+        //nt->Branch("Btrk1PixelHit",Btrk1PixelHit,"Btrk1PixelHit[Bsize]/F");
+        //nt->Branch("Btrk2PixelHit",Btrk2PixelHit,"Btrk2PixelHit[Bsize]/F");
+        //nt->Branch("Btrk1StripHit",Btrk1StripHit,"Btrk1StripHit[Bsize]/F");
+        //nt->Branch("Btrk2StripHit",Btrk2StripHit,"Btrk2StripHit[Bsize]/F");
         nt->Branch("Btrk1nPixelLayer",Btrk1nPixelLayer,"Btrk1nPixelLayer[Bsize]/F");
         nt->Branch("Btrk2nPixelLayer",Btrk2nPixelLayer,"Btrk2nPixelLayer[Bsize]/F");
         nt->Branch("Btrk1nStripLayer",Btrk1nStripLayer,"Btrk1nStripLayer[Bsize]/F");
         nt->Branch("Btrk2nStripLayer",Btrk2nStripLayer,"Btrk2nStripLayer[Bsize]/F");
         nt->Branch("Btrk1Chi2ndf",Btrk1Chi2ndf,"Btrk1Chi2ndf[Bsize]/F");
         nt->Branch("Btrk2Chi2ndf",Btrk2Chi2ndf,"Btrk2Chi2ndf[Bsize]/F");
-        */
+        
         //nt->Branch("Btrk1MVAVal",Btrk1MVAVal,"Btrk1MVAVal[Bsize]/F");
         //nt->Branch("Btrk2MVAVal",Btrk2MVAVal,"Btrk2MVAVal[Bsize]/F");
         //nt->Branch("Btrk1Algo",Btrk1Algo,"Btrk1Algo[Bsize]/I");
@@ -605,16 +605,16 @@ public:
         //BInfo.tktkInfo
         nt->Branch("Btktkmass",Btktkmass,"Btktkmass[Bsize]/F");
         //nt->Branch("BtktkmassKK",BtktkmassKK,"BtktkmassKK[Bsize]/F");
-        //nt->Branch("BtktkvProb",BtktkvProb,"BtktkvProb[Bsize]/F");
+        nt->Branch("BtktkvProb",BtktkvProb,"BtktkvProb[Bsize]/F");
         nt->Branch("Btktkpt",Btktkpt,"Btktkpt[Bsize]/F");
-        //nt->Branch("Btktketa",Btktketa,"Btktketa[Bsize]/F");
+        nt->Branch("Btktketa",Btktketa,"Btktketa[Bsize]/F");
         //nt->Branch("Btktkphi",Btktkphi,"Btktkphi[Bsize]/F");
         nt->Branch("Btktky",Btktky,"Btktky[Bsize]/F");
-        nt->Branch("Bdoubletmass",Bdoubletmass,"Bdoubletmass[Bsize]/F");
-        nt->Branch("Bdoubletpt",Bdoubletpt,"Bdoubletpt[Bsize]/F");
+        //nt->Branch("Bdoubletmass",Bdoubletmass,"Bdoubletmass[Bsize]/F");
+        //nt->Branch("Bdoubletpt",Bdoubletpt,"Bdoubletpt[Bsize]/F");
         //nt->Branch("Bdoubleteta",Bdoubleteta,"Bdoubleteta[Bsize]/F");  
         //nt->Branch("Bdoubletphi",Bdoubletphi,"Bdoubletphi[Bsize]/F");  
-        nt->Branch("Bdoublety",Bdoublety,"Bdoublety[Bsize]/F");
+        //nt->Branch("Bdoublety",Bdoublety,"Bdoublety[Bsize]/F");
         
         //BInfo.muonInfo
         nt->Branch("Bmu1pt",Bmu1pt,"Bmu1pt[Bsize]/F");
@@ -629,44 +629,44 @@ public:
         
         //nt->Branch("Bmu1y",Bmu1y,"Bmu1y[Bsize]/F");
         //nt->Branch("Bmu2y",Bmu2y,"Bmu2y[Bsize]/F");
-        /*
+        
         nt->Branch("Bmu1dzPV",Bmu1dzPV,"Bmu1dzPV[Bsize]/F");
         nt->Branch("Bmu2dzPV",Bmu2dzPV,"Bmu2dzPV[Bsize]/F");
         nt->Branch("Bmu1dxyPV",Bmu1dxyPV,"Bmu1dxyPV[Bsize]/F");
         nt->Branch("Bmu2dxyPV",Bmu2dxyPV,"Bmu2dxyPV[Bsize]/F");
-        nt->Branch("Bmu1normchi2",Bmu1normchi2,"Bmu1normchi2[Bsize]/F");
-        nt->Branch("Bmu2normchi2",Bmu2normchi2,"Bmu2normchi2[Bsize]/F");
-        nt->Branch("Bmu1Chi2ndf",Bmu1Chi2ndf,"Bmu1Chi2ndf[Bsize]/F");
-        nt->Branch("Bmu2Chi2ndf",Bmu2Chi2ndf,"Bmu2Chi2ndf[Bsize]/F");
+        //nt->Branch("Bmu1normchi2",Bmu1normchi2,"Bmu1normchi2[Bsize]/F");
+        //nt->Branch("Bmu2normchi2",Bmu2normchi2,"Bmu2normchi2[Bsize]/F");
+        //nt->Branch("Bmu1Chi2ndf",Bmu1Chi2ndf,"Bmu1Chi2ndf[Bsize]/F");
+        //nt->Branch("Bmu2Chi2ndf",Bmu2Chi2ndf,"Bmu2Chi2ndf[Bsize]/F");
         //nt->Branch("Bmu1muqual",Bmu1muqual,"Bmu1muqual[Bsize]/I");
         //nt->Branch("Bmu2muqual",Bmu2muqual,"Bmu2muqual[Bsize]/I");
-        nt->Branch("Bmu1TrackerMuArbitrated",Bmu1TrackerMuArbitrated,"Bmu1TrackerMuArbitrated[Bsize]/O");
-        nt->Branch("Bmu2TrackerMuArbitrated",Bmu2TrackerMuArbitrated,"Bmu2TrackerMuArbitrated[Bsize]/O");
+        //nt->Branch("Bmu1TrackerMuArbitrated",Bmu1TrackerMuArbitrated,"Bmu1TrackerMuArbitrated[Bsize]/O");
+        //nt->Branch("Bmu2TrackerMuArbitrated",Bmu2TrackerMuArbitrated,"Bmu2TrackerMuArbitrated[Bsize]/O");
         nt->Branch("Bmu1isTrackerMuon",Bmu1isTrackerMuon,"Bmu1isTrackerMuon[Bsize]/O");
         nt->Branch("Bmu2isTrackerMuon",Bmu2isTrackerMuon,"Bmu2isTrackerMuon[Bsize]/O");
         nt->Branch("Bmu1isGlobalMuon",Bmu1isGlobalMuon,"Bmu1isGlobalMuon[Bsize]/O");
         nt->Branch("Bmu2isGlobalMuon",Bmu2isGlobalMuon,"Bmu2isGlobalMuon[Bsize]/O");
         nt->Branch("Bmu1TMOneStationTight",Bmu1TMOneStationTight,"Bmu1TMOneStationTight[Bsize]/O");
         nt->Branch("Bmu2TMOneStationTight",Bmu2TMOneStationTight,"Bmu2TMOneStationTight[Bsize]/O");
-        nt->Branch("Bmu1striphit",Bmu1striphit,"Bmu1striphit[Bsize]/I");
-        nt->Branch("Bmu2striphit",Bmu2striphit,"Bmu2striphit[Bsize]/I");
-        nt->Branch("Bmu1pixelhit",Bmu1pixelhit,"Bmu1pixelhit[Bsize]/I");
-        nt->Branch("Bmu2pixelhit",Bmu2pixelhit,"Bmu2pixelhit[Bsize]/I");
-        nt->Branch("Bmu1trackerhit",Bmu1trackerhit,"Bmu1trackerhit[Bsize]/I");
-        nt->Branch("Bmu2trackerhit",Bmu2trackerhit,"Bmu2trackerhit[Bsize]/I");
+        //nt->Branch("Bmu1striphit",Bmu1striphit,"Bmu1striphit[Bsize]/I");
+        //nt->Branch("Bmu2striphit",Bmu2striphit,"Bmu2striphit[Bsize]/I");
+        //nt->Branch("Bmu1pixelhit",Bmu1pixelhit,"Bmu1pixelhit[Bsize]/I");
+        //nt->Branch("Bmu2pixelhit",Bmu2pixelhit,"Bmu2pixelhit[Bsize]/I");
+        //nt->Branch("Bmu1trackerhit",Bmu1trackerhit,"Bmu1trackerhit[Bsize]/I");
+        //nt->Branch("Bmu2trackerhit",Bmu2trackerhit,"Bmu2trackerhit[Bsize]/I");
         nt->Branch("Bmu1InPixelLayer",Bmu1InPixelLayer,"Bmu1InPixelLayer[Bsize]/I");
         nt->Branch("Bmu2InPixelLayer",Bmu2InPixelLayer,"Bmu2InPixelLayer[Bsize]/I");
         nt->Branch("Bmu1InStripLayer",Bmu1InStripLayer,"Bmu1InStripLayer[Bsize]/I");
         nt->Branch("Bmu2InStripLayer",Bmu2InStripLayer,"Bmu2InStripLayer[Bsize]/I");
         nt->Branch("Bmu1InTrackerLayer",Bmu1InTrackerLayer,"Bmu1InTrackerLayer[Bsize]/I");
         nt->Branch("Bmu2InTrackerLayer",Bmu2InTrackerLayer,"Bmu2InTrackerLayer[Bsize]/I");
-        nt->Branch("Bmu1TrkQuality",Bmu1TrkQuality,"Bmu1TrkQuality[Bsize]/I");
-        nt->Branch("Bmu2TrkQuality",Bmu2TrkQuality,"Bmu2TrkQuality[Bsize]/I");
+        //nt->Branch("Bmu1TrkQuality",Bmu1TrkQuality,"Bmu1TrkQuality[Bsize]/I");
+        //nt->Branch("Bmu2TrkQuality",Bmu2TrkQuality,"Bmu2TrkQuality[Bsize]/I");
         nt->Branch("Bmu1highPurity",Bmu1highPurity,"Bmu1highPurity[Bsize]/O");
         nt->Branch("Bmu2highPurity",Bmu2highPurity,"Bmu2highPurity[Bsize]/O");
         nt->Branch("Bmu1isAcc",Bmu1isAcc,"Bmu1isAcc[Bsize]/O");
         nt->Branch("Bmu2isAcc",Bmu2isAcc,"Bmu2isAcc[Bsize]/O");
-        */
+        
         nt->Branch("Bmu1SoftMuID",Bmu1SoftMuID,"Bmu1SoftMuID[Bsize]/O");
         nt->Branch("Bmu2SoftMuID",Bmu2SoftMuID,"Bmu2SoftMuID[Bsize]/O");
         nt->Branch("Bmu1HybridSoftMuID",Bmu1HybridSoftMuID,"Bmu1HybridSoftMuID[Bsize]/O");
@@ -682,17 +682,17 @@ public:
         //nt->Branch("Bmu2TrgMatchFilterPhi",Bmu2TrgMatchFilterPhi,"Bmu2TrgMatchFilterPhi[Bsize]/F");
         nt->Branch("Bmu2isTriggered",Bmu2isTriggered,"Bmu2isTriggered[Bsize]/O");
         nt->Branch("Bmumumass",Bmumumass,"Bmumumass[Bsize]/F");
-        //nt->Branch("Bmumueta",Bmumueta,"Bmumueta[Bsize]/F");
+        nt->Branch("Bmumueta",Bmumueta,"Bmumueta[Bsize]/F");
         //nt->Branch("Bmumuphi",Bmumuphi,"Bmumuphi[Bsize]/F");
         nt->Branch("Bmumuy",Bmumuy,"Bmumuy[Bsize]/F");
         nt->Branch("Bmumupt",Bmumupt,"Bmumupt[Bsize]/F");
         nt->Branch("Bujmass",Bujmass,"Bujmass[Bsize]/F");
         nt->Branch("BujvProb",BujvProb,"BujvProb[Bsize]/F");
         nt->Branch("Bujpt",Bujpt,"Bujpt[Bsize]/F");
-        //nt->Branch("Bujeta",Bujeta,"Bujeta[Bsize]/F");
+        nt->Branch("Bujeta",Bujeta,"Bujeta[Bsize]/F");
         //nt->Branch("Bujphi",Bujphi,"Bujphi[Bsize]/F");
         nt->Branch("Bujy",Bujy,"Bujy[Bsize]/F");
-        nt->Branch("Bujlxy",Bujlxy,"Bujlxy[Bsize]/F");
+        //nt->Branch("Bujlxy",Bujlxy,"Bujlxy[Bsize]/F");
         
         //BInfo.genInfo
         nt->Branch("Bgen",Bgen,"Bgen[Bsize]/F");
@@ -702,7 +702,7 @@ public:
         nt->Branch("Bgenpt",Bgenpt,"Bgenpt[Bsize]/F");
         //nt->Branch("BgencollisionId",BgencollisionId,"BgencollisionId[Bsize]/I");
         nt->Branch("Bgeny",Bgeny,"Bgeny[Bsize]/F");
-        //nt->Branch("Bgeneta",Bgeneta,"Bgeneta[Bsize]/F");
+        nt->Branch("Bgeneta",Bgeneta,"Bgeneta[Bsize]/F");
         //nt->Branch("Bgenphi",Bgenphi,"Bgenphi[Bsize]/F");
         
         /*
