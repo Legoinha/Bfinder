@@ -104,19 +104,19 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          centralitySrc    = cms.InputTag("hiCentrality"),
                                          centralityBinSrc = cms.InputTag("centralityBin","HFtowers"),   #CENTRALITY
                                          centmin = cms.double(0),
-                                         centmax = cms.double(50),
+                                         centmax = cms.double(100),
 
                                          TrackChi2Label = cms.InputTag(TrkChi2Label),
                                          TrackDedxLabel = cms.InputTag('dedxEstimator:dedxAllLikelihood'),
                                          BSLabel = cms.InputTag("offlineBeamSpot"),
                                          PVLabel = cms.InputTag(VtxLabel),
-                                         tkPtCut = cms.double(1.0),#before fit
-                                         tkEtaCut = cms.double(999.0),#before fit
-                                         jpsiPtCut = cms.double(0.0),#before fit
-                                         uj_VtxChiProbCut = cms.double(0.01),
-                                         bPtCut = cms.vdouble(5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0),#before fit
-                                         bEtaCut = cms.vdouble(2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4),#before fit, not used currently
-                                         VtxChiProbCut = cms.vdouble(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01),
+                                         tkPtCut = cms.double(0.0),   #before fit
+                                         tkEtaCut = cms.double(2.4),  #before fit  #there are flags to turn these off
+                                         jpsiPtCut = cms.double(0.0), #before fit
+                                         uj_VtxChiProbCut = cms.double(0),
+                                         bPtCut = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  #before fit
+                                         bEtaCut = cms.vdouble(2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4), #before fit, not used currently
+                                         VtxChiProbCut = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
                                          svpvDistanceCut = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
                                          MaxDocaCut = cms.vdouble(999., 999., 999., 999., 999., 999., 999.),
                                          alphaCut = cms.vdouble(999., 999., 999., 999., 999., 999., 999.),

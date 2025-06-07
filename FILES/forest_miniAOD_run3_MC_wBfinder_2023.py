@@ -118,7 +118,7 @@ process.forest = cms.Path(
 #    process.l1object +
     # process.trackSequencePbPb +
 #    process.particleFlowAnalyser +
-    process.hiEvtAnalyzer  #+
+#    process.hiEvtAnalyzer  #+
     #process.HiGenParticleAna #+
     # process.ggHiNtuplizer +
 #    process.zdcdigi +
@@ -246,31 +246,24 @@ TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
-process.Bfinder.tkPtCut = cms.double(0.9) # //1.      before fit
-process.Bfinder.tkEtaCut = cms.double(2.4) # before fit
-process.Bfinder.jpsiPtCut = cms.double(0.0) # before fit
-process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 5.0, 1.0) # before fit
+
 process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
-process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05)
-process.Bfinder.svpvDistanceCut = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
 process.Bfinder.doTkPreCut = cms.bool(False)
 process.Bfinder.doMuPreCut = cms.bool(False)
+
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("")
 process.BfinderSequence.insert(0, process.unpackedMuons)
 process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
 # process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
-
 process.p = cms.Path(process.BfinderSequence)
 
-process.Bfinder.centmin = cms.double(0)
-process.Bfinder.centmax = cms.double(100)
 
 ###############################
 import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
-ivars.maxEvents = 100
+ivars.maxEvents = -1
 ivars.outputFile='HiForestMINIAOD.root'
 ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_X3872/prompt_PSI2S_to_Jpsi_pipi_phat5_miniAOD/250317_095831/0000/step4_miniAOD_102.root'     #   PSI2S -> JPSI pi pi
 #ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_Bmesons/Bu_phat5_miniAOD/250402_160115/0000/step4_miniAOD_1.root'  #Bu

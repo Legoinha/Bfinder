@@ -272,24 +272,27 @@ process.pphfCoincFilter5Th5 = cms.Path(process.phfCoincFilter5Th5)
 
 
 #################### B finder #################
-runOnMC = False ## !!
-VtxLabel = "offlineSlimmedPrimaryVertices"
-TrkLabel = "packedPFCandidates"
+runOnMC      = False ## !!
+VtxLabel     = "offlineSlimmedPrimaryVertices"
+TrkLabel     = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
-GenLabel = "prunedGenParticles"
+GenLabel     = "prunedGenParticles"
 
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
-process.Bfinder.tkPtCut = cms.double(0.9) # before fit
-process.Bfinder.tkEtaCut = cms.double(2.4) # before fit
-process.Bfinder.jpsiPtCut = cms.double(0.0) # before fit
-process.Bfinder.bPtCut = cms.vdouble(3.0, 5.0, 5.0, 5.0, 5.0, 3.0, 1.0) # before fit
-process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
-process.Bfinder.VtxChiProbCut = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05)
-process.Bfinder.svpvDistanceCut = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
+
+process.Bfinder.Bchannel         = cms.vint32(0, 0, 0, 0, 0, 0, 1)
+process.Bfinder.bPtCut           = cms.vdouble(1.0, 5.0, 5.0, 1.0, 1.0, 1.0, 5.0)
+process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
+process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
+process.Bfinder.VtxChiProbCut    = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05)
+process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
+process.Bfinder.svpvDistanceCut  = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0)
+
 process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)
+
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("")
 process.BfinderSequence.insert(0, process.unpackedMuons)
@@ -297,9 +300,6 @@ process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
 # process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
 
 process.p = cms.Path(process.BfinderSequence)
-
-process.Bfinder.centmin = cms.double(0)
-process.Bfinder.centmax = cms.double(100)
 
 #######################################################################################################################
 #######################################################################################################################

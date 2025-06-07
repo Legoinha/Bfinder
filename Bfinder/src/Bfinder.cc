@@ -432,12 +432,12 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (abs(track->charge()) != 1) continue;
 
     input_tracks.push_back(track);
-
+    
+    // FOR multiplicity 
     if (abs(track->eta())   > 2.4) continue;
   
     EvtInfo.nChargedTracks++;
-    
-    // FOR multiplicity 
+
     if (track->quality(reco::TrackBase::qualityByName("highPurity")) &&
 	    fabs(track->dxy(RefVtx) / track->dxyError()) < 3 && fabs(track->dz(RefVtx) / track->dzError()) < 3 &&
 	    fabs(track->ptError() / track->pt()) < 0.1) {
@@ -687,12 +687,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if(fabs(mu_it->eta())>2.2 && fabs(mu_it->eta())<2.4 && mu_it->pt()>0.8) MuInAcc = true;
 
             //Can not be just CaloMuon or empty type
-            if((MuonInfo.type[MuonInfo.size]|(1<<4))==(1<<4)){
-              MuonInfo.isNeededMuon[MuonInfo.size] = false;
-            }
-            else if(doMuPreCut_ && (!MuInAcc || !(mu_it->isTrackerMuon() || mu_it->isGlobalMuon()) )){
-              MuonInfo.isNeededMuon[MuonInfo.size] = false;
-            }
+            if((MuonInfo.type[MuonInfo.size]|(1<<4))==(1<<4)){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
+            else if(doMuPreCut_ && (!MuInAcc || !(mu_it->isTrackerMuon() || mu_it->isGlobalMuon()) )){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
             else {
               PassedMuon ++;
               MuonInfo.isNeededMuon[MuonInfo.size] = true;
@@ -748,7 +744,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           //printf("-----*****DEBUG:End of track preselection.\n");
 
           // BInfo section{{{
-          int mu1_index = -1;
+          int mu1_index  = -1;
           int mu1_hindex = -1;
           bool gogogo = false;
 
@@ -794,7 +790,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               TLorentzVector v4_mu1,v4_mu2;
               v4_mu1.SetPtEtaPhiM(mu_it1->pt(),mu_it1->eta(),mu_it1->phi(),MUON_MASS);
               v4_mu2.SetPtEtaPhiM(mu_it2->pt(),mu_it2->eta(),mu_it2->phi(),MUON_MASS);
-              if (fabs((v4_mu1+v4_mu2).Mag()-JPSI_MASS)>0.4) continue;
+              if ( doMuPreCut_ && fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) >0.4) continue;
               if((v4_mu1+v4_mu2).Pt()<jpsiPtCut_)continue;
 
               //Fit 2 muon
@@ -803,13 +799,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               if(!muonPTT.isValid()) continue;
               if(!muonMTT.isValid()) continue;
               // XbujCutLevel->Fill(1);
-    
-              // const reco::Muon* rmu1 = dynamic_cast<const reco::Muon * >(mu_it1->originalObject());
-              // const reco::Muon* rmu2 = dynamic_cast<const reco::Muon * >(mu_it2->originalObject());
-              // std::cout<<rmu1<<", "<<rmu2<<std::endl;
-              // if(muon::overlap(*rmu1, *rmu2)) continue;
-              // XbujCutLevel->Fill(2);
-    
+        
               KinematicParticleFactoryFromTransientTrack pFactory;
               ParticleMass muon_mass = MUON_MASS; //pdg mass
               float muon_sigma = muon_mass*1.e-6;
@@ -834,10 +824,10 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               ujVFT->movePointerToTheNextChild();
               KinematicParameters         ujmu2KP     = ujVFT->currentParticle()->currentState().kinematicParameters();
               double chi2_prob_uj = TMath::Prob(ujVFPvtx->chiSquared(), ujVFPvtx->degreesOfFreedom());
-              if(chi2_prob_uj < uj_VtxChiProbCut_) continue;
+              if( chi2_prob_uj < uj_VtxChiProbCut_ ) continue;
               //XbujCutLevel->Fill(4);
 
-              if (fabs(ujVFP->currentState().mass()-JPSI_MASS)>0.3) continue;
+              if (doMuPreCut_ && fabs(ujVFP->currentState().mass()-JPSI_MASS)>0.3) continue;
 
               TLorentzVector uj_4vec,uj_mu1_4vec,uj_mu2_4vec;
               uj_4vec.SetPxPyPzE(ujVFP->currentState().kinematicParameters().momentum().x(),
@@ -1407,12 +1397,13 @@ void Bfinder::BranchOut2MuTk(
     TLorentzVector v4_tk1;
     v4_tk1.SetPtEtaPhiM(tk_it1->pt(),tk_it1->eta(),tk_it1->phi(),KAON_MASS);
   
-    //if ((v4_mu1+v4_mu2+v4_tk1).Mag()<mass_window[0]-0.2 || (v4_mu1+v4_mu2+v4_tk1).Mag()>mass_window[1]+0.2) continue;
-    if ((v4_mu1+v4_mu2+v4_tk1).Mag()<mass_window[0] || (v4_mu1+v4_mu2+v4_tk1).Mag()>mass_window[1]) continue;
+    if(doMuPreCut_ && doTkPreCut_){
+      if (((v4_mu1+v4_mu2+v4_tk1).Mag()<mass_window[0] || (v4_mu1+v4_mu2+v4_tk1).Mag()>mass_window[1])) continue;
+    }
     //XbMassCutLevel[channel_number-1]->Fill(0);
     if((v4_mu1+v4_mu2+v4_tk1).Pt()<bPtCut_[channel_number-1])continue;
     //XbMassCutLevel[channel_number-1]->Fill(1);
-      
+   
     reco::TransientTrack kaonTT(*tk_it1, &(*bField) );
     if (!kaonTT.isValid()) continue;
     //XbMassCutLevel[channel_number-1]->Fill(2);
@@ -1608,12 +1599,12 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       TLorentzVector v4_tk1,v4_tk2;
       v4_tk1.SetPtEtaPhiM(tk_it1->pt(),tk_it1->eta(),tk_it1->phi(),Tk1_MASS);
       v4_tk2.SetPtEtaPhiM(tk_it2->pt(),tk_it2->eta(),tk_it2->phi(),Tk2_MASS);
-      if(TkTk_MASS > 0) {if (fabs((v4_tk1+v4_tk2).Mag()-TkTk_MASS)>TkTk_window) continue;}
-      //else {if (fabs((v4_tk1+v4_tk2).Mag())>TkTk_window) continue;}//if no tktk mass constrain, require it to be at least < some mass value
+      if(TkTk_MASS > 0) {if (doTkPreCut_ && (fabs((v4_tk1+v4_tk2).Mag()-TkTk_MASS)>TkTk_window)) continue;}
       //XbMassCutLevel[channel_number-1]->Fill(0);
-            
-      if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() < (mass_window[0]-0.2) || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() > (mass_window[1]+0.2)) continue;
-      //if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()<mass_window[0] || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag()>mass_window[1]) continue;
+      
+      if(doMuPreCut && doTkPreCut_){
+        if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() < (mass_window[0]-0.2) || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() > (mass_window[1]+0.2)) continue;
+      }
       //XbMassCutLevel[channel_number-1]->Fill(1);
       if((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Pt()<bPtCut_[channel_number-1])continue;
       //XbMassCutLevel[channel_number-1]->Fill(2);
@@ -1644,7 +1635,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       if (tktk_VFT->isValid()){
         //XbMassCutLevel[channel_number-1]->Fill(4);
         tktk_VFT->movePointerToTheTop();
-        tktk_VFP   = tktk_VFT->currentParticle();
+        tktk_VFP    = tktk_VFT->currentParticle();
         tktk_VFPvtx = tktk_VFT->currentDecayVertex();
         if (tktk_VFPvtx->vertexIsValid()){
           //XbMassCutLevel[channel_number-1]->Fill(5);
@@ -1702,7 +1693,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       //XbMassCutLevel[channel_number-1]->Fill(10);
             
       //Cut out a mass window
-      if (xbVFP->currentState().mass()<mass_window[0]|| xbVFP->currentState().mass()>mass_window[1]) continue;
+        if (xbVFP->currentState().mass()<mass_window[0]|| xbVFP->currentState().mass()>mass_window[1]) continue;
       //
       std::vector<RefCountedKinematicParticle> xCands  = xbVFT->finalStateParticles();
             
