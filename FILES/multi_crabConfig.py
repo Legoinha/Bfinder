@@ -26,7 +26,7 @@ config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "EventAwareLumiBased"
-config.Data.unitsPerJob = 5000000
+config.Data.unitsPerJob = 400000
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
 config.Data.runRange = '387474-387721'

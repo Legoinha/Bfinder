@@ -33,7 +33,8 @@ config.Data.runRange = '374288-375823'
 config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions23HI/Cert_Collisions2023HI_374288_375823_Muon.json'
 
 config.section_("Site")
-config.Site.storageSite = "T3_CH_CERNBOX"
+#config.Site.storageSite = "T3_CH_CERNBOX"
+config.Site.storageSite = "T2_PT_NCG_Lisbon"
 config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
 
 # Multi crab part
@@ -47,9 +48,9 @@ def submit(config):
         print("Failed submitting task: %s" % (cle))
 
 # Submit the jobs: 32 HIRawPrime PDs, ~5.6k files each, average of 140k events/file
-#config.Data.outLFNDirBase = '/store/user/fdamas/PbPb2023/'
+config.Data.outLFNDirBase = '/store/user/hmarques/DATA_PbPb23/X3872'
 
-for i in range(1):   ###32
+for i in range(32):   ###32
 
     config.General.requestName = f'RawPrime{i}'
     config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2023A-PromptReco-v2/MINIAOD"
