@@ -1602,7 +1602,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       if(TkTk_MASS > 0) {if (doTkPreCut_ && (fabs((v4_tk1+v4_tk2).Mag()-TkTk_MASS)>TkTk_window)) continue;}
       //XbMassCutLevel[channel_number-1]->Fill(0);
       
-      if(doMuPreCut && doTkPreCut_){
+      if(doMuPreCut_ && doTkPreCut_){
         if ((v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() < (mass_window[0]-0.2) || (v4_mu1+v4_mu2+v4_tk1+v4_tk2).Mag() > (mass_window[1]+0.2)) continue;
       }
       //XbMassCutLevel[channel_number-1]->Fill(1);
@@ -1643,16 +1643,16 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
           if (chi2_prob_tktk >= VtxChiProbCut_[channel_number-1]){
             //XbMassCutLevel[channel_number-1]->Fill(6);
           }
-          else if (TkTk_MASS > 0 && doTkPreCut) continue;
+          else if (TkTk_MASS > 0 && doTkPreCut_) continue;
         }
-        else if (TkTk_MASS > 0 && doTkPreCut) continue;
+        else if (TkTk_MASS > 0 && doTkPreCut_) continue;
       }
-      else if (TkTk_MASS > 0 && doTkPreCut) continue;
+      else if (TkTk_MASS > 0 && doTkPreCut_) continue;
 
       std::vector<RefCountedKinematicParticle> Xb_candidate;
       Xb_candidate.push_back(pFactory.particle(muonPTT,muon_mass,chi,ndf,muon_sigma));
       Xb_candidate.push_back(pFactory.particle(muonMTT,muon_mass,chi,ndf,muon_sigma));
-      if(fit_option == 0 || (TkTk_MASS < 0 && doTkPreCut)){
+      if(fit_option == 0 || (TkTk_MASS < 0 && doTkPreCut_)){
         Xb_candidate.push_back(pFactory.particle(tk1PTT,tk1_mass,chi,ndf,tk1_sigma));
         Xb_candidate.push_back(pFactory.particle(tk2MTT,tk2_mass,chi,ndf,tk2_sigma));
       }
@@ -1693,7 +1693,7 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       //XbMassCutLevel[channel_number-1]->Fill(10);
             
       //Cut out a mass window
-      if(doTkPreCut){
+      if(doTkPreCut_){
         if (xbVFP->currentState().mass()<mass_window[0]|| xbVFP->currentState().mass()>mass_window[1]) continue;
       }//
       std::vector<RefCountedKinematicParticle> xCands  = xbVFT->finalStateParticles();
