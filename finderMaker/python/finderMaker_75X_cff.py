@@ -111,7 +111,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          BSLabel = cms.InputTag("offlineBeamSpot"),
                                          PVLabel = cms.InputTag(VtxLabel),
                                          tkPtCut = cms.double(0.0),   #before fit
-                                         tkEtaCut = cms.double(2.4),  #before fit  #there are flags to turn these off
+                                         tkEtaCut = cms.double(999.),  #before fit  
                                          jpsiPtCut = cms.double(0.0), #before fit
                                          uj_VtxChiProbCut = cms.double(0),
                                          bPtCut = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  #before fit
