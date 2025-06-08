@@ -361,7 +361,7 @@ public:
     nt->Branch("RunNo",&RunNo);
     nt->Branch("CentBin", &CentBin);  //centrality
     nt->Branch("EvtNo",&EvtNo);
-    //nt->Branch("LumiNo",&LumiNo);
+    nt->Branch("LumiNo",&LumiNo);
     nt->Branch("PVx",&PVx);
     nt->Branch("PVy",&PVy);
     nt->Branch("PVz",&PVz);
@@ -778,7 +778,7 @@ public:
     for(int t=0;t<7;t++)
       {
         int tidx = t-1;
-        if(t!=4)
+        if(t!=4)   //for WrongTag component 
           {
             tidx = t;
             Bsize = 0;

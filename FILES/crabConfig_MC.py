@@ -5,6 +5,7 @@ config.General.transferOutputs = True
 config.General.workArea = 'crab_projects_X'
 config.JobType.pluginName = 'Analysis'
 config.JobType.maxMemoryMB = 2500
+config.JobType.maxJobRuntimeMin = 2700 # max = 2750
 config.JobType.numCores = 1
 config.JobType.pyCfgParams = ['noprint']
 

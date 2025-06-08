@@ -112,8 +112,8 @@ process.muonAnalyzer.doGen = cms.bool(True)
 # main forest sequence
 process.forest = cms.Path(
     #process.HiForestInfo +
-    process.centralityBin +
-    process.hltanalysis +
+    process.centralityBin 
+#    process.hltanalysis 
 #    process.hltobject +
 #    process.l1object +
     # process.trackSequencePbPb +
