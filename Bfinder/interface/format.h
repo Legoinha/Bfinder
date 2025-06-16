@@ -3,30 +3,15 @@
 #define _XBFRAMEFORMAT_H_
 
 //Note, when the array size gett too large, SetBranchAddress will fail, root will abort w/o error msg
-#define MAX_XB       20000
+#define MAX_XB       25000
 #define MAX_MUON     10000
 #define MAX_TRACK    6000
-//#define MAX_GEN      20000 test if 50k works
-#define MAX_GEN      45000
+#define MAX_GEN      35000
 #define MAX_BX       150
 #define MAX_Vertices 4000
 #define MAX_TRIGGER  30
 //
-//#define MAX_XB 16384
-//#define MAX_MUON 4096
-//#define MAX_TRACK 8192
-//#define MAX_GEN 4096
-//#define MAX_BX 128
-//#define MAX_Vertices 4096
-//
-//#define MAX_XB 8192
-//#define MAX_MUON 2048
-//#define MAX_TRACK 4096
-//#define MAX_GEN 4096
-//#define MAX_BX 128
-//#define MAX_Vertices 4096
-//
-//#define N_TRIGGER_BOOKINGS 5842
+
 
 #include <memory>
 #include <iostream>

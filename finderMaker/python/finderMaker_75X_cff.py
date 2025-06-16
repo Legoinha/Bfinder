@@ -113,10 +113,11 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          tkPtCut = cms.double(0.0),   #before fit
                                          tkEtaCut = cms.double(999.),  #before fit  
                                          jpsiPtCut = cms.double(0.0), #before fit
-                                         uj_VtxChiProbCut = cms.double(0),
-                                         bPtCut = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  #before fit
+                                         uj_VtxChiProbCut   = cms.double(0),
+                                         tktk_VtxChiProbCut = cms.double(0),
+                                         bPtCut  = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  #before fit
                                          bEtaCut = cms.vdouble(2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4), #before fit, not used currently
-                                         VtxChiProbCut = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                                         VtxChiProbCut   = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
                                          svpvDistanceCut = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
                                          MaxDocaCut = cms.vdouble(999., 999., 999., 999., 999., 999., 999.),
                                          alphaCut = cms.vdouble(999., 999., 999., 999., 999., 999., 999.),
@@ -185,7 +186,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
         
         process.BfinderSequence = cms.Sequence(process.patMuonSequence*process.Bfinder)
         process.DfinderSequence = cms.Sequence(process.Dfinder)
-        process.finderSequence = cms.Sequence(process.patMuonSequence*process.Bfinder*process.Dfinder)
+        process.finderSequence  = cms.Sequence(process.patMuonSequence*process.Bfinder*process.Dfinder)
 
         changeToMiniAODforMuon(process)
 
