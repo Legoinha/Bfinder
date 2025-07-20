@@ -260,17 +260,18 @@ process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter)
 
 #################### B finder #################
 #################### B finder #################
-runOnMC = False
-VtxLabel = "offlineSlimmedPrimaryVertices"
-TrkLabel = "packedPFCandidates"
+runOnMC      = False
+VtxLabel     = "offlineSlimmedPrimaryVertices"
+TrkLabel     = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
-GenLabel = "prunedGenParticles"
+GenLabel     = "prunedGenParticles"
 
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 
 process.Bfinder.Bchannel         = cms.vint32(0, 0, 0, 0, 0, 0, 1)
 process.Bfinder.bPtCut           = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0) # before fit
+process.VtxChiProbCut            = cms.vdouble(0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05)
 process.Bfinder.tkPtCut          = cms.double(0.5) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
 process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
