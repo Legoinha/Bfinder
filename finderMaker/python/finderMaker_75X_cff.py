@@ -124,7 +124,6 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          doTkPreCut = cms.bool(True),
                                          doMuPreCut = cms.bool(True),
                                          makeBntuple = cms.bool(True),
-                                         doBntupleSkim = cms.bool(False),
                                          printInfo = cms.bool(True),
                                          readDedx = cms.bool(True),
         )

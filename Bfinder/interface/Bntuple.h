@@ -15,7 +15,7 @@ public:
   int      EvtNo;
   int      LumiNo;
   int      Bsize;
-  int     CentBin;   // centrality bin
+  int      CentBin;   // centrality bin
   int      Jsize;
   float    PVx;
   float    PVy;
@@ -185,6 +185,8 @@ public:
   float     Btrk2Dxy[MAX_XB];
     float     Bnorm_trk1Dxy[MAX_XB];
     float     Bnorm_trk2Dxy[MAX_XB];
+    float     Bnorm_trk1Dz[MAX_XB];
+    float     Bnorm_trk2Dz[MAX_XB];
 
   float     Btrk1DxyError[MAX_XB];
   float     Btrk2DxyError[MAX_XB];
@@ -517,7 +519,7 @@ public:
         */
         nt->Branch("BQvalue",BQvalue,"BQvalue[Bsize]/F");
         nt->Branch("BQvalueuj",BQvalueuj,"BQvalueuj[Bsize]/F");
-        nt->Branch("BQvaluemumu",BQvaluemumu,"BQvaluemumu[Bsize]/F");
+        //nt->Branch("BQvaluemumu",BQvaluemumu,"BQvaluemumu[Bsize]/F");
        
 
         //BInfo.trkInfo
@@ -538,19 +540,23 @@ public:
         //nt->Branch("Btrk1PhiErr",Btrk1PhiErr,"Btrk1PhiErr[Bsize]/F");
         //nt->Branch("Btrk2PhiErr",Btrk2PhiErr,"Btrk2PhiErr[Bsize]/F");
         //nt->Branch("Btrk1Y",Btrk1Y,"Btrk1Y[Bsize]/F");  
-        //nt->Branch("Btrk2Y",Btrk2Y,"Btrk2Y[Bsize]/F");  
+        //nt->Branch("Btrk2Y",Btrk2Y,"Btrk2Y[Bsize]/F");
+        /*  
         nt->Branch("Btrk1Dz",Btrk1Dz,"Btrk1Dz[Bsize]/F");
         nt->Branch("Btrk2Dz",Btrk2Dz,"Btrk2Dz[Bsize]/F");
         nt->Branch("Btrk1DzError",Btrk1DzError,"Btrk1DzError[Bsize]/F");
         nt->Branch("Btrk2DzError",Btrk2DzError,"Btrk2DzError[Bsize]/F");
         nt->Branch("Btrk1Dxy",Btrk1Dxy,"Btrk1Dxy[Bsize]/F");
         nt->Branch("Btrk2Dxy",Btrk2Dxy,"Btrk2Dxy[Bsize]/F");
-
-        nt->Branch("Bnorm_trk1Dxy",Bnorm_trk1Dxy,"Bnorm_trk1Dxy[Bsize]/F");
-        nt->Branch("Bnorm_trk2Dxy",Bnorm_trk2Dxy,"Bnorm_trk2Dxy[Bsize]/F");
-
         nt->Branch("Btrk1DxyError",Btrk1DxyError,"Btrk1DxyError[Bsize]/F");
         nt->Branch("Btrk2DxyError",Btrk2DxyError,"Btrk2DxyError[Bsize]/F");
+        */
+        nt->Branch("Bnorm_trk1Dxy",Bnorm_trk1Dxy,"Bnorm_trk1Dxy[Bsize]/F");
+        nt->Branch("Bnorm_trk2Dxy",Bnorm_trk2Dxy,"Bnorm_trk2Dxy[Bsize]/F");
+        nt->Branch("Bnorm_trk1Dz",Bnorm_trk1Dz,"Bnorm_trk1Dz[Bsize]/F");
+        nt->Branch("Bnorm_trk2Dz",Bnorm_trk2Dz,"Bnorm_trk2Dz[Bsize]/F");
+
+
         //nt->Branch("Btrk1Dz1",Btrk1Dz1,"Btrk1Dz1[Bsize]/F");
         //nt->Branch("Btrk2Dz1",Btrk2Dz1,"Btrk2Dz1[Bsize]/F");
         //nt->Branch("Btrk1DzError1",Btrk1DzError1,"Btrk1DzError1[Bsize]/F");
@@ -605,7 +611,7 @@ public:
 
         //BInfo.tktkInfo
         nt->Branch("Btktkmass",Btktkmass,"Btktkmass[Bsize]/F");
-        nt->Branch("BtktkmassKK",BtktkmassKK,"BtktkmassKK[Bsize]/F");
+        //nt->Branch("BtktkmassKK",BtktkmassKK,"BtktkmassKK[Bsize]/F");
         nt->Branch("BtktkvProb",BtktkvProb,"BtktkvProb[Bsize]/F");
         nt->Branch("Btktkpt",Btktkpt,"Btktkpt[Bsize]/F");
         //nt->Branch("Btktketa",Btktketa,"Btktketa[Bsize]/F");
@@ -628,8 +634,8 @@ public:
         //nt->Branch("Bmu1phi",Bmu1phi,"Bmu1phi[Bsize]/F");
         //nt->Branch("Bmu2phi",Bmu2phi,"Bmu2phi[Bsize]/F");
         
-        //nt->Branch("Bmu1y",Bmu1y,"Bmu1y[Bsize]/F");
-        //nt->Branch("Bmu2y",Bmu2y,"Bmu2y[Bsize]/F");
+        nt->Branch("Bmu1y",Bmu1y,"Bmu1y[Bsize]/F");
+        nt->Branch("Bmu2y",Bmu2y,"Bmu2y[Bsize]/F");
         
         //nt->Branch("Bmu1dzPV",Bmu1dzPV,"Bmu1dzPV[Bsize]/F");
         //nt->Branch("Bmu2dzPV",Bmu2dzPV,"Bmu2dzPV[Bsize]/F");
@@ -770,7 +776,7 @@ public:
     //nt->Branch("Gtk2phi",Gtk2phi,"Gtk2phi[Gsize]/F");
   }
   
-  void makeNtuple(int ifchannel[], int Btypesize[], bool REAL, bool skim, EvtInfoBranches *EvtInfo, VtxInfoBranches *VtxInfo, MuonInfoBranches *MuonInfo, TrackInfoBranches *TrackInfo, BInfoBranches *BInfo, GenInfoBranches *GenInfo, TTree* nt0, TTree* nt1, TTree* nt2, TTree* nt3, TTree* nt5, TTree* nt6, TTree* nt7)
+  void makeNtuple(int ifchannel[], int Btypesize[], bool REAL, EvtInfoBranches *EvtInfo, VtxInfoBranches *VtxInfo, MuonInfoBranches *MuonInfo, TrackInfoBranches *TrackInfo, BInfoBranches *BInfo, GenInfoBranches *GenInfo, TTree* nt0, TTree* nt1, TTree* nt2, TTree* nt3, TTree* nt5, TTree* nt6, TTree* nt7)
   {//{{{
     TVector3* bP = new TVector3;
     TVector3* bVtx = new TVector3;
@@ -789,24 +795,6 @@ public:
             int bestindex=-1;
             for(int j=0;j<BInfo->size;j++)
               {
-                if(skim)
-                  {
-                    if(BInfo->pt[j] < 10.) continue;
-                    if(!(
-                         MuonInfo->SoftMuID[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]] && 
-                         MuonInfo->SoftMuID[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]] &&
-                         MuonInfo->isTriggered[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0] && 
-                         MuonInfo->isTriggered[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0] && 
-                         TrackInfo->highPurity[BInfo->rftk1_index[j]] && 
-                         TrackInfo->highPurity[BInfo->rftk2_index[j]] &&
-                         (TrackInfo->pixelhit[BInfo->rftk1_index[j]]+TrackInfo->striphit[BInfo->rftk1_index[j]]) >= 11 && 
-                         (TrackInfo->pixelhit[BInfo->rftk2_index[j]]+TrackInfo->striphit[BInfo->rftk2_index[j]]) >= 11 &&
-                         TMath::Abs(TrackInfo->ptErr[BInfo->rftk1_index[j]]/TrackInfo->pt[BInfo->rftk1_index[j]]) < 0.1 && 
-                         TMath::Abs(TrackInfo->ptErr[BInfo->rftk2_index[j]]/TrackInfo->pt[BInfo->rftk2_index[j]]) < 0.1 &&
-                         (TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]]/(TrackInfo->nStripLayer[BInfo->rftk1_index[j]]+TrackInfo->nPixelLayer[BInfo->rftk1_index[j]])) < 0.18 &&
-                         (TrackInfo->chi2[BInfo->rftk2_index[j]]/TrackInfo->ndf[BInfo->rftk2_index[j]]/(TrackInfo->nStripLayer[BInfo->rftk2_index[j]]+TrackInfo->nPixelLayer[BInfo->rftk2_index[j]])) < 0.18
-                         )) continue;
-                  }
                 if(BInfo->type[j]==(t+1))
                   {
                     fillTree(bP,bVtx,b4P,j,Btypesize[tidx],tk1mass[t],tk2mass[t],REAL, EvtInfo, VtxInfo, MuonInfo, TrackInfo, BInfo, GenInfo, bestindex);
@@ -827,10 +815,6 @@ public:
       {
         for(int j=0;j<BInfo->uj_size;j++)
           {
-            if(skim)
-              {
-                ;
-              }
             fillJpsiTree(bP, bVtx, b4P, j, Btypesize[7], REAL, EvtInfo, VtxInfo, MuonInfo, TrackInfo, BInfo, GenInfo);
             Btypesize[7]++;
           }
@@ -1403,6 +1387,9 @@ public:
           BtrkPtimb[typesize] = TMath::Abs(TrackInfo->pt[BInfo->rftk1_index[j]] - TrackInfo->pt[BInfo->rftk2_index[j]]) / TMath::Abs(TrackInfo->pt[BInfo->rftk1_index[j]]+TrackInfo->pt[BInfo->rftk2_index[j]]);
           Bnorm_trk1Dxy[typesize] = (TrackInfo->dxy[BInfo->rftk1_index[j]]) / (TrackInfo->dxyerror[BInfo->rftk1_index[j]]) ;
           Bnorm_trk2Dxy[typesize] = (TrackInfo->dxy[BInfo->rftk2_index[j]]) / (TrackInfo->dxyerror[BInfo->rftk2_index[j]]) ;
+          Bnorm_trk1Dz[typesize]  = (TrackInfo->dz[BInfo->rftk1_index[j]] ) / (TrackInfo->dzerror[BInfo->rftk1_index[j]]) ;
+          Bnorm_trk2Dz[typesize]  = (TrackInfo->dz[BInfo->rftk2_index[j]] ) / (TrackInfo->dzerror[BInfo->rftk2_index[j]]) ;
+          
       }
 
     BQvalue[typesize] = (Bmass[typesize]-3.096916-Btktkmass[typesize]);

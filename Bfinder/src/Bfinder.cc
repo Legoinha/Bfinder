@@ -113,7 +113,6 @@ private:
   bool doTkPreCut_;
   bool doMuPreCut_;
   bool makeBntuple_;
-  bool doBntupleSkim_;
   bool printInfo_;
   bool readDedx_;
   // edm::EDGetTokenT<edm::ValueMap<float> > MVAMapLabel_;
@@ -209,7 +208,6 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   doTkPreCut_         = iConfig.getParameter<bool>("doTkPreCut");
   doMuPreCut_         = iConfig.getParameter<bool>("doMuPreCut");
   makeBntuple_        = iConfig.getParameter<bool>("makeBntuple");
-  doBntupleSkim_      = iConfig.getParameter<bool>("doBntupleSkim");
   printInfo_          = iConfig.getParameter<bool>("printInfo");
   readDedx_           = iConfig.getParameter<bool>("readDedx");
 
@@ -527,8 +525,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if(mu_it->innerTrack().isNonnull()){
               if( (mu_it->isTrackerMuon() && mu_it->isGlobalMuon()) 
                   // && muon::isGoodMuon(*mu_it,muon::TMOneStationTight) 
-                  && mu_it->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5
                   && mu_it->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 
+                  && mu_it->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5
                   // && mu_it->innerTrack()->quality(reco::TrackBase::highPurity)
                   && fabs(mu_it->innerTrack()->dxy(RefVtx)) < 0.3
                   && fabs(mu_it->innerTrack()->dz(RefVtx))  < 20.
@@ -670,15 +668,15 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             MuonInfo.muqual [MuonInfo.size] = qm;
 
-            // Muon (loose) acceptance region
+            // Muon acceptance region
             bool MuInAcc = false;
-            if (fabs(mu_it->eta()) < 1.2 && mu_it->pt() >= 3.3)                                                                    {MuInAcc = true;} // actual ACC cut is +0.2 pT units
-            else if (fabs(mu_it->eta()) >= 1.2 && fabs(mu_it->eta()) < 2.1 && mu_it->pt() >= ((5.27 - 1.89 * fabs(mu_it->eta())))) {MuInAcc = true;} // actual ACC cut is +0.2 pT units
-            else if (fabs(mu_it->eta()) >= 2.1 && fabs(mu_it->eta()) < 2.4 && mu_it->pt() >= 1.3)                                  {MuInAcc = true;} // actual ACC cut is +0.2 pT units
+            if (fabs(mu_it->eta()) < 1.2 && mu_it->pt() >= 3.5)                                                                    {MuInAcc = true;} 
+            else if (fabs(mu_it->eta()) >= 1.2 && fabs(mu_it->eta()) < 2.1 && mu_it->pt() >= ((5.47 - 1.89 * fabs(mu_it->eta())))) {MuInAcc = true;} 
+            else if (fabs(mu_it->eta()) >= 2.1 && fabs(mu_it->eta()) < 2.4 && mu_it->pt() >= 1.5)                                  {MuInAcc = true;} 
 
             //Can not be just CaloMuon or empty type
             if((MuonInfo.type[MuonInfo.size]|(1<<4))==(1<<4)){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
-            else if(doMuPreCut_ && (!MuInAcc || !(mu_it->isTrackerMuon() || mu_it->isGlobalMuon()) )){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
+            else if(doMuPreCut_ && ( !(MuInAcc && MuonInfo.HybridSoftMuID[MuonInfo.size]) )){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
             else {
               PassedMuon ++;
               MuonInfo.isNeededMuon[MuonInfo.size] = true;
@@ -706,8 +704,12 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if(doTkPreCut_){
               if (tk_it->pt()<tkPtCut_)           continue;
               if (fabs(tk_it->eta())>tkEtaCut_)   continue;
+              
               if( !(tk_it->quality(reco::TrackBase::qualityByName("highPurity")))) continue;
               if( fabs(tk_it->ptError() / tk_it->pt()) >= 0.1) continue;
+              int nPixelLayers_nStripLayers = tk_it->hitPattern().pixelLayersWithMeasurement() + tk_it->hitPattern().stripLayersWithMeasurement();
+              if (nPixelLayers_nStripLayers <= 10) continue;
+              if ((tk_it->chi2() / tk_it->ndof()) / nPixelLayers_nStripLayers >= 0.18) continue;
             }
             // Track kinematic pre-selection
 
@@ -780,7 +782,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.4)   continue;
                 if((v4_mu1+v4_mu2).Pt() < jpsiPtCut_)               continue;
               } else {
-                if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.8)   continue;       //<------ loose cut to ensure MC presel is fast while keeping ALL the signal...
+                if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.6)   continue;       //<------ looser cut to ensure MC presel is fast while keeping MOST of the signal...
               }
 
               //Fit 2 muon
@@ -1313,7 +1315,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(int ichannel=0; ichannel<8; ichannel++){ ifchannel[ichannel] = Bchannel_[ichannel];}
     bool REAL = iEvent.isRealData();
     int Btypesize[8]={0,0,0,0,0,0,0,0};
-    Bntuple->makeNtuple(ifchannel, Btypesize, REAL, doBntupleSkim_, &EvtInfo, &VtxInfo, &MuonInfo, &TrackInfo, &BInfo, &GenInfo, nt0, nt1, nt2, nt3, nt5, nt6, nt7);
+    Bntuple->makeNtuple(ifchannel, Btypesize, REAL, &EvtInfo, &VtxInfo, &MuonInfo, &TrackInfo, &BInfo, &GenInfo, nt0, nt1, nt2, nt3, nt5, nt6, nt7);
     if(!REAL) Bntuple->fillGenTree(ntGen, &GenInfo);
   }
 }
