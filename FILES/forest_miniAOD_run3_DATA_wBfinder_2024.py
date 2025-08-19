@@ -285,7 +285,7 @@ process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
 
 process.Bfinder.Bchannel         = cms.vint32(0, 0, 0, 0, 0, 0, 1)
 process.Bfinder.bPtCut           = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0) # before fit
-process.VtxChiProbCut            = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)
+process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)
 process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
 process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
