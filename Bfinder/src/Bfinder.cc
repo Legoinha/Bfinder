@@ -676,7 +676,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             //Can not be just CaloMuon or empty type
             if((MuonInfo.type[MuonInfo.size]|(1<<4))==(1<<4)){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
-            else if(doMuPreCut_ && ( !(MuInAcc && MuonInfo.HybridSoftMuID[MuonInfo.size]) )){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
+            else if(doMuPreCut_ && !(MuInAcc)) { MuonInfo.isNeededMuon[MuonInfo.size] = false;}
             else {
               PassedMuon ++;
               MuonInfo.isNeededMuon[MuonInfo.size] = true;
@@ -709,7 +709,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               if( fabs(tk_it->ptError() / tk_it->pt()) >= 0.1) continue;
               int nPixelLayers_nStripLayers = tk_it->hitPattern().pixelLayersWithMeasurement() + tk_it->hitPattern().stripLayersWithMeasurement();
               if (nPixelLayers_nStripLayers <= 10) continue;
-              if ((tk_it->chi2() / tk_it->ndof()) / nPixelLayers_nStripLayers >= 0.18) continue;
+              if (tk_it->normalizedChi2() / nPixelLayers_nStripLayers >= 0.18) continue;
             }
             // Track kinematic pre-selection
 
