@@ -248,7 +248,7 @@ from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 
 process.Bfinder.Bchannel   = cms.vint32(0, 0, 0, 0, 0, 0, 1) 
-process.Bfinder.bPtCut     = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0) # before fit
+process.Bfinder.bPtCut     = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) # before fit
 process.Bfinder.doTkPreCut = cms.bool(False)
 process.Bfinder.doMuPreCut = cms.bool(False)
 

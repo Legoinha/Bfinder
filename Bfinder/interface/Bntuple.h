@@ -163,7 +163,7 @@ public:
   int       Btrk2Idx[MAX_XB];
   float     Btrk1Pt[MAX_XB];
   float     Btrk2Pt[MAX_XB];
-    float     BtrkPtimb[MAX_XB];
+  float     BtrkPtimb[MAX_XB];
 
   float     Btrk1Eta[MAX_XB];
   float     Btrk2Eta[MAX_XB];
@@ -981,7 +981,7 @@ public:
     Bchi2ndf[typesize] = BInfo->vtxchi2[j]/BInfo->vtxdof[j];
     Bchi2cl[typesize] = TMath::Prob(BInfo->vtxchi2[j],BInfo->vtxdof[j]);
     Bdtheta[typesize] = bP->Angle(*bVtx);
-        Bcos_dtheta[typesize] = TMath::Cos(bP->Angle(*bVtx));
+    Bcos_dtheta[typesize] = TMath::Cos(bP->Angle(*bVtx));
 
     Blxy[typesize] = ((BInfo->vtxX[j]-EvtInfo->PVx)*b4P->Px() + (BInfo->vtxY[j]-EvtInfo->PVy)*b4P->Py())/BInfo->pt[j];
     float r2lxyBS = (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz) * (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz)
@@ -1072,330 +1072,255 @@ public:
                             (fabs(Bmu2eta[typesize]) >= 1.2 && fabs(Bmu2eta[typesize]) < 2.1 && Bmu2pt[typesize] >= 5.47-1.89*fabs(Bmu2eta[typesize])) ||
                             (fabs(Bmu2eta[typesize]) >= 2.1 && Bmu2pt[typesize] >= 1.5)));
 
-    Bmu1TrgMatchFilterE[typesize] = MuonInfo->MuTrgMatchFilterTrgObjE[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
-    Bmu1TrgMatchFilterPt[typesize] = MuonInfo->MuTrgMatchFilterTrgObjPt[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
+    Bmu1TrgMatchFilterE[typesize]   = MuonInfo->MuTrgMatchFilterTrgObjE[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
+    Bmu1TrgMatchFilterPt[typesize]  = MuonInfo->MuTrgMatchFilterTrgObjPt[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
     Bmu1TrgMatchFilterEta[typesize] = MuonInfo->MuTrgMatchFilterTrgObjEta[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
     Bmu1TrgMatchFilterPhi[typesize] = MuonInfo->MuTrgMatchFilterTrgObjPhi[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
-    Bmu1isTriggered[typesize] = MuonInfo->isTriggered[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
-    Bmu2TrgMatchFilterE[typesize] = MuonInfo->MuTrgMatchFilterTrgObjE[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
-    Bmu2TrgMatchFilterPt[typesize] = MuonInfo->MuTrgMatchFilterTrgObjPt[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
+    Bmu1isTriggered[typesize]       = MuonInfo->isTriggered[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
+    Bmu2TrgMatchFilterE[typesize]   = MuonInfo->MuTrgMatchFilterTrgObjE[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
+    Bmu2TrgMatchFilterPt[typesize]  = MuonInfo->MuTrgMatchFilterTrgObjPt[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
     Bmu2TrgMatchFilterEta[typesize] = MuonInfo->MuTrgMatchFilterTrgObjEta[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
     Bmu2TrgMatchFilterPhi[typesize] = MuonInfo->MuTrgMatchFilterTrgObjPhi[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
-    Bmu2isTriggered[typesize] = MuonInfo->isTriggered[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
+    Bmu2isTriggered[typesize]       = MuonInfo->isTriggered[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
 
     b4P->SetPxPyPzE(mu1px+mu2px,
                     mu1py+mu2py,
                     mu1pz+mu2pz,
                     mu1E+mu2E);
     Bmumumass[typesize] = b4P->Mag();
-    Bmumueta[typesize] = b4P->Eta();
-    Bmumuphi[typesize] = b4P->Phi();
-    Bmumuy[typesize] = b4P->Rapidity();
-    Bmumupt[typesize] = b4P->Pt();
-    Bujmass[typesize] = BInfo->uj_mass[BInfo->rfuj_index[j]];
-    BujvProb[typesize] = TMath::Prob(BInfo->uj_vtxchi2[BInfo->rfuj_index[j]],BInfo->uj_vtxdof[BInfo->rfuj_index[j]]);
-    Bujpt[typesize] = BInfo->uj_pt[BInfo->rfuj_index[j]];
-    Bujeta[typesize] = BInfo->uj_eta[BInfo->rfuj_index[j]];
-    Bujphi[typesize] = BInfo->uj_phi[BInfo->rfuj_index[j]];
+    Bmumueta[typesize]  = b4P->Eta();
+    Bmumuphi[typesize]  = b4P->Phi();
+    Bmumuy[typesize]    = b4P->Rapidity();
+    Bmumupt[typesize]   = b4P->Pt();
+    Bujmass[typesize]   = BInfo->uj_mass[BInfo->rfuj_index[j]];
+    BujvProb[typesize]  = TMath::Prob(BInfo->uj_vtxchi2[BInfo->rfuj_index[j]],BInfo->uj_vtxdof[BInfo->rfuj_index[j]]);
+    Bujpt[typesize]     = BInfo->uj_pt[BInfo->rfuj_index[j]];
+    Bujeta[typesize]    = BInfo->uj_eta[BInfo->rfuj_index[j]];
+    Bujphi[typesize]    = BInfo->uj_phi[BInfo->rfuj_index[j]];
     b4P->SetPtEtaPhiM(BInfo->uj_pt[BInfo->rfuj_index[j]],
                       BInfo->uj_eta[BInfo->rfuj_index[j]],
                       BInfo->uj_phi[BInfo->rfuj_index[j]],
                       BInfo->uj_mass[BInfo->rfuj_index[j]]);
     Bujy[typesize] = b4P->Rapidity();
     Bujlxy[typesize] = ((BInfo->uj_vtxX[BInfo->rfuj_index[j]]-EvtInfo->PVx)*b4P->Px() + (BInfo->uj_vtxY[BInfo->rfuj_index[j]]-EvtInfo->PVy)*b4P->Py())/BInfo->uj_pt[BInfo->rfuj_index[j]];
-    /*
-      if(MuonInfo->muqual[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]]&16) mu1TrackerMuArbitrated[typesize] = 1;
-      else mu1TrackerMuArbitrated[typesize] = 0;
-      if(MuonInfo->muqual[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]]&4096) mu1TMOneStationTight[typesize] = 1;
-      else mu1TMOneStationTight[typesize] = 0;
-      if(MuonInfo->muqual[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]]&16) mu2TrackerMuArbitrated[typesize] = 1;
-      else mu2TrackerMuArbitrated[typesize] = 0;
-      if(MuonInfo->muqual[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]]&4096) mu2TMOneStationTight[typesize] = 1;
-      else mu2TMOneStationTight[typesize] = 0;
-    */
 
     float tk1px,tk1py,tk1pz,tk1E;
     float tk2px,tk2py,tk2pz,tk2E;
     Btrk1Idx[typesize] = BInfo->rftk1_index[j];
     Btrk2Idx[typesize] = BInfo->rftk2_index[j];
 
-    if(BInfo->type[j]==1 || BInfo->type[j]==2)
+    //Track 1 
+    b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],track_mass1);
+    Btrk1Pt[typesize]           = TrackInfo->pt[BInfo->rftk1_index[j]];
+    Btrk1Eta[typesize]          = TrackInfo->eta[BInfo->rftk1_index[j]];
+    Btrk1Phi[typesize]          = TrackInfo->phi[BInfo->rftk1_index[j]];
+    Btrk1PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk1_index[j]];
+    Btrk1EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk1_index[j]];
+    Btrk1PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk1_index[j]];
+    Btrk1Y[typesize]            = b4P->Rapidity();
+    Btrk1Dz[typesize]           = TrackInfo->dz[BInfo->rftk1_index[j]];
+    Btrk1DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk1_index[j]];
+    Bnorm_trk1Dz[typesize]      = (Btrk1Dz[typesize])  / (Btrk1DzError[typesize])  ;
+    Btrk1Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk1_index[j]];
+    Btrk1DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk1_index[j]];
+    Bnorm_trk1Dxy[typesize]     = (Btrk1Dxy[typesize]) / (Btrk1DxyError[typesize]) ;
+    Btrk1PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk1_index[j]];
+    Btrk1StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk1_index[j]];
+    Btrk1nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk1_index[j]];
+    Btrk1nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk1_index[j]];
+    Btrk1Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]];
+    Btrk1MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk1_index[j]];
+    Btrk1Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk1_index[j]];
+    Btrk1originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk1_index[j]];
+    Btrk1highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk1_index[j]];
+    Btrk1Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk1_index[j]];
+    Btrk1dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk1Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk1Eta[typesize],2));
+    tk1px = b4P->Px();
+    tk1py = b4P->Py();
+    tk1pz = b4P->Pz();
+    tk1E  = b4P->E();
+
+    if(BInfo->type[j]==1 || BInfo->type[j]==2)   //B+ either through Jpsi K and Jpsi pi SO NO TRACK 2
       {
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],track_mass1);
-        Btrk1Pt[typesize] = TrackInfo->pt[BInfo->rftk1_index[j]];
-        Btrk1Eta[typesize] = TrackInfo->eta[BInfo->rftk1_index[j]];
-        Btrk1Phi[typesize] = TrackInfo->phi[BInfo->rftk1_index[j]];
-        Btrk1PtErr[typesize] = TrackInfo->ptErr[BInfo->rftk1_index[j]];
-        Btrk1EtaErr[typesize] = TrackInfo->etaErr[BInfo->rftk1_index[j]];
-        Btrk1PhiErr[typesize] = TrackInfo->phiErr[BInfo->rftk1_index[j]];
-        Btrk1Y[typesize] = b4P->Rapidity();
-        Btrk1Dz[typesize] = TrackInfo->dz[BInfo->rftk1_index[j]];
-        Btrk1DzError[typesize] = TrackInfo->dzerror[BInfo->rftk1_index[j]];
-        Btrk1Dxy[typesize] = TrackInfo->dxy[BInfo->rftk1_index[j]];
-        Btrk1DxyError[typesize] = TrackInfo->dxyerror[BInfo->rftk1_index[j]];
-        Btrk1Dz1[typesize] = TrackInfo->dz1[BInfo->rftk1_index[j]];
-        Btrk1DzError1[typesize] = TrackInfo->dzerror1[BInfo->rftk1_index[j]];
-        Btrk1Dxy1[typesize] = TrackInfo->dxy1[BInfo->rftk1_index[j]];
-        Btrk1DxyError1[typesize] = TrackInfo->dxyerror1[BInfo->rftk1_index[j]];
-        Btrk1PixelHit[typesize] = TrackInfo->pixelhit[BInfo->rftk1_index[j]];
-        Btrk1StripHit[typesize] = TrackInfo->striphit[BInfo->rftk1_index[j]];
-        Btrk1nPixelLayer[typesize] = TrackInfo->nPixelLayer[BInfo->rftk1_index[j]];
-        Btrk1nStripLayer[typesize] = TrackInfo->nStripLayer[BInfo->rftk1_index[j]];
-        Btrk1Chi2ndf[typesize] = TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]];
-        Btrk1MVAVal[typesize] = TrackInfo->trkMVAVal[BInfo->rftk1_index[j]];
-        Btrk1Algo[typesize] = TrackInfo->trkAlgo[BInfo->rftk1_index[j]];
-        Btrk1originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk1_index[j]];
-        Btrk1highPurity[typesize] = TrackInfo->highPurity[BInfo->rftk1_index[j]];
-        Btrk1Quality[typesize] = TrackInfo->trackQuality[BInfo->rftk1_index[j]];
-        Btrk1dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk1Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk1Eta[typesize],2));
-        Btrk2Pt[typesize] = -1;
-        Btrk2Eta[typesize] = -20;
-        Btrk2Phi[typesize] = -20;
-        Btrk2PtErr[typesize] = 0;
-        Btrk2EtaErr[typesize] = 0;
-        Btrk2PhiErr[typesize] = 0;
-        Btrk2Y[typesize] = -1;
-        Btrk2Dz[typesize] = -1;
-        Btrk2DzError[typesize] = -1;
-        Btrk2Dxy[typesize] = -1;
-        Btrk2DxyError[typesize] = -1;
-        Btrk2Dz1[typesize] = -1;
-        Btrk2DzError1[typesize] = -1;
-        Btrk2Dxy1[typesize] = -1;
-        Btrk2DxyError1[typesize] = -1;
-        Btrk2PixelHit[typesize] = -1;
-        Btrk2StripHit[typesize] = -1;
-        Btrk2nPixelLayer[typesize] = -1;
-        Btrk2nStripLayer[typesize] = -1;
-        Btrk2Chi2ndf[typesize] = -1;
-        Btrk2MVAVal[typesize] = -100;
-        Btrk2Algo[typesize] = 0;
-        Btrk2originalAlgo[typesize] = 0;
-        Btrk2highPurity[typesize] = false;
-        Btrk2Quality[typesize] = 0;
-        Btrk2dR[typesize] = -1;
-        Btktkmass[typesize] = -1;
-        BtktkvProb[typesize] = -1;
-        Btktkpt[typesize] = -1;
-        Btktketa[typesize] = -20;
-        Btktkphi[typesize] = -20;
-        Btktky[typesize] = -1;
-        Bdoubletmass[typesize] = -1;
-        Bdoubletpt[typesize] = -1;
-        Bdoubleteta[typesize] = -20;
-        Bdoubletphi[typesize] = -20;
-        Bdoublety[typesize] = -1;
-        //get best chi2 index
-        Bisbestchi2[typesize] = -1;
-        if(fabs(By[typesize])<2.4){// someselection
-          if(bestindex == -1) {
-            bestindex = typesize;
-            Bisbestchi2[typesize] = 1;
-          }
-          else if(Bchi2cl[typesize] > Bchi2cl[bestindex]){
-            Bisbestchi2[bestindex] = -1;
-            bestindex = typesize;
-            Bisbestchi2[typesize] = 1;
-          }
-        }
-      }  
-    else if(BInfo->type[j]==5)
+        //Track 2
+        Btrk2Pt[typesize]        = -20;
+        Btrk2Eta[typesize]       = -20;
+        Btrk2Phi[typesize]       = -20;
+        Btrk2PtErr[typesize]     = -20;
+        Btrk2EtaErr[typesize]    = -20;
+        Btrk2PhiErr[typesize]    = -20;
+        Btrk2Y[typesize]         = -20;
+        Btrk2Dz[typesize]        = -20;
+        Btrk2DzError[typesize]   = -20;
+        Bnorm_trk2Dz[typesize]   = -20;
+        Btrk2Dxy[typesize]       = -20;
+        Btrk2DxyError[typesize]  = -20;
+        Bnorm_trk2Dxy[typesize]  = -20;
+        Btrk2PixelHit[typesize]  = -20;
+        Btrk2StripHit[typesize]  = -20;
+        Btrk2nPixelLayer[typesize]  = -20;
+        Btrk2nStripLayer[typesize]  = -20;
+        Btrk2Chi2ndf[typesize]      = -20;
+        Btrk2MVAVal[typesize]       = -20;
+        Btrk2Algo[typesize]         = -20;
+        Btrk2originalAlgo[typesize] = -20;
+        Btrk2highPurity[typesize]   = -20;
+        Btrk2Quality[typesize]      = -20;
+        Btrk2dR[typesize]           = -20;
+
+        Btktkmass[typesize]    = -20;
+        BtktkvProb[typesize]   = -20;
+        Btktkpt[typesize]      = -20;
+        Btktketa[typesize]     = -20;
+        Btktkphi[typesize]     = -20;
+        Btktky[typesize]       = -20;
+        Bdoubletmass[typesize] = -20;
+        Bdoubletpt[typesize]   = -20;
+        Bdoubleteta[typesize]  = -20;
+        Bdoubletphi[typesize]  = -20;
+        Bdoublety[typesize]    = -20;
+        BtrkPtimb[typesize]    = -20;
+        BtktkmassKK[typesize]  = -20;
+        BQvalue[typesize]      = -20;
+        BQvalueuj[typesize]    = -20;
+        BQvaluemumu[typesize]  = -20;
+
+      }
+    else if(BInfo->type[j]==5)                   //B0 through the WT channel so interchange all track channels
       {
         b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]],TrackInfo->eta[BInfo->rftk2_index[j]],TrackInfo->phi[BInfo->rftk2_index[j]],track_mass1);
-        Btrk1Pt[typesize] = TrackInfo->pt[BInfo->rftk2_index[j]];
-        Btrk1Eta[typesize] = TrackInfo->eta[BInfo->rftk2_index[j]];
-        Btrk1Phi[typesize] = TrackInfo->phi[BInfo->rftk2_index[j]];
-        Btrk1PtErr[typesize] = TrackInfo->ptErr[BInfo->rftk2_index[j]];
-        Btrk1EtaErr[typesize] = TrackInfo->etaErr[BInfo->rftk2_index[j]];
-        Btrk1PhiErr[typesize] = TrackInfo->phiErr[BInfo->rftk2_index[j]];
-        Btrk1Y[typesize] = b4P->Rapidity();
-        Btrk1Dz[typesize] = TrackInfo->dz[BInfo->rftk2_index[j]];
-        Btrk1DzError[typesize] = TrackInfo->dzerror[BInfo->rftk2_index[j]];
-        Btrk1Dxy[typesize] = TrackInfo->dxy[BInfo->rftk2_index[j]];
-        Btrk1DxyError[typesize] = TrackInfo->dxyerror[BInfo->rftk2_index[j]];
-        Btrk1Dz1[typesize] = TrackInfo->dz1[BInfo->rftk2_index[j]];
-        Btrk1DzError1[typesize] = TrackInfo->dzerror1[BInfo->rftk2_index[j]];
-        Btrk1Dxy1[typesize] = TrackInfo->dxy1[BInfo->rftk2_index[j]];
-        Btrk1DxyError1[typesize] = TrackInfo->dxyerror1[BInfo->rftk2_index[j]];
-        Btrk1PixelHit[typesize] = TrackInfo->pixelhit[BInfo->rftk2_index[j]];
-        Btrk1StripHit[typesize] = TrackInfo->striphit[BInfo->rftk2_index[j]];
-        Btrk1nPixelLayer[typesize] = TrackInfo->nPixelLayer[BInfo->rftk2_index[j]];
-        Btrk1nStripLayer[typesize] = TrackInfo->nStripLayer[BInfo->rftk2_index[j]];
-        Btrk1Chi2ndf[typesize] = TrackInfo->chi2[BInfo->rftk2_index[j]]/TrackInfo->ndf[BInfo->rftk2_index[j]];
-        Btrk1MVAVal[typesize] = TrackInfo->trkMVAVal[BInfo->rftk2_index[j]];
-        Btrk1Algo[typesize] = TrackInfo->trkAlgo[BInfo->rftk2_index[j]];
+        Btrk1Pt[typesize]           = TrackInfo->pt[BInfo->rftk2_index[j]];
+        Btrk1Eta[typesize]          = TrackInfo->eta[BInfo->rftk2_index[j]];
+        Btrk1Phi[typesize]          = TrackInfo->phi[BInfo->rftk2_index[j]];
+        Btrk1PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk2_index[j]];
+        Btrk1EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk2_index[j]];
+        Btrk1PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk2_index[j]];
+        Btrk1Y[typesize]            = b4P->Rapidity();
+        Btrk1Dz[typesize]           = TrackInfo->dz[BInfo->rftk2_index[j]];
+        Btrk1DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk2_index[j]];
+        Bnorm_trk1Dz[typesize]      = Btrk2Dz[typesize]  / Btrk2DzError[typesize] ;
+        Btrk1Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk2_index[j]];
+        Btrk1DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk2_index[j]];
+        Bnorm_trk1Dxy[typesize]     = Btrk2Dxy[typesize] / Btrk2DxyError[typesize];
+        Btrk1PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk2_index[j]];
+        Btrk1StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk2_index[j]];
+        Btrk1nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk2_index[j]];
+        Btrk1nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk2_index[j]];
+        Btrk1Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk2_index[j]]/TrackInfo->ndf[BInfo->rftk2_index[j]];
+        Btrk1MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk2_index[j]];
+        Btrk1Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk2_index[j]];
         Btrk1originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk2_index[j]];
-        Btrk1highPurity[typesize] = TrackInfo->highPurity[BInfo->rftk2_index[j]];
-        Btrk1Quality[typesize] = TrackInfo->trackQuality[BInfo->rftk2_index[j]];
+        Btrk1highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk2_index[j]];
+        Btrk1Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk2_index[j]];
         Btrk1dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk1Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk1Eta[typesize],2));
         tk1px = b4P->Px();
         tk1py = b4P->Py();
         tk1pz = b4P->Pz();
-        tk1E = b4P->E();
+        tk1E  = b4P->E();
+
         b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],track_mass2);
-        Btrk2Pt[typesize] = TrackInfo->pt[BInfo->rftk1_index[j]];
-        Btrk2Eta[typesize] = TrackInfo->eta[BInfo->rftk1_index[j]];
-        Btrk2Phi[typesize] = TrackInfo->phi[BInfo->rftk1_index[j]];
-        Btrk2PtErr[typesize] = TrackInfo->ptErr[BInfo->rftk1_index[j]];
-        Btrk2EtaErr[typesize] = TrackInfo->etaErr[BInfo->rftk1_index[j]];
-        Btrk2PhiErr[typesize] = TrackInfo->phiErr[BInfo->rftk1_index[j]];
-        Btrk2Y[typesize] = b4P->Rapidity();
-        Btrk2Dz[typesize] = TrackInfo->dz[BInfo->rftk1_index[j]];
-        Btrk2DzError[typesize] = TrackInfo->dzerror[BInfo->rftk1_index[j]];
-        Btrk2Dxy[typesize] = TrackInfo->dxy[BInfo->rftk1_index[j]];
-        Btrk2DxyError[typesize] = TrackInfo->dxyerror[BInfo->rftk1_index[j]];
-        Btrk2Dz1[typesize] = TrackInfo->dz1[BInfo->rftk1_index[j]];
-        Btrk2DzError1[typesize] = TrackInfo->dzerror1[BInfo->rftk1_index[j]];
-        Btrk2Dxy1[typesize] = TrackInfo->dxy1[BInfo->rftk1_index[j]];
-        Btrk2DxyError1[typesize] = TrackInfo->dxyerror1[BInfo->rftk1_index[j]];
-        Btrk2PixelHit[typesize] = TrackInfo->pixelhit[BInfo->rftk1_index[j]];
-        Btrk2StripHit[typesize] = TrackInfo->striphit[BInfo->rftk1_index[j]];
-        Btrk2nPixelLayer[typesize] = TrackInfo->nPixelLayer[BInfo->rftk1_index[j]];
-        Btrk2nStripLayer[typesize] = TrackInfo->nStripLayer[BInfo->rftk1_index[j]];
-        Btrk2Chi2ndf[typesize] = TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]];
-        Btrk2MVAVal[typesize] = TrackInfo->trkMVAVal[BInfo->rftk1_index[j]];
-        Btrk2Algo[typesize] = TrackInfo->trkAlgo[BInfo->rftk1_index[j]];
+        Btrk2Pt[typesize]           = TrackInfo->pt[BInfo->rftk1_index[j]];
+        Btrk2Eta[typesize]          = TrackInfo->eta[BInfo->rftk1_index[j]];
+        Btrk2Phi[typesize]          = TrackInfo->phi[BInfo->rftk1_index[j]];
+        Btrk2PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk1_index[j]];
+        Btrk2EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk1_index[j]];
+        Btrk2PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk1_index[j]];
+        Btrk2Y[typesize]            = b4P->Rapidity();
+        Btrk2Dz[typesize]           = TrackInfo->dz[BInfo->rftk1_index[j]];
+        Btrk2DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk1_index[j]];
+        Bnorm_trk2Dz[typesize]      = Btrk1Dz[typesize]  / Btrk1DzError[typesize];
+        Btrk2Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk1_index[j]];
+        Btrk2DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk1_index[j]];
+        Bnorm_trk2Dxy[typesize]     = Btrk1Dxy[typesize] / Btrk1DxyError[typesize];
+        Btrk2PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk1_index[j]];
+        Btrk2StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk1_index[j]];
+        Btrk2nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk1_index[j]];
+        Btrk2nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk1_index[j]];
+        Btrk2Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]];
+        Btrk2MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk1_index[j]];
+        Btrk2Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk1_index[j]];
         Btrk2originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk1_index[j]];
-        Btrk2highPurity[typesize] = TrackInfo->highPurity[BInfo->rftk1_index[j]];
-        Btrk2Quality[typesize] = TrackInfo->trackQuality[BInfo->rftk1_index[j]];
+        Btrk2highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk1_index[j]];
+        Btrk2Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk1_index[j]];
         Btrk2dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk2Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk2Eta[typesize],2));
         tk2px = b4P->Px();
         tk2py = b4P->Py();
         tk2pz = b4P->Pz();
         tk2E = b4P->E();
-        
-        b4P->SetPxPyPzE(tk1px+tk2px,
-                        tk1py+tk2py,
-                        tk1pz+tk2pz,
-                        tk1E+tk2E);
-        Btktkmass[typesize] = b4P->Mag();
-        Btktketa[typesize] = b4P->Eta();
-        Btktkphi[typesize] = b4P->Phi();
-        Btktky[typesize] = b4P->Rapidity();
-        Btktkpt[typesize] = b4P->Pt();
-        BtktkvProb[typesize] = TMath::Prob(BInfo->tktk_vtxchi2[j],BInfo->tktk_vtxdof[j]);
-
-        Bdoubletmass[typesize] = BInfo->tktk_mass[j];
-        Bdoubletpt[typesize] = BInfo->tktk_pt[j];
-        Bdoubleteta[typesize] = BInfo->tktk_eta[j];
-        Bdoubletphi[typesize] = BInfo->tktk_phi[j];
-        b4P->SetPtEtaPhiM(BInfo->tktk_pt[j],BInfo->tktk_eta[j],BInfo->tktk_phi[j],BInfo->tktk_mass[j]);
-        Bdoublety[typesize] = b4P->Rapidity();
-        
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],KAON_MASS);
-        float tk1EK = b4P->E();
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]],TrackInfo->eta[BInfo->rftk2_index[j]],TrackInfo->phi[BInfo->rftk2_index[j]],KAON_MASS);
-        float tk2EK = b4P->E();
-        b4P->SetPxPyPzE(tk1px+tk2px,
-                        tk1py+tk2py,
-                        tk1pz+tk2pz,
-                        tk1EK+tk2EK);
-        BtktkmassKK[typesize] = b4P->Mag();
       }
-    else
+    else                                         //Specify the 2nd Track 
       {
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],track_mass1);
-        Btrk1Pt[typesize] = TrackInfo->pt[BInfo->rftk1_index[j]];
-        Btrk1Eta[typesize] = TrackInfo->eta[BInfo->rftk1_index[j]];
-        Btrk1Phi[typesize] = TrackInfo->phi[BInfo->rftk1_index[j]];
-        Btrk1PtErr[typesize] = TrackInfo->ptErr[BInfo->rftk1_index[j]];
-        Btrk1EtaErr[typesize] = TrackInfo->etaErr[BInfo->rftk1_index[j]];
-        Btrk1PhiErr[typesize] = TrackInfo->phiErr[BInfo->rftk1_index[j]];
-        Btrk1Y[typesize] = b4P->Rapidity();
-        Btrk1Dz[typesize] = TrackInfo->dz[BInfo->rftk1_index[j]];
-        Btrk1DzError[typesize] = TrackInfo->dzerror[BInfo->rftk1_index[j]];
-        Btrk1Dxy[typesize] = TrackInfo->dxy[BInfo->rftk1_index[j]];
-        Btrk1DxyError[typesize] = TrackInfo->dxyerror[BInfo->rftk1_index[j]];
-        Btrk1Dz1[typesize] = TrackInfo->dz1[BInfo->rftk1_index[j]];
-        Btrk1DzError1[typesize] = TrackInfo->dzerror1[BInfo->rftk1_index[j]];
-        Btrk1Dxy1[typesize] = TrackInfo->dxy1[BInfo->rftk1_index[j]];
-        Btrk1DxyError1[typesize] = TrackInfo->dxyerror1[BInfo->rftk1_index[j]];
-        Btrk1PixelHit[typesize] = TrackInfo->pixelhit[BInfo->rftk1_index[j]];
-        Btrk1StripHit[typesize] = TrackInfo->striphit[BInfo->rftk1_index[j]];
-        Btrk1nPixelLayer[typesize] = TrackInfo->nPixelLayer[BInfo->rftk1_index[j]];
-        Btrk1nStripLayer[typesize] = TrackInfo->nStripLayer[BInfo->rftk1_index[j]];
-        Btrk1Chi2ndf[typesize] = TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]];
-        Btrk1MVAVal[typesize] = TrackInfo->trkMVAVal[BInfo->rftk1_index[j]];
-        Btrk1Algo[typesize] = TrackInfo->trkAlgo[BInfo->rftk1_index[j]];
-        Btrk1originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk1_index[j]];
-        Btrk1highPurity[typesize] = TrackInfo->highPurity[BInfo->rftk1_index[j]];
-        Btrk1Quality[typesize] = TrackInfo->trackQuality[BInfo->rftk1_index[j]];
-        Btrk1dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk1Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk1Eta[typesize],2));
-        tk1px = b4P->Px();
-        tk1py = b4P->Py();
-        tk1pz = b4P->Pz();
-        tk1E = b4P->E();
         b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]],TrackInfo->eta[BInfo->rftk2_index[j]],TrackInfo->phi[BInfo->rftk2_index[j]],track_mass2);
-        Btrk2Pt[typesize] = TrackInfo->pt[BInfo->rftk2_index[j]];
-        Btrk2Eta[typesize] = TrackInfo->eta[BInfo->rftk2_index[j]];
-        Btrk2Phi[typesize] = TrackInfo->phi[BInfo->rftk2_index[j]];
-        Btrk2PtErr[typesize] = TrackInfo->ptErr[BInfo->rftk2_index[j]];
-        Btrk2EtaErr[typesize] = TrackInfo->etaErr[BInfo->rftk2_index[j]];
-        Btrk2PhiErr[typesize] = TrackInfo->phiErr[BInfo->rftk2_index[j]];
-        Btrk2Y[typesize] = b4P->Rapidity();
-        Btrk2Dz[typesize] = TrackInfo->dz[BInfo->rftk2_index[j]];
-        Btrk2DzError[typesize] = TrackInfo->dzerror[BInfo->rftk2_index[j]];
-        Btrk2Dxy[typesize] = TrackInfo->dxy[BInfo->rftk2_index[j]];
-        Btrk2DxyError[typesize] = TrackInfo->dxyerror[BInfo->rftk2_index[j]];
-        Btrk2Dz1[typesize] = TrackInfo->dz1[BInfo->rftk2_index[j]];
-        Btrk2DzError1[typesize] = TrackInfo->dzerror1[BInfo->rftk2_index[j]];
-        Btrk2Dxy1[typesize] = TrackInfo->dxy1[BInfo->rftk2_index[j]];
-        Btrk2DxyError1[typesize] = TrackInfo->dxyerror1[BInfo->rftk2_index[j]];
-        Btrk2PixelHit[typesize] = TrackInfo->pixelhit[BInfo->rftk2_index[j]];
-        Btrk2StripHit[typesize] = TrackInfo->striphit[BInfo->rftk2_index[j]];
-        Btrk2nPixelLayer[typesize] = TrackInfo->nPixelLayer[BInfo->rftk2_index[j]];
-        Btrk2nStripLayer[typesize] = TrackInfo->nStripLayer[BInfo->rftk2_index[j]];
-        Btrk2Chi2ndf[typesize] = TrackInfo->chi2[BInfo->rftk2_index[j]]/TrackInfo->ndf[BInfo->rftk2_index[j]];
-        Btrk2MVAVal[typesize] = TrackInfo->trkMVAVal[BInfo->rftk2_index[j]];
-        Btrk2Algo[typesize] = TrackInfo->trkAlgo[BInfo->rftk2_index[j]];
+        Btrk2Pt[typesize]           = TrackInfo->pt[BInfo->rftk2_index[j]];
+        Btrk2Eta[typesize]          = TrackInfo->eta[BInfo->rftk2_index[j]];
+        Btrk2Phi[typesize]          = TrackInfo->phi[BInfo->rftk2_index[j]];
+        Btrk2PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk2_index[j]];
+        Btrk2EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk2_index[j]];
+        Btrk2PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk2_index[j]];
+        Btrk2Y[typesize]            = b4P->Rapidity();
+        Btrk2Dz[typesize]           = TrackInfo->dz[BInfo->rftk2_index[j]];
+        Btrk2DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk2_index[j]];
+        Btrk2Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk2_index[j]];
+        Btrk2DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk2_index[j]];
+        Btrk2Dz1[typesize]          = TrackInfo->dz1[BInfo->rftk2_index[j]];
+        Btrk2DzError1[typesize]     = TrackInfo->dzerror1[BInfo->rftk2_index[j]];
+        Btrk2Dxy1[typesize]         = TrackInfo->dxy1[BInfo->rftk2_index[j]];
+        Btrk2DxyError1[typesize]    = TrackInfo->dxyerror1[BInfo->rftk2_index[j]];
+        Btrk2PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk2_index[j]];
+        Btrk2StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk2_index[j]];
+        Btrk2nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk2_index[j]];
+        Btrk2nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk2_index[j]];
+        Btrk2Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk2_index[j]]/TrackInfo->ndf[BInfo->rftk2_index[j]];
+        Btrk2MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk2_index[j]];
+        Btrk2Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk2_index[j]];
         Btrk2originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk2_index[j]];
-        Btrk2highPurity[typesize] = TrackInfo->highPurity[BInfo->rftk2_index[j]];
-        Btrk2Quality[typesize] = TrackInfo->trackQuality[BInfo->rftk2_index[j]];
+        Btrk2highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk2_index[j]];
+        Btrk2Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk2_index[j]];
+        Bnorm_trk2Dxy[typesize] = (Btrk2Dxy[typesize]) / (Btrk2DxyError[typesize]) ;
+        Bnorm_trk2Dz[typesize]  = (Btrk2Dz[typesize])  / (Btrk2DzError[typesize])  ;
         Btrk2dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk2Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk2Eta[typesize],2));
         tk2px = b4P->Px();
         tk2py = b4P->Py();
         tk2pz = b4P->Pz();
-        tk2E = b4P->E();
-        
-        b4P->SetPxPyPzE(tk1px+tk2px,
-                        tk1py+tk2py,
-                        tk1pz+tk2pz,
-                        tk1E+tk2E);
-        Btktkmass[typesize] = b4P->Mag();
-        Btktketa[typesize] = b4P->Eta();
-        Btktkphi[typesize] = b4P->Phi();
-        Btktky[typesize] = b4P->Rapidity();
-        Btktkpt[typesize] = b4P->Pt();
-        BtktkvProb[typesize] = TMath::Prob(BInfo->tktk_vtxchi2[j],BInfo->tktk_vtxdof[j]);
-        Bdoubletmass[typesize] = BInfo->tktk_mass[j];
-        Bdoubletpt[typesize] = BInfo->tktk_pt[j];
-        Bdoubleteta[typesize] = BInfo->tktk_eta[j];
-        Bdoubletphi[typesize] = BInfo->tktk_phi[j];
-        b4P->SetPtEtaPhiM(BInfo->tktk_pt[j],BInfo->tktk_eta[j],BInfo->tktk_phi[j],BInfo->tktk_mass[j]);
-        Bdoublety[typesize] = b4P->Rapidity();
-        
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],KAON_MASS);
-        float tk1EK = b4P->E();
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]],TrackInfo->eta[BInfo->rftk2_index[j]],TrackInfo->phi[BInfo->rftk2_index[j]],KAON_MASS);
-        float tk2EK = b4P->E();
-        b4P->SetPxPyPzE(tk1px+tk2px,
-                        tk1py+tk2py,
-                        tk1pz+tk2pz,
-                        tk1EK+tk2EK);
-        BtktkmassKK[typesize] = b4P->Mag();
-        
-          BtrkPtimb[typesize] = TMath::Abs(TrackInfo->pt[BInfo->rftk1_index[j]] - TrackInfo->pt[BInfo->rftk2_index[j]]) / TMath::Abs(TrackInfo->pt[BInfo->rftk1_index[j]]+TrackInfo->pt[BInfo->rftk2_index[j]]);
-          Bnorm_trk1Dxy[typesize] = (TrackInfo->dxy[BInfo->rftk1_index[j]]) / (TrackInfo->dxyerror[BInfo->rftk1_index[j]]) ;
-          Bnorm_trk2Dxy[typesize] = (TrackInfo->dxy[BInfo->rftk2_index[j]]) / (TrackInfo->dxyerror[BInfo->rftk2_index[j]]) ;
-          Bnorm_trk1Dz[typesize]  = (TrackInfo->dz[BInfo->rftk1_index[j]] ) / (TrackInfo->dzerror[BInfo->rftk1_index[j]]) ;
-          Bnorm_trk2Dz[typesize]  = (TrackInfo->dz[BInfo->rftk2_index[j]] ) / (TrackInfo->dzerror[BInfo->rftk2_index[j]]) ;
-          
+        tk2E  = b4P->E();
       }
 
-    BQvalue[typesize] = (Bmass[typesize]-3.096916-Btktkmass[typesize]);
-    BQvalueuj[typesize] = (Bmass[typesize]-Bujmass[typesize]-Btktkmass[typesize]);
-    BQvaluemumu[typesize] = (Bmass[typesize]-Bmumumass[typesize]-Btktkmass[typesize]);
+    // 2 Track channels only ELSE -> -1
+    if (Btrk1Pt[typesize] > 0 && Btrk2Pt[typesize] > 0) {
+      
+      BtrkPtimb[typesize]    = TMath::Abs(Btrk1Pt[typesize] - Btrk2Pt[typesize]) / TMath::Abs(Btrk1Pt[typesize]+Btrk2Pt[typesize]);
+      
+      BtktkvProb[typesize] = TMath::Prob(BInfo->tktk_vtxchi2[j],BInfo->tktk_vtxdof[j]);
 
+      b4P->SetPxPyPzE(tk1px+tk2px, tk1py+tk2py, tk1pz+tk2pz, tk1E+tk2E);
+      Btktkmass[typesize] = b4P->Mag();
+      Btktketa[typesize]  = b4P->Eta();
+      Btktkphi[typesize]  = b4P->Phi();
+      Btktky[typesize]    = b4P->Rapidity();
+      Btktkpt[typesize]   = b4P->Pt();
+
+      BQvalue[typesize]     = (Bmass[typesize]-3.096916-Btktkmass[typesize]);
+      BQvalueuj[typesize]   = (Bmass[typesize]-Bujmass[typesize]-Btktkmass[typesize]);
+      BQvaluemumu[typesize] = (Bmass[typesize]-Bmumumass[typesize]-Btktkmass[typesize]);
+
+      b4P->SetPtEtaPhiM(BInfo->tktk_pt[j],BInfo->tktk_eta[j], BInfo->tktk_phi[j],BInfo->tktk_mass[j]);
+      Bdoublety[typesize] = b4P->Rapidity();
+      Bdoubletmass[typesize] = BInfo->tktk_mass[j];
+      Bdoubletpt[typesize]   = BInfo->tktk_pt[j];
+      Bdoubleteta[typesize]  = BInfo->tktk_eta[j];
+      Bdoubletphi[typesize]  = BInfo->tktk_phi[j];
+      
+      b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]], TrackInfo->eta[BInfo->rftk1_index[j]], TrackInfo->phi[BInfo->rftk1_index[j]],KAON_MASS);
+      float tk1EK = b4P->E();
+      b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]], TrackInfo->eta[BInfo->rftk2_index[j]], TrackInfo->phi[BInfo->rftk2_index[j]],KAON_MASS);
+      float tk2EK = b4P->E();
+      b4P->SetPxPyPzE(tk1px+tk2px, tk1py+tk2py, tk1pz+tk2pz, tk1EK+tk2EK);
+      BtktkmassKK[typesize] = b4P->Mag();
+
+    }
+    // 2 Track channels only ELSE -> -1
+
+    // LEADING pT track
     bool istrk1H = Btrk1Pt[typesize]>Btrk2Pt[typesize];
     BtrkLH[typesize] = istrk1H?1:2;
     BtrkHPt[typesize] = istrk1H?Btrk1Pt[typesize]:Btrk2Pt[typesize];
