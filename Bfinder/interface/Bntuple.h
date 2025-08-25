@@ -611,7 +611,7 @@ public:
 
         //BInfo.tktkInfo
         nt->Branch("Btktkmass",Btktkmass,"Btktkmass[Bsize]/F");
-        //nt->Branch("BtktkmassKK",BtktkmassKK,"BtktkmassKK[Bsize]/F");
+        nt->Branch("BtktkmassKK",BtktkmassKK,"BtktkmassKK[Bsize]/F");
         nt->Branch("BtktkvProb",BtktkvProb,"BtktkvProb[Bsize]/F");
         nt->Branch("Btktkpt",Btktkpt,"Btktkpt[Bsize]/F");
         //nt->Branch("Btktketa",Btktketa,"Btktketa[Bsize]/F");
@@ -755,7 +755,7 @@ public:
     //nt->Branch("Geta",Geta,"Geta[Gsize]/F");
     //nt->Branch("Gphi",Gphi,"Gphi[Gsize]/F");
     nt->Branch("Gpt",Gpt,"Gpt[Gsize]/F");
-    //nt->Branch("GpdgId",GpdgId,"GpdgId[Gsize]/I");
+    nt->Branch("GpdgId",GpdgId,"GpdgId[Gsize]/I");
     nt->Branch("Gmass",Gmass,"Gmass[Gsize]/F");
     //nt->Branch("GcollisionId",GcollisionId,"GcollisionId[Gsize]/I");
     nt->Branch("GisSignal",GisSignal,"GisSignal[Gsize]/I");
