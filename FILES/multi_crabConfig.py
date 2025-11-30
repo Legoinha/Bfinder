@@ -15,7 +15,7 @@ config.General.transferLogs = False
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "Bfinder_ppRef24_DATA.py"
-config.JobType.maxMemoryMB = 2500         # request high memory machines.
+config.JobType.maxMemoryMB = 2000         # request high memory machines.
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
 config.JobType.maxJobRuntimeMin = 2000 # max = 2750

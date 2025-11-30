@@ -6,8 +6,6 @@
 class BntupleBranches
 {//{{{
 public:
-  float tk1mass[7] = {KAON_MASS, PION_MASS, PION_MASS,   KAON_MASS,  KAON_MASS,  KAON_MASS, PION_MASS};
-  float tk2mass[7] = {0,         0,         PION_MASS,   PION_MASS,  PION_MASS,  KAON_MASS, PION_MASS};
   float midmass[7] = {0,         0,         KSHORT_MASS, KSTAR_MASS, KSTAR_MASS, PHI_MASS,  0};
 
   //EvtInfo
@@ -45,7 +43,6 @@ public:
   //BInfo
   int       Bindex[MAX_XB];
   int       Btype[MAX_XB];
-  bool      Bprepref[MAX_XB];
   float     Bmass[MAX_XB];
   float     Bmass_unfitted[MAX_XB];
   float     Bpt[MAX_XB];
@@ -61,8 +58,7 @@ public:
   float     Bchi2ndf[MAX_XB];
   float     Bchi2cl[MAX_XB];
   float     Bdtheta[MAX_XB];
-    float     Bcos_dtheta[MAX_XB];
-
+  float     Bcos_dtheta[MAX_XB];
   float     Blxy[MAX_XB];
   float     BlxyBS[MAX_XB];
   float     BlxyBSErr[MAX_XB];
@@ -72,8 +68,10 @@ public:
   float     BsvpvDisErr[MAX_XB];
   float     BsvpvDistance_2D[MAX_XB];
   float     BsvpvDisErr_2D[MAX_XB];
-    float     Bnorm_svpvDistance[MAX_XB];
-    float     Bnorm_svpvDistance_2D[MAX_XB];
+  float     Bnorm_svpvDistance[MAX_XB];
+  float     Bnorm_svpvDistance_2D[MAX_XB];
+
+  bool      BKstarTG[MAX_XB];
 
   int       Bisbestchi2[MAX_XB];
   float     BQvalue[MAX_XB];
@@ -159,8 +157,8 @@ public:
   float     Bujlxy[MAX_XB];
   
   //BInfo.trkInfo
-  int       Btrk1Idx[MAX_XB];
-  int       Btrk2Idx[MAX_XB];
+  int       Btrk1Idx;
+  int       Btrk2Idx;
   float     Btrk1Pt[MAX_XB];
   float     Btrk2Pt[MAX_XB];
   float     BtrkPtimb[MAX_XB];
@@ -183,10 +181,10 @@ public:
   float     Btrk2DzError[MAX_XB];
   float     Btrk1Dxy[MAX_XB];
   float     Btrk2Dxy[MAX_XB];
-    float     Bnorm_trk1Dxy[MAX_XB];
-    float     Bnorm_trk2Dxy[MAX_XB];
-    float     Bnorm_trk1Dz[MAX_XB];
-    float     Bnorm_trk2Dz[MAX_XB];
+  float     Bnorm_trk1Dxy[MAX_XB];
+  float     Bnorm_trk2Dxy[MAX_XB];
+  float     Bnorm_trk1Dz[MAX_XB];
+  float     Bnorm_trk2Dz[MAX_XB];
 
   float     Btrk1DxyError[MAX_XB];
   float     Btrk2DxyError[MAX_XB];
@@ -239,7 +237,6 @@ public:
 
   //BInfo.tktkInfo
   float     Btktkmass[MAX_XB];
-  float     BtktkmassKK[MAX_XB];
   float     BtktkvProb[MAX_XB];
   float     Btktkpt[MAX_XB];
   float     Btktketa[MAX_XB];
@@ -262,16 +259,6 @@ public:
   float     Bgenphi[MAX_XB];
   float     Bgeny[MAX_XB];
   
-  /*
-    int      kstar[MAX_XB]; 
-    float     Btrk1MassHypo[MAX_XB];
-    float     Btrk2MassHypo[MAX_XB];
-    float     Btrkminpt[MAX_XB];
-    float     Btrkmaxpt[MAX_XB];
-    int        Btrkminptindex[MAX_XB];
-    int        Btrkmaxptindex[MAX_XB];
-  */
-
   int      Jindex[MAX_XB];
   float    Jmass[MAX_XB];
   float    Jmass_unfitted[MAX_XB];
@@ -485,7 +472,6 @@ public:
         nt->Branch("Bindex",Bindex,"Bindex[Bsize]/I");
         nt->Branch("Btype",Btype,"Btype[Bsize]/I");
         nt->Branch("Bmass",Bmass,"Bmass[Bsize]/F");
-        //nt->Branch("Bprepref",Bprepref,"Bprepref[Bsize]/O");
         //nt->Branch("Bmass_unfitted",Bmass_unfitted,"Bmass_unfitted[Bsize]/F");
         nt->Branch("Bpt",Bpt,"Bpt[Bsize]/F");
         //nt->Branch("Beta",Beta,"Beta[Bsize]/F");
@@ -519,12 +505,10 @@ public:
         */
         nt->Branch("BQvalue",BQvalue,"BQvalue[Bsize]/F");
         nt->Branch("BQvalueuj",BQvalueuj,"BQvalueuj[Bsize]/F");
-        //nt->Branch("BQvaluemumu",BQvaluemumu,"BQvaluemumu[Bsize]/F");
        
 
         //BInfo.trkInfo
-        //nt->Branch("Btrk1Idx",Btrk1Idx,"Btrk1Idx[Bsize]/I");
-        //nt->Branch("Btrk2Idx",Btrk2Idx,"Btrk2Idx[Bsize]/I");
+        nt->Branch("BKstarTG",BKstarTG,"BKstarTG[Bsize]/O");
         nt->Branch("Btrk1Pt",Btrk1Pt,"Btrk1Pt[Bsize]/F");
         nt->Branch("Btrk2Pt",Btrk2Pt,"Btrk2Pt[Bsize]/F");
         nt->Branch("BtrkPtimb",BtrkPtimb,"BtrkPtimb[Bsize]/F");
@@ -555,7 +539,6 @@ public:
         nt->Branch("Bnorm_trk2Dxy",Bnorm_trk2Dxy,"Bnorm_trk2Dxy[Bsize]/F");
         nt->Branch("Bnorm_trk1Dz",Bnorm_trk1Dz,"Bnorm_trk1Dz[Bsize]/F");
         nt->Branch("Bnorm_trk2Dz",Bnorm_trk2Dz,"Bnorm_trk2Dz[Bsize]/F");
-
 
         //nt->Branch("Btrk1Dz1",Btrk1Dz1,"Btrk1Dz1[Bsize]/F");
         //nt->Branch("Btrk2Dz1",Btrk2Dz1,"Btrk2Dz1[Bsize]/F");
@@ -611,7 +594,6 @@ public:
 
         //BInfo.tktkInfo
         nt->Branch("Btktkmass",Btktkmass,"Btktkmass[Bsize]/F");
-        nt->Branch("BtktkmassKK",BtktkmassKK,"BtktkmassKK[Bsize]/F");
         nt->Branch("BtktkvProb",BtktkvProb,"BtktkvProb[Bsize]/F");
         nt->Branch("Btktkpt",Btktkpt,"Btktkpt[Bsize]/F");
         //nt->Branch("Btktketa",Btktketa,"Btktketa[Bsize]/F");
@@ -711,19 +693,10 @@ public:
         //nt->Branch("Bgeny",Bgeny,"Bgeny[Bsize]/F");
         //nt->Branch("Bgeneta",Bgeneta,"Bgeneta[Bsize]/F");
         //nt->Branch("Bgenphi",Bgenphi,"Bgenphi[Bsize]/F");
-        
-        /*
-          nt->Branch("Btrk1MassHypo",Btrk1MassHypo,"Btrk1MassHypo[Bsize]/F");
-          nt->Branch("Btrk2MassHypo",Btrk2MassHypo,"Btrk2MassHypo[Bsize]/F");
-          nt->Branch("Btrkminpt",Btrkminpt,"Btrkminpt[Bsize]/F");
-          nt->Branch("Btrkmaxpt",Btrkmaxpt,"Btrkmaxpt[Bsize]/F");
-          nt->Branch("Btrkminptindex",Btrkminptindex,"Btrkminptindex[Bsize]/I");
-          nt->Branch("Btrkmaxptindex",Btrkmaxptindex,"Btrkmaxptindex[Bsize]/I");
-        */
       }
   }
   
-  int      Gsize;
+  int     Gsize;
   float   Gy[MAX_GEN];
   float   Geta[MAX_GEN];
   float   Gphi[MAX_GEN];
@@ -732,7 +705,6 @@ public:
   int     GpdgId[MAX_GEN];
   int     GcollisionId[MAX_GEN];
   int     GisSignal[MAX_GEN];
-  int     Gsubtype[MAX_GEN];
   float   Gmu1pt[MAX_GEN];
   float   Gmu2pt[MAX_GEN];
   float   Gmu1p[MAX_GEN];
@@ -759,7 +731,6 @@ public:
     nt->Branch("Gmass",Gmass,"Gmass[Gsize]/F");
     //nt->Branch("GcollisionId",GcollisionId,"GcollisionId[Gsize]/I");
     nt->Branch("GisSignal",GisSignal,"GisSignal[Gsize]/I");
-    nt->Branch("Gsubtype",Gsubtype,"Gsubtype[Gsize]/I");
     nt->Branch("Gmu1eta",Gmu1eta,"Gmu1eta[Gsize]/F");
     //nt->Branch("Gmu1phi",Gmu1phi,"Gmu1phi[Gsize]/F");
     nt->Branch("Gmu1pt",Gmu1pt,"Gmu1pt[Gsize]/F");
@@ -778,38 +749,36 @@ public:
   
   void makeNtuple(int ifchannel[], int Btypesize[], bool REAL, EvtInfoBranches *EvtInfo, VtxInfoBranches *VtxInfo, MuonInfoBranches *MuonInfo, TrackInfoBranches *TrackInfo, BInfoBranches *BInfo, GenInfoBranches *GenInfo, TTree* nt0, TTree* nt1, TTree* nt2, TTree* nt3, TTree* nt5, TTree* nt6, TTree* nt7)
   {//{{{
-    TVector3* bP = new TVector3;
-    TVector3* bVtx = new TVector3;
+    TVector3* bP        = new TVector3;
+    TVector3* bVtx      = new TVector3;
     TLorentzVector* b4P = new TLorentzVector;
     fillTreeEvt(EvtInfo);
-    for(int t=0;t<7;t++)
+
+    for(int t=0; t<7; t++)
       {
-        int tidx = t-1;
-        if(t!=4)   //for WrongTag component 
-          {
-            tidx = t;
-            Bsize = 0;
-          }
+        Bsize = 0;
         if(ifchannel[t]==1)
           {
             int bestindex=-1;
-            for(int j=0;j<BInfo->size;j++)
+            for(int j=0;j<BInfo->size;j++)    // cycle through B candidates 
               {
                 if(BInfo->type[j]==(t+1))
                   {
-                    fillTree(bP,bVtx,b4P,j,Btypesize[tidx],tk1mass[t],tk2mass[t],REAL, EvtInfo, VtxInfo, MuonInfo, TrackInfo, BInfo, GenInfo, bestindex);
-                    Btypesize[tidx]++;
+                    fillTree(bP,bVtx,b4P,j,Btypesize[t], REAL, EvtInfo, VtxInfo, MuonInfo, TrackInfo, BInfo, GenInfo, bestindex);
+                    Btypesize[t]++;
                   }
               }
 
-            if(t==0)      nt0->Fill();
-            else if(t==1) nt1->Fill();
-            else if(t==2) nt2->Fill();
-            else if(t==4) nt3->Fill();
-            else if(t==5) nt5->Fill();
-            else if(t==6) nt6->Fill();
+            if(t==0)      nt0->Fill(); // Jpsi K
+            else if(t==1) nt1->Fill(); // Jpsi pi
+            else if(t==2) nt2->Fill(); // Jpsi Kshort
+            else if(t==3) nt3->Fill(); // Jpsi Kstar 
+            else if(t==4) nt3->Fill(); // Jpsi Kstar WT (MC only!!)
+            else if(t==5) nt5->Fill(); // Jpsi phi
+            else if(t==6) nt6->Fill(); // Jpsi pi pi
           }
       }
+      
     Jsize = 0;
     if(ifchannel[7]==1)
       {
@@ -830,91 +799,92 @@ public:
     Gsize = 0;
     for(int j=0;j<GenInfo->size;j++)
       {
-        if((TMath::Abs(GenInfo->pdgId[j])!=BPLUS_PDGID && TMath::Abs(GenInfo->pdgId[j])!=BZERO_PDGID && TMath::Abs(GenInfo->pdgId[j])!=BSUBS_PDGID &&
-            TMath::Abs(GenInfo->pdgId[j])!=CHIC1_PDGID && TMath::Abs(GenInfo->pdgId[j])!=PSI2S_PDGID && TMath::Abs(GenInfo->pdgId[j])!=X_PDGID &&
-            TMath::Abs(GenInfo->pdgId[j])!=JPSI_PDGID) && gskim) continue;
+        if((abs(GenInfo->pdgId[j])!=BPLUS_PDGID && abs(GenInfo->pdgId[j])!=BZERO_PDGID && abs(GenInfo->pdgId[j])!=BSUBS_PDGID &&
+            abs(GenInfo->pdgId[j])!=CHIC1_PDGID && abs(GenInfo->pdgId[j])!=PSI2S_PDGID && abs(GenInfo->pdgId[j])!=X_PDGID &&
+            abs(GenInfo->pdgId[j])!=JPSI_PDGID) && gskim) continue;
         Gsize = gsize+1;
-        Gpt[gsize] = GenInfo->pt[j];
-        Geta[gsize] = GenInfo->eta[j];
-        Gphi[gsize] = GenInfo->phi[j];
-        GpdgId[gsize] = GenInfo->pdgId[j];
-        Gmass[gsize] = GenInfo->mass[j];
         GcollisionId[gsize] = GenInfo->collisionId[j];
-        bGen->SetPtEtaPhiM(GenInfo->pt[j],GenInfo->eta[j],GenInfo->phi[j],GenInfo->mass[j]);
+        Gpt[gsize]    = GenInfo->pt[j];
+        Geta[gsize]   = GenInfo->eta[j];
+        Gphi[gsize]   = GenInfo->phi[j];
+        GpdgId[gsize] = GenInfo->pdgId[j];
+        Gmass[gsize]  = GenInfo->mass[j];
+        bGen->SetPtEtaPhiM(Gpt[gsize],Geta[gsize],Gphi[gsize],Gmass[gsize]);
         Gy[gsize] = bGen->Rapidity();
-        Gsubtype[gsize] = 0;
         sigtype=0;
+
         for(gt=1;gt<10;gt++)
-          {
-            if(signalGen(gt,j,GenInfo,Gsubtype[gsize]))
-              {
-                sigtype=gt;
-                break;
-              }
+        {
+          if (gt==5) continue; //skip as it is the same as gt=4(Jpsi Kstar )
+          if(signalGen(gt,j,GenInfo))
+          { 
+            sigtype=gt;
+            break;
           }
-        int type7flag = sigtype!=7?-1:(TMath::Abs(GenInfo->pdgId[GenInfo->da2[j]])==113?1:0);
+        }
+        int type7flag = sigtype!=7?-1:(abs(GenInfo->pdgId[GenInfo->da2[j]])==113?1:0);
         GisSignal[gsize] = sigtype;
-        Gmu1pt[gsize] = -1;
+        Gmu1pt[gsize]  = -20;
         Gmu1eta[gsize] = -20;
         Gmu1phi[gsize] = -20;
-        Gmu1p[gsize] = -1;
-        Gmu2pt[gsize] = -1;
+        Gmu1p[gsize]   = -20;
+        Gmu2pt[gsize]  = -20;
         Gmu2eta[gsize] = -20;
         Gmu2phi[gsize] = -20;
-        Gmu2p[gsize] = -1;
-        Gtk1pt[gsize] = -1;
+        Gmu2p[gsize]   = -20;
+        Gtk1pt[gsize]  = -20;
         Gtk1eta[gsize] = -20;
         Gtk1phi[gsize] = -20;
-        Gtk2pt[gsize] = -1;
+        Gtk2pt[gsize]  = -20;
         Gtk2eta[gsize] = -20;
         Gtk2phi[gsize] = -20;
         if(sigtype!=0)
-          {
-            if(sigtype==8 || sigtype==9)
-              {
-                Gmu1pt[gsize] = GenInfo->pt[GenInfo->da1[j]];
-                Gmu1eta[gsize] = GenInfo->eta[GenInfo->da1[j]];
-                Gmu1phi[gsize] = GenInfo->phi[GenInfo->da1[j]];
-                Gmu1p[gsize] = Gmu1pt[gsize]*cosh(Gmu1eta[gsize]);
-                Gmu2pt[gsize] = GenInfo->pt[GenInfo->da2[j]];
-                Gmu2eta[gsize] = GenInfo->eta[GenInfo->da2[j]];
-                Gmu2phi[gsize] = GenInfo->phi[GenInfo->da2[j]];
-                Gmu2p[gsize] = Gmu2pt[gsize]*cosh(Gmu2eta[gsize]);
-              }
-            else
-              {
-                Gmu1pt[gsize] = GenInfo->pt[GenInfo->da1[GenInfo->da1[j]]];
-                Gmu1eta[gsize] = GenInfo->eta[GenInfo->da1[GenInfo->da1[j]]];
-                Gmu1phi[gsize] = GenInfo->phi[GenInfo->da1[GenInfo->da1[j]]];
-                Gmu1p[gsize] = Gmu1pt[gsize]*cosh(Gmu1eta[gsize]);
-                Gmu2pt[gsize] = GenInfo->pt[GenInfo->da2[GenInfo->da1[j]]];
-                Gmu2eta[gsize] = GenInfo->eta[GenInfo->da2[GenInfo->da1[j]]];
-                Gmu2phi[gsize] = GenInfo->phi[GenInfo->da2[GenInfo->da1[j]]];
-                Gmu2p[gsize] = Gmu2pt[gsize]*cosh(Gmu2eta[gsize]);
-                if(sigtype==1||sigtype==2 || type7flag==0)
-                  {
-                    Gtk1pt[gsize] = GenInfo->pt[GenInfo->da2[j]];
-                    Gtk1eta[gsize] = GenInfo->eta[GenInfo->da2[j]];
-                    Gtk1phi[gsize] = GenInfo->phi[GenInfo->da2[j]];
-                    if(sigtype==7)
-                      {
-                        Gtk2pt[gsize] = GenInfo->pt[GenInfo->da3[j]];
-                        Gtk2eta[gsize] = GenInfo->eta[GenInfo->da3[j]];
-                        Gtk2phi[gsize] = GenInfo->phi[GenInfo->da3[j]];
-                      }
-                  }
-                else
-                  {
-                    Gtk1pt[gsize] = GenInfo->pt[GenInfo->da1[GenInfo->da2[j]]];
-                    Gtk1eta[gsize] = GenInfo->eta[GenInfo->da1[GenInfo->da2[j]]];
-                    Gtk1phi[gsize] = GenInfo->phi[GenInfo->da1[GenInfo->da2[j]]];
-                    Gtk2pt[gsize] = GenInfo->pt[GenInfo->da2[GenInfo->da2[j]]];
-                    Gtk2eta[gsize] = GenInfo->eta[GenInfo->da2[GenInfo->da2[j]]];
-                    Gtk2phi[gsize] = GenInfo->phi[GenInfo->da2[GenInfo->da2[j]]];
-                  }
-              }
-          }
-        gsize++;
+        {
+          if(sigtype==8 || sigtype==9)
+            {
+              Gmu1pt[gsize] = GenInfo->pt[GenInfo->da1[j]];
+              Gmu1eta[gsize] = GenInfo->eta[GenInfo->da1[j]];
+              Gmu1phi[gsize] = GenInfo->phi[GenInfo->da1[j]];
+              Gmu1p[gsize] = Gmu1pt[gsize]*cosh(Gmu1eta[gsize]);
+              Gmu2pt[gsize] = GenInfo->pt[GenInfo->da2[j]];
+              Gmu2eta[gsize] = GenInfo->eta[GenInfo->da2[j]];
+              Gmu2phi[gsize] = GenInfo->phi[GenInfo->da2[j]];
+              Gmu2p[gsize] = Gmu2pt[gsize]*cosh(Gmu2eta[gsize]);
+            }
+          else
+            {
+              Gmu1pt[gsize] = GenInfo->pt[GenInfo->da1[GenInfo->da1[j]]];
+              Gmu1eta[gsize] = GenInfo->eta[GenInfo->da1[GenInfo->da1[j]]];
+              Gmu1phi[gsize] = GenInfo->phi[GenInfo->da1[GenInfo->da1[j]]];
+              Gmu1p[gsize] = Gmu1pt[gsize]*cosh(Gmu1eta[gsize]);
+              Gmu2pt[gsize] = GenInfo->pt[GenInfo->da2[GenInfo->da1[j]]];
+              Gmu2eta[gsize] = GenInfo->eta[GenInfo->da2[GenInfo->da1[j]]];
+              Gmu2phi[gsize] = GenInfo->phi[GenInfo->da2[GenInfo->da1[j]]];
+              Gmu2p[gsize] = Gmu2pt[gsize]*cosh(Gmu2eta[gsize]);
+              if(sigtype==1||sigtype==2 || type7flag==0)
+                {
+                  Gtk1pt[gsize] = GenInfo->pt[GenInfo->da2[j]];
+                  Gtk1eta[gsize] = GenInfo->eta[GenInfo->da2[j]];
+                  Gtk1phi[gsize] = GenInfo->phi[GenInfo->da2[j]];
+                  if(sigtype==7)
+                    {
+                      Gtk2pt[gsize] = GenInfo->pt[GenInfo->da3[j]];
+                      Gtk2eta[gsize] = GenInfo->eta[GenInfo->da3[j]];
+                      Gtk2phi[gsize] = GenInfo->phi[GenInfo->da3[j]];
+                    }
+                }
+              else
+                {
+                  Gtk1pt[gsize]  = GenInfo->pt[GenInfo->da1[GenInfo->da2[j]]];
+                  Gtk1eta[gsize] = GenInfo->eta[GenInfo->da1[GenInfo->da2[j]]];
+                  Gtk1phi[gsize] = GenInfo->phi[GenInfo->da1[GenInfo->da2[j]]];
+                  Gtk2pt[gsize]  = GenInfo->pt[GenInfo->da2[GenInfo->da2[j]]];
+                  Gtk2eta[gsize] = GenInfo->eta[GenInfo->da2[GenInfo->da2[j]]];
+                  Gtk2phi[gsize] = GenInfo->phi[GenInfo->da2[GenInfo->da2[j]]];
+                }
+            }
+          gsize++;
+        }
       }
     ntGen->Fill();
   }//}}}
@@ -954,38 +924,40 @@ public:
 
   }
   
-  void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, bool REAL, EvtInfoBranches *EvtInfo, VtxInfoBranches *VtxInfo, MuonInfoBranches *MuonInfo, TrackInfoBranches *TrackInfo, BInfoBranches *BInfo, GenInfoBranches *GenInfo, int &bestindex)
-  {//{{{
+  void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, bool REAL, EvtInfoBranches *EvtInfo, VtxInfoBranches *VtxInfo, MuonInfoBranches *MuonInfo, TrackInfoBranches *TrackInfo, BInfoBranches *BInfo, GenInfoBranches *GenInfo, int &bestindex)
+  {//}}}
     //Event Info
     Bsize = typesize+1;
-    bP->SetPtEtaPhi(BInfo->pt[j],BInfo->eta[j]*0,BInfo->phi[j]);
-    bVtx->SetXYZ(BInfo->vtxX[j]-EvtInfo->PVx,
-                 BInfo->vtxY[j]-EvtInfo->PVy,
+    bVtx->SetXYZ(BInfo->vtxX[j]-EvtInfo->PVx, 
+                 BInfo->vtxY[j]-EvtInfo->PVy, 
                  BInfo->vtxZ[j]*0-EvtInfo->PVz*0);
-    b4P->SetPtEtaPhiM(BInfo->pt[j],BInfo->eta[j],BInfo->phi[j],BInfo->mass[j]);
-    
-    Bindex[typesize] = typesize;
-    Btype[typesize] = BInfo->type[j];
-    Bmass[typesize] = BInfo->mass[j];
-    Bmass_unfitted[typesize] = BInfo->unfitted_mass[j];
-    Bpt[typesize] = BInfo->pt[j];
-    Beta[typesize] = BInfo->eta[j];
-    Bphi[typesize] = BInfo->phi[j];
-    By[typesize] = b4P->Rapidity();
-    BvtxX[typesize] = BInfo->vtxX[j] - EvtInfo->PVx;
-    BvtxY[typesize] = BInfo->vtxY[j] - EvtInfo->PVy;
-    Bd0[typesize] = TMath::Sqrt((BInfo->vtxX[j]-EvtInfo->PVx)*(BInfo->vtxX[j]-EvtInfo->PVx)+(BInfo->vtxY[j]-EvtInfo->PVy)*(BInfo->vtxY[j]-EvtInfo->PVy));
-    Bd0Err[typesize] = TMath::Sqrt(BInfo->vtxXErr[j]*BInfo->vtxXErr[j]+BInfo->vtxYErr[j]*BInfo->vtxYErr[j]);
-    Bdxyz[typesize] = TMath::Sqrt((BInfo->vtxX[j]-EvtInfo->PVx)*(BInfo->vtxX[j]-EvtInfo->PVx)+(BInfo->vtxY[j]-EvtInfo->PVy)*(BInfo->vtxY[j]-EvtInfo->PVy)+(BInfo->vtxZ[j]-EvtInfo->PVz)*(BInfo->vtxZ[j]-EvtInfo->PVz));
-    BdxyzErr[typesize] = TMath::Sqrt(BInfo->vtxXErr[j]*BInfo->vtxXErr[j]+BInfo->vtxYErr[j]*BInfo->vtxYErr[j]+BInfo->vtxZErr[j]*BInfo->vtxZErr[j]);
-    Bchi2ndf[typesize] = BInfo->vtxchi2[j]/BInfo->vtxdof[j];
-    Bchi2cl[typesize] = TMath::Prob(BInfo->vtxchi2[j],BInfo->vtxdof[j]);
-    Bdtheta[typesize] = bP->Angle(*bVtx);
+
+    bP->SetPtEtaPhi(BInfo->pt[j],BInfo->eta[j]*0,BInfo->phi[j]);
+    Bdtheta[typesize]  = bP->Angle(*bVtx);
     Bcos_dtheta[typesize] = TMath::Cos(bP->Angle(*bVtx));
 
+    b4P->SetPtEtaPhiM(BInfo->pt[j],BInfo->eta[j],BInfo->phi[j],BInfo->mass[j]);
+    By[typesize] = b4P->Rapidity();
+
+    Bindex[typesize] = typesize;
+    Btype[typesize]  = BInfo->type[j];
+    Bmass[typesize]  = BInfo->mass[j];
+    Bpt[typesize]    = BInfo->pt[j];
+    Beta[typesize]   = BInfo->eta[j];
+    Bphi[typesize]   = BInfo->phi[j];
+    BvtxX[typesize]  = BInfo->vtxX[j] - EvtInfo->PVx;
+    BvtxY[typesize]  = BInfo->vtxY[j] - EvtInfo->PVy;
+    Bd0[typesize]    = TMath::Sqrt((BInfo->vtxX[j]-EvtInfo->PVx)*(BInfo->vtxX[j]-EvtInfo->PVx)+(BInfo->vtxY[j]-EvtInfo->PVy)*(BInfo->vtxY[j]-EvtInfo->PVy));
+    Bd0Err[typesize] = TMath::Sqrt(BInfo->vtxXErr[j]*BInfo->vtxXErr[j]+BInfo->vtxYErr[j]*BInfo->vtxYErr[j]);
+    Bdxyz[typesize]  = TMath::Sqrt((BInfo->vtxX[j]-EvtInfo->PVx)*(BInfo->vtxX[j]-EvtInfo->PVx)+(BInfo->vtxY[j]-EvtInfo->PVy)*(BInfo->vtxY[j]-EvtInfo->PVy)+(BInfo->vtxZ[j]-EvtInfo->PVz)*(BInfo->vtxZ[j]-EvtInfo->PVz));
+    BdxyzErr[typesize] = TMath::Sqrt(BInfo->vtxXErr[j]*BInfo->vtxXErr[j]+BInfo->vtxYErr[j]*BInfo->vtxYErr[j]+BInfo->vtxZErr[j]*BInfo->vtxZErr[j]);
+    Bchi2ndf[typesize] = BInfo->vtxchi2[j]/BInfo->vtxdof[j];
+    Bchi2cl[typesize]  = TMath::Prob(BInfo->vtxchi2[j],BInfo->vtxdof[j]);
+
+    Bmass_unfitted[typesize] = BInfo->unfitted_mass[j];
     Blxy[typesize] = ((BInfo->vtxX[j]-EvtInfo->PVx)*b4P->Px() + (BInfo->vtxY[j]-EvtInfo->PVy)*b4P->Py())/BInfo->pt[j];
     float r2lxyBS = (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz) * (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz)
-      + (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz) * (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz);
+     + (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz) * (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz);
     float xlxyBS = BInfo->vtxX[j]-EvtInfo->BSx + (BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz;
     float ylxyBS = BInfo->vtxY[j]-EvtInfo->BSy + (BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz;
     BlxyBS[typesize] = TMath::Sqrt(r2lxyBS);
@@ -995,9 +967,8 @@ public:
     BsvpvDisErr[typesize] = BInfo->svpvDisErr[j];
     BsvpvDistance_2D[typesize] = BInfo->svpvDistance_2D[j];
     BsvpvDisErr_2D[typesize] = BInfo->svpvDisErr_2D[j];
-
-      Bnorm_svpvDistance[typesize] = (BInfo->svpvDistance[j])/(BInfo->svpvDisErr[j]);
-      Bnorm_svpvDistance_2D[typesize] = (BInfo->svpvDistance_2D[j])/(BInfo->svpvDisErr_2D[j]);
+    Bnorm_svpvDistance[typesize] = (BInfo->svpvDistance[j])/(BInfo->svpvDisErr[j]);
+    Bnorm_svpvDistance_2D[typesize] = (BInfo->svpvDistance_2D[j])/(BInfo->svpvDisErr_2D[j]);
 
     BMaxDoca[typesize] = BInfo->MaxDoca[j];
     
@@ -1063,6 +1034,7 @@ public:
     Bmu2SoftMuID[typesize] = MuonInfo->SoftMuID[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]];
     Bmu1HybridSoftMuID[typesize] = MuonInfo->HybridSoftMuID[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]];
     Bmu2HybridSoftMuID[typesize] = MuonInfo->HybridSoftMuID[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]];
+
     Bmu1isAcc[typesize] = (fabs(Bmu1eta[typesize]) < 2.4 && 
                            ((fabs(Bmu1eta[typesize]) < 1.2 && Bmu1pt[typesize] >= 3.5) ||
                             (fabs(Bmu1eta[typesize]) >= 1.2 && fabs(Bmu1eta[typesize]) < 2.1 && Bmu1pt[typesize] >= 5.47-1.89*fabs(Bmu1eta[typesize])) ||
@@ -1083,242 +1055,165 @@ public:
     Bmu2TrgMatchFilterPhi[typesize] = MuonInfo->MuTrgMatchFilterTrgObjPhi[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
     Bmu2isTriggered[typesize]       = MuonInfo->isTriggered[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]*MuonInfo->MuTrgMatchFilterSize+0];
 
-    b4P->SetPxPyPzE(mu1px+mu2px,
-                    mu1py+mu2py,
-                    mu1pz+mu2pz,
-                    mu1E+mu2E);
+    b4P->SetPxPyPzE(mu1px+mu2px, mu1py+mu2py, mu1pz+mu2pz, mu1E+mu2E);
     Bmumumass[typesize] = b4P->Mag();
     Bmumueta[typesize]  = b4P->Eta();
     Bmumuphi[typesize]  = b4P->Phi();
     Bmumuy[typesize]    = b4P->Rapidity();
     Bmumupt[typesize]   = b4P->Pt();
-    Bujmass[typesize]   = BInfo->uj_mass[BInfo->rfuj_index[j]];
-    BujvProb[typesize]  = TMath::Prob(BInfo->uj_vtxchi2[BInfo->rfuj_index[j]],BInfo->uj_vtxdof[BInfo->rfuj_index[j]]);
-    Bujpt[typesize]     = BInfo->uj_pt[BInfo->rfuj_index[j]];
-    Bujeta[typesize]    = BInfo->uj_eta[BInfo->rfuj_index[j]];
-    Bujphi[typesize]    = BInfo->uj_phi[BInfo->rfuj_index[j]];
-    b4P->SetPtEtaPhiM(BInfo->uj_pt[BInfo->rfuj_index[j]],
-                      BInfo->uj_eta[BInfo->rfuj_index[j]],
-                      BInfo->uj_phi[BInfo->rfuj_index[j]],
-                      BInfo->uj_mass[BInfo->rfuj_index[j]]);
+    
+    Bujmass[typesize]  = BInfo->uj_mass[BInfo->rfuj_index[j]];
+    BujvProb[typesize] = TMath::Prob(BInfo->uj_vtxchi2[BInfo->rfuj_index[j]],BInfo->uj_vtxdof[BInfo->rfuj_index[j]]);
+    Bujpt[typesize]    = BInfo->uj_pt[BInfo->rfuj_index[j]];
+    Bujeta[typesize]   = BInfo->uj_eta[BInfo->rfuj_index[j]];
+    Bujphi[typesize]   = BInfo->uj_phi[BInfo->rfuj_index[j]];
+    b4P->SetPtEtaPhiM(Bujpt[typesize], Bujeta[typesize], Bujphi[typesize], Bujmass[typesize]);
     Bujy[typesize] = b4P->Rapidity();
-    Bujlxy[typesize] = ((BInfo->uj_vtxX[BInfo->rfuj_index[j]]-EvtInfo->PVx)*b4P->Px() + (BInfo->uj_vtxY[BInfo->rfuj_index[j]]-EvtInfo->PVy)*b4P->Py())/BInfo->uj_pt[BInfo->rfuj_index[j]];
+    Bujlxy[typesize] = ((BInfo->uj_vtxX[BInfo->rfuj_index[j]]-EvtInfo->PVx)*b4P->Px() + (BInfo->uj_vtxY[BInfo->rfuj_index[j]]-EvtInfo->PVy)*b4P->Py())/Bujpt[typesize];
+
+    Btrk1Idx = int(BInfo->rftk1_index[j]);
+    Btrk2Idx = int(BInfo->rftk2_index[j]);
+
+    //Track 1 
+    BKstarTG[typesize]         = false;
+    Btrk1Pt[typesize]          = TrackInfo->pt[Btrk1Idx];
+    Btrk1Eta[typesize]         = TrackInfo->eta[Btrk1Idx];
+    Btrk1Phi[typesize]         = TrackInfo->phi[Btrk1Idx];
+    Btrk1PtErr[typesize]       = TrackInfo->ptErr[Btrk1Idx];
+    Btrk1EtaErr[typesize]      = TrackInfo->etaErr[Btrk1Idx];
+    Btrk1PhiErr[typesize]      = TrackInfo->phiErr[Btrk1Idx];
+    Btrk1Dz[typesize]          = TrackInfo->dz[Btrk1Idx];
+    Btrk1DzError[typesize]     = TrackInfo->dzerror[Btrk1Idx];
+    Bnorm_trk1Dz[typesize]     = (Btrk1Dz[typesize]) / (Btrk1DzError[typesize]);
+    Btrk1Dxy[typesize]         = TrackInfo->dxy[Btrk1Idx];
+    Btrk1DxyError[typesize]    = TrackInfo->dxyerror[Btrk1Idx];
+    Bnorm_trk1Dxy[typesize]    = (Btrk1Dxy[typesize]) / (Btrk1DxyError[typesize]);
+    Btrk1PixelHit[typesize]    = TrackInfo->pixelhit[Btrk1Idx];
+    Btrk1StripHit[typesize]    = TrackInfo->striphit[Btrk1Idx];
+    Btrk1nPixelLayer[typesize] = TrackInfo->nPixelLayer[Btrk1Idx];
+    Btrk1nStripLayer[typesize] = TrackInfo->nStripLayer[Btrk1Idx];
+    Btrk1Chi2ndf[typesize]     = TrackInfo->chi2[Btrk1Idx]/TrackInfo->ndf[Btrk1Idx];
+    Btrk1MVAVal[typesize]      = TrackInfo->trkMVAVal[Btrk1Idx];
+    Btrk1Algo[typesize]        = TrackInfo->trkAlgo[Btrk1Idx];
+    Btrk1originalAlgo[typesize] = TrackInfo->originalTrkAlgo[Btrk1Idx];
+    Btrk1highPurity[typesize]   = TrackInfo->highPurity[Btrk1Idx];
+    Btrk1Quality[typesize]      = TrackInfo->trackQuality[Btrk1Idx];
+    Btrk1dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk1Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk1Eta[typesize],2));
+    
+    if(BInfo->type[j]==1 || BInfo->type[j]==2)   // Jpsi K    ||OR||    Jpsi pi        (so no second track!)
+    {
+      Btrk2Pt[typesize]           = -20;
+      Btrk2Eta[typesize]          = -20;
+      Btrk2Phi[typesize]          = -20;
+      Btrk2PtErr[typesize]        = -20;
+      Btrk2EtaErr[typesize]       = -20;
+      Btrk2PhiErr[typesize]       = -20;
+      Btrk2Y[typesize]            = -20;
+      Btrk2Dz[typesize]           = -20;
+      Btrk2DzError[typesize]      = -20;
+      Bnorm_trk2Dz[typesize]      = -20;
+      Btrk2Dxy[typesize]          = -20;
+      Btrk2DxyError[typesize]     = -20;
+      Bnorm_trk2Dxy[typesize]     = -20;
+      Btrk2PixelHit[typesize]     = -20;
+      Btrk2StripHit[typesize]     = -20;
+      Btrk2nPixelLayer[typesize]  = -20;
+      Btrk2nStripLayer[typesize]  = -20;
+      Btrk2Chi2ndf[typesize]      = -20;
+      Btrk2MVAVal[typesize]       = -20;
+      Btrk2Algo[typesize]         = -20;
+      Btrk2originalAlgo[typesize] = -20;
+      Btrk2highPurity[typesize]   = -20;
+      Btrk2Quality[typesize]      = -20;
+      Btrk2dR[typesize]           = -20;
+
+      Btktkmass[typesize]         = -20;
+      BtktkvProb[typesize]        = -20;
+      Btktkpt[typesize]           = -20;
+      Btktketa[typesize]          = -20;
+      Btktkphi[typesize]          = -20;
+      Btktky[typesize]            = -20;
+      Bdoubletmass[typesize]      = -20;
+      Bdoubletpt[typesize]        = -20;
+      Bdoubleteta[typesize]       = -20;
+      Bdoubletphi[typesize]       = -20;
+      Bdoublety[typesize]         = -20;
+      BtrkPtimb[typesize]         = -20;
+      BQvalue[typesize]           = -20;
+      BQvalueuj[typesize]         = -20;
+    }
+    else  //Specify the 2nd Track 
+    {
+      Btrk2Pt[typesize]           = TrackInfo->pt[Btrk2Idx];
+      Btrk2Eta[typesize]          = TrackInfo->eta[Btrk2Idx];
+      Btrk2Phi[typesize]          = TrackInfo->phi[Btrk2Idx];
+      Btrk2PtErr[typesize]        = TrackInfo->ptErr[Btrk2Idx];
+      Btrk2EtaErr[typesize]       = TrackInfo->etaErr[Btrk2Idx];
+      Btrk2PhiErr[typesize]       = TrackInfo->phiErr[Btrk2Idx];
+      Btrk2Dz[typesize]           = TrackInfo->dz[Btrk2Idx];
+      Btrk2DzError[typesize]      = TrackInfo->dzerror[Btrk2Idx];
+      Btrk2Dxy[typesize]          = TrackInfo->dxy[Btrk2Idx];
+      Btrk2DxyError[typesize]     = TrackInfo->dxyerror[Btrk2Idx];
+      Btrk2Dz1[typesize]          = TrackInfo->dz1[Btrk2Idx];
+      Btrk2DzError1[typesize]     = TrackInfo->dzerror1[Btrk2Idx];
+      Btrk2Dxy1[typesize]         = TrackInfo->dxy1[Btrk2Idx];
+      Btrk2DxyError1[typesize]    = TrackInfo->dxyerror1[Btrk2Idx];
+      Btrk2PixelHit[typesize]     = TrackInfo->pixelhit[Btrk2Idx];
+      Btrk2StripHit[typesize]     = TrackInfo->striphit[Btrk2Idx];
+      Btrk2nPixelLayer[typesize]  = TrackInfo->nPixelLayer[Btrk2Idx];
+      Btrk2nStripLayer[typesize]  = TrackInfo->nStripLayer[Btrk2Idx];
+      Btrk2Chi2ndf[typesize]      = TrackInfo->chi2[Btrk2Idx]/TrackInfo->ndf[Btrk2Idx];
+      Btrk2MVAVal[typesize]       = TrackInfo->trkMVAVal[Btrk2Idx];
+      Btrk2Algo[typesize]         = TrackInfo->trkAlgo[Btrk2Idx];
+      Btrk2originalAlgo[typesize] = TrackInfo->originalTrkAlgo[Btrk2Idx];
+      Btrk2highPurity[typesize]   = TrackInfo->highPurity[Btrk2Idx];
+      Btrk2Quality[typesize]      = TrackInfo->trackQuality[Btrk2Idx];
+      Bnorm_trk2Dxy[typesize] = (Btrk2Dxy[typesize]) / (Btrk2DxyError[typesize]) ;
+      Bnorm_trk2Dz[typesize]  = (Btrk2Dz[typesize])  / (Btrk2DzError[typesize])  ;
+      Btrk2dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk2Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk2Eta[typesize],2));
+
+      if(BInfo->type[j] == 4) { 
+        BKstarTG[typesize] = true; }  //B0 to Jpsi K*, w/ di-track system mass closer to K* mass
+      }
 
     float tk1px,tk1py,tk1pz,tk1E;
     float tk2px,tk2py,tk2pz,tk2E;
-    Btrk1Idx[typesize] = BInfo->rftk1_index[j];
-    Btrk2Idx[typesize] = BInfo->rftk2_index[j];
-
-    //Track 1 
-    b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],track_mass1);
-    Btrk1Pt[typesize]           = TrackInfo->pt[BInfo->rftk1_index[j]];
-    Btrk1Eta[typesize]          = TrackInfo->eta[BInfo->rftk1_index[j]];
-    Btrk1Phi[typesize]          = TrackInfo->phi[BInfo->rftk1_index[j]];
-    Btrk1PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk1_index[j]];
-    Btrk1EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk1_index[j]];
-    Btrk1PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk1_index[j]];
-    Btrk1Y[typesize]            = b4P->Rapidity();
-    Btrk1Dz[typesize]           = TrackInfo->dz[BInfo->rftk1_index[j]];
-    Btrk1DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk1_index[j]];
-    Bnorm_trk1Dz[typesize]      = (Btrk1Dz[typesize])  / (Btrk1DzError[typesize])  ;
-    Btrk1Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk1_index[j]];
-    Btrk1DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk1_index[j]];
-    Bnorm_trk1Dxy[typesize]     = (Btrk1Dxy[typesize]) / (Btrk1DxyError[typesize]) ;
-    Btrk1PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk1_index[j]];
-    Btrk1StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk1_index[j]];
-    Btrk1nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk1_index[j]];
-    Btrk1nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk1_index[j]];
-    Btrk1Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]];
-    Btrk1MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk1_index[j]];
-    Btrk1Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk1_index[j]];
-    Btrk1originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk1_index[j]];
-    Btrk1highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk1_index[j]];
-    Btrk1Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk1_index[j]];
-    Btrk1dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk1Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk1Eta[typesize],2));
-    tk1px = b4P->Px();
-    tk1py = b4P->Py();
-    tk1pz = b4P->Pz();
-    tk1E  = b4P->E();
-
-    if(BInfo->type[j]==1 || BInfo->type[j]==2)   //B+ either through Jpsi K and Jpsi pi SO NO TRACK 2
-      {
-        //Track 2
-        Btrk2Pt[typesize]        = -20;
-        Btrk2Eta[typesize]       = -20;
-        Btrk2Phi[typesize]       = -20;
-        Btrk2PtErr[typesize]     = -20;
-        Btrk2EtaErr[typesize]    = -20;
-        Btrk2PhiErr[typesize]    = -20;
-        Btrk2Y[typesize]         = -20;
-        Btrk2Dz[typesize]        = -20;
-        Btrk2DzError[typesize]   = -20;
-        Bnorm_trk2Dz[typesize]   = -20;
-        Btrk2Dxy[typesize]       = -20;
-        Btrk2DxyError[typesize]  = -20;
-        Bnorm_trk2Dxy[typesize]  = -20;
-        Btrk2PixelHit[typesize]  = -20;
-        Btrk2StripHit[typesize]  = -20;
-        Btrk2nPixelLayer[typesize]  = -20;
-        Btrk2nStripLayer[typesize]  = -20;
-        Btrk2Chi2ndf[typesize]      = -20;
-        Btrk2MVAVal[typesize]       = -20;
-        Btrk2Algo[typesize]         = -20;
-        Btrk2originalAlgo[typesize] = -20;
-        Btrk2highPurity[typesize]   = -20;
-        Btrk2Quality[typesize]      = -20;
-        Btrk2dR[typesize]           = -20;
-
-        Btktkmass[typesize]    = -20;
-        BtktkvProb[typesize]   = -20;
-        Btktkpt[typesize]      = -20;
-        Btktketa[typesize]     = -20;
-        Btktkphi[typesize]     = -20;
-        Btktky[typesize]       = -20;
-        Bdoubletmass[typesize] = -20;
-        Bdoubletpt[typesize]   = -20;
-        Bdoubleteta[typesize]  = -20;
-        Bdoubletphi[typesize]  = -20;
-        Bdoublety[typesize]    = -20;
-        BtrkPtimb[typesize]    = -20;
-        BtktkmassKK[typesize]  = -20;
-        BQvalue[typesize]      = -20;
-        BQvalueuj[typesize]    = -20;
-        BQvaluemumu[typesize]  = -20;
-
-      }
-    else if(BInfo->type[j]==5)                   //B0 through the WT channel so interchange all track channels
-      {
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]],TrackInfo->eta[BInfo->rftk2_index[j]],TrackInfo->phi[BInfo->rftk2_index[j]],track_mass1);
-        Btrk1Pt[typesize]           = TrackInfo->pt[BInfo->rftk2_index[j]];
-        Btrk1Eta[typesize]          = TrackInfo->eta[BInfo->rftk2_index[j]];
-        Btrk1Phi[typesize]          = TrackInfo->phi[BInfo->rftk2_index[j]];
-        Btrk1PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk2_index[j]];
-        Btrk1EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk2_index[j]];
-        Btrk1PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk2_index[j]];
-        Btrk1Y[typesize]            = b4P->Rapidity();
-        Btrk1Dz[typesize]           = TrackInfo->dz[BInfo->rftk2_index[j]];
-        Btrk1DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk2_index[j]];
-        Bnorm_trk1Dz[typesize]      = Btrk2Dz[typesize]  / Btrk2DzError[typesize] ;
-        Btrk1Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk2_index[j]];
-        Btrk1DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk2_index[j]];
-        Bnorm_trk1Dxy[typesize]     = Btrk2Dxy[typesize] / Btrk2DxyError[typesize];
-        Btrk1PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk2_index[j]];
-        Btrk1StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk2_index[j]];
-        Btrk1nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk2_index[j]];
-        Btrk1nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk2_index[j]];
-        Btrk1Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk2_index[j]]/TrackInfo->ndf[BInfo->rftk2_index[j]];
-        Btrk1MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk2_index[j]];
-        Btrk1Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk2_index[j]];
-        Btrk1originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk2_index[j]];
-        Btrk1highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk2_index[j]];
-        Btrk1Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk2_index[j]];
-        Btrk1dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk1Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk1Eta[typesize],2));
-        tk1px = b4P->Px();
-        tk1py = b4P->Py();
-        tk1pz = b4P->Pz();
-        tk1E  = b4P->E();
-
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]],TrackInfo->eta[BInfo->rftk1_index[j]],TrackInfo->phi[BInfo->rftk1_index[j]],track_mass2);
-        Btrk2Pt[typesize]           = TrackInfo->pt[BInfo->rftk1_index[j]];
-        Btrk2Eta[typesize]          = TrackInfo->eta[BInfo->rftk1_index[j]];
-        Btrk2Phi[typesize]          = TrackInfo->phi[BInfo->rftk1_index[j]];
-        Btrk2PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk1_index[j]];
-        Btrk2EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk1_index[j]];
-        Btrk2PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk1_index[j]];
-        Btrk2Y[typesize]            = b4P->Rapidity();
-        Btrk2Dz[typesize]           = TrackInfo->dz[BInfo->rftk1_index[j]];
-        Btrk2DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk1_index[j]];
-        Bnorm_trk2Dz[typesize]      = Btrk1Dz[typesize]  / Btrk1DzError[typesize];
-        Btrk2Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk1_index[j]];
-        Btrk2DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk1_index[j]];
-        Bnorm_trk2Dxy[typesize]     = Btrk1Dxy[typesize] / Btrk1DxyError[typesize];
-        Btrk2PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk1_index[j]];
-        Btrk2StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk1_index[j]];
-        Btrk2nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk1_index[j]];
-        Btrk2nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk1_index[j]];
-        Btrk2Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk1_index[j]]/TrackInfo->ndf[BInfo->rftk1_index[j]];
-        Btrk2MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk1_index[j]];
-        Btrk2Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk1_index[j]];
-        Btrk2originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk1_index[j]];
-        Btrk2highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk1_index[j]];
-        Btrk2Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk1_index[j]];
-        Btrk2dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk2Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk2Eta[typesize],2));
-        tk2px = b4P->Px();
-        tk2py = b4P->Py();
-        tk2pz = b4P->Pz();
-        tk2E = b4P->E();
-      }
-    else                                         //Specify the 2nd Track 
-      {
-        b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]],TrackInfo->eta[BInfo->rftk2_index[j]],TrackInfo->phi[BInfo->rftk2_index[j]],track_mass2);
-        Btrk2Pt[typesize]           = TrackInfo->pt[BInfo->rftk2_index[j]];
-        Btrk2Eta[typesize]          = TrackInfo->eta[BInfo->rftk2_index[j]];
-        Btrk2Phi[typesize]          = TrackInfo->phi[BInfo->rftk2_index[j]];
-        Btrk2PtErr[typesize]        = TrackInfo->ptErr[BInfo->rftk2_index[j]];
-        Btrk2EtaErr[typesize]       = TrackInfo->etaErr[BInfo->rftk2_index[j]];
-        Btrk2PhiErr[typesize]       = TrackInfo->phiErr[BInfo->rftk2_index[j]];
-        Btrk2Y[typesize]            = b4P->Rapidity();
-        Btrk2Dz[typesize]           = TrackInfo->dz[BInfo->rftk2_index[j]];
-        Btrk2DzError[typesize]      = TrackInfo->dzerror[BInfo->rftk2_index[j]];
-        Btrk2Dxy[typesize]          = TrackInfo->dxy[BInfo->rftk2_index[j]];
-        Btrk2DxyError[typesize]     = TrackInfo->dxyerror[BInfo->rftk2_index[j]];
-        Btrk2Dz1[typesize]          = TrackInfo->dz1[BInfo->rftk2_index[j]];
-        Btrk2DzError1[typesize]     = TrackInfo->dzerror1[BInfo->rftk2_index[j]];
-        Btrk2Dxy1[typesize]         = TrackInfo->dxy1[BInfo->rftk2_index[j]];
-        Btrk2DxyError1[typesize]    = TrackInfo->dxyerror1[BInfo->rftk2_index[j]];
-        Btrk2PixelHit[typesize]     = TrackInfo->pixelhit[BInfo->rftk2_index[j]];
-        Btrk2StripHit[typesize]     = TrackInfo->striphit[BInfo->rftk2_index[j]];
-        Btrk2nPixelLayer[typesize]  = TrackInfo->nPixelLayer[BInfo->rftk2_index[j]];
-        Btrk2nStripLayer[typesize]  = TrackInfo->nStripLayer[BInfo->rftk2_index[j]];
-        Btrk2Chi2ndf[typesize]      = TrackInfo->chi2[BInfo->rftk2_index[j]]/TrackInfo->ndf[BInfo->rftk2_index[j]];
-        Btrk2MVAVal[typesize]       = TrackInfo->trkMVAVal[BInfo->rftk2_index[j]];
-        Btrk2Algo[typesize]         = TrackInfo->trkAlgo[BInfo->rftk2_index[j]];
-        Btrk2originalAlgo[typesize] = TrackInfo->originalTrkAlgo[BInfo->rftk2_index[j]];
-        Btrk2highPurity[typesize]   = TrackInfo->highPurity[BInfo->rftk2_index[j]];
-        Btrk2Quality[typesize]      = TrackInfo->trackQuality[BInfo->rftk2_index[j]];
-        Bnorm_trk2Dxy[typesize] = (Btrk2Dxy[typesize]) / (Btrk2DxyError[typesize]) ;
-        Bnorm_trk2Dz[typesize]  = (Btrk2Dz[typesize])  / (Btrk2DzError[typesize])  ;
-        Btrk2dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk2Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk2Eta[typesize],2));
-        tk2px = b4P->Px();
-        tk2py = b4P->Py();
-        tk2pz = b4P->Pz();
-        tk2E  = b4P->E();
-      }
-
-    // 2 Track channels only ELSE -> -1
+  
+    // 2 Track channels only ELSE -> -20
     if (Btrk1Pt[typesize] > 0 && Btrk2Pt[typesize] > 0) {
-      
-      BtrkPtimb[typesize]    = TMath::Abs(Btrk1Pt[typesize] - Btrk2Pt[typesize]) / TMath::Abs(Btrk1Pt[typesize]+Btrk2Pt[typesize]);
-      
+
+      BtrkPtimb[typesize]  = abs(Btrk1Pt[typesize] - Btrk2Pt[typesize]) / abs(Btrk1Pt[typesize]+Btrk2Pt[typesize]);
       BtktkvProb[typesize] = TMath::Prob(BInfo->tktk_vtxchi2[j],BInfo->tktk_vtxdof[j]);
 
+      b4P->SetPtEtaPhiM(TrackInfo->pt[Btrk1Idx],TrackInfo->eta[Btrk1Idx],TrackInfo->phi[Btrk1Idx],BInfo->rftk1_mass[j]);
+      Btrk1Y[typesize] = b4P->Rapidity();
+      tk1px = b4P->Px();
+      tk1py = b4P->Py();
+      tk1pz = b4P->Pz();
+      tk1E  = b4P->E();
+      b4P->SetPtEtaPhiM(TrackInfo->pt[Btrk2Idx],TrackInfo->eta[Btrk2Idx],TrackInfo->phi[Btrk2Idx],BInfo->rftk2_mass[j]);
+      Btrk2Y[typesize]  = b4P->Rapidity();
+      tk2px = b4P->Px();
+      tk2py = b4P->Py();
+      tk2pz = b4P->Pz();
+      tk2E  = b4P->E();
       b4P->SetPxPyPzE(tk1px+tk2px, tk1py+tk2py, tk1pz+tk2pz, tk1E+tk2E);
       Btktkmass[typesize] = b4P->Mag();
       Btktketa[typesize]  = b4P->Eta();
       Btktkphi[typesize]  = b4P->Phi();
       Btktky[typesize]    = b4P->Rapidity();
       Btktkpt[typesize]   = b4P->Pt();
-
-      BQvalue[typesize]     = (Bmass[typesize]-3.096916-Btktkmass[typesize]);
-      BQvalueuj[typesize]   = (Bmass[typesize]-Bujmass[typesize]-Btktkmass[typesize]);
-      BQvaluemumu[typesize] = (Bmass[typesize]-Bmumumass[typesize]-Btktkmass[typesize]);
-
       b4P->SetPtEtaPhiM(BInfo->tktk_pt[j],BInfo->tktk_eta[j], BInfo->tktk_phi[j],BInfo->tktk_mass[j]);
       Bdoublety[typesize] = b4P->Rapidity();
       Bdoubletmass[typesize] = BInfo->tktk_mass[j];
       Bdoubletpt[typesize]   = BInfo->tktk_pt[j];
       Bdoubleteta[typesize]  = BInfo->tktk_eta[j];
       Bdoubletphi[typesize]  = BInfo->tktk_phi[j];
-      
-      b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk1_index[j]], TrackInfo->eta[BInfo->rftk1_index[j]], TrackInfo->phi[BInfo->rftk1_index[j]],KAON_MASS);
-      float tk1EK = b4P->E();
-      b4P->SetPtEtaPhiM(TrackInfo->pt[BInfo->rftk2_index[j]], TrackInfo->eta[BInfo->rftk2_index[j]], TrackInfo->phi[BInfo->rftk2_index[j]],KAON_MASS);
-      float tk2EK = b4P->E();
-      b4P->SetPxPyPzE(tk1px+tk2px, tk1py+tk2py, tk1pz+tk2pz, tk1EK+tk2EK);
-      BtktkmassKK[typesize] = b4P->Mag();
 
+      BQvalue[typesize]   = (Bmass[typesize]-3.096916-Btktkmass[typesize]);
+      BQvalueuj[typesize] = (Bmass[typesize]-Bujmass[typesize]-Btktkmass[typesize]);
     }
-    // 2 Track channels only ELSE -> -1
+    // 2 Track channels only ELSE -> -20
 
     // LEADING pT track
     bool istrk1H = Btrk1Pt[typesize]>Btrk2Pt[typesize];
@@ -1338,52 +1233,43 @@ public:
     BtrkHDzError1[typesize] = istrk1H?Btrk1DzError1[typesize]:Btrk2DzError1[typesize];
     BtrkLDzError1[typesize] = istrk1H?Btrk2DzError1[typesize]:Btrk1DzError1[typesize];
 
-    Bprepref[typesize] = false;
-    if(TMath::Abs(Bmumumass[typesize]-3.096916) < 0.05 && TMath::Abs(Bujeta[typesize]) < 2.4 &&
-       (Bmu1SoftMuID[typesize] && Bmu2SoftMuID[typesize] && Bmu1isAcc[typesize] && Bmu2isAcc[typesize] && Bmu1isTriggered[typesize] && Bmu2isTriggered[typesize]) &&
-       Btrk1Pt[typesize] > 0.9 && Btrk2Pt[typesize] > 0.9 && TMath::Abs(Btrk1Eta[typesize]) < 2.4 && TMath::Abs(Btrk2Eta[typesize]) < 2.4 &&
-       Btrk1highPurity[typesize] && Btrk2highPurity[typesize] && (Btrk1PixelHit[typesize]+Btrk1StripHit[typesize]) >= 11 && (Btrk2PixelHit[typesize]+Btrk2StripHit[typesize]) >= 11 && TMath::Abs(Btrk1PtErr[typesize]/Btrk1Pt[typesize]) < 0.1 && TMath::Abs(Btrk2PtErr[typesize]/Btrk2Pt[typesize]) < 0.1 && (Btrk1Chi2ndf[typesize]/(Btrk1nStripLayer[typesize]+Btrk1nPixelLayer[typesize])) < 0.18 && (Btrk2Chi2ndf[typesize]/(Btrk2nStripLayer[typesize]+Btrk2nPixelLayer[typesize])) < 0.18 && 
-       TMath::Abs(By[typesize]) < 2.4 && Bchi2cl[typesize] > 0.1
-       ) Bprepref[typesize] = true;
-    
     //gen info judgement
     if(!REAL)
       {
-        Bgen[typesize] = 0;
-        BgenIndex[typesize] = -1;
+        Bgen[typesize]      = 0;
+        BgenIndex[typesize] = -20;
         BgenpdgId[typesize] = 0;
-        Bgenmass[typesize] = -1;
-        Bgenpt[typesize] = -1;
-        BgencollisionId[typesize] = -1;
+        Bgenmass[typesize]  = -20;
+        Bgenpt[typesize]    = -20;
+        BgencollisionId[typesize] = -20;
         Bgeneta[typesize] = -20;
         Bgenphi[typesize] = -20;
         Bgeny[typesize] = -1;
-        int mGenIdxTk1=-1;
-        int mGenIdxTk2=-1;
-        int bGenIdxTk1=-1;
-        int bGenIdxTk2=-1;
-        int bGenIdxMu1=-1;
-        int bGenIdxMu2=-1;
+        int mGenIdxTk1 = -1;
+        int mGenIdxTk2 = -1;
+        int bGenIdxTk1 = -1;
+        int bGenIdxTk2 = -1;
+        int bGenIdxMu1 = -1;
+        int bGenIdxMu2 = -1;
         // int ujGenIdxMu1=-1;
         // int ujGenIdxMu2=-1;
-        
-        // float BId,MId,tk1Id,tk2Id;
+
         std::vector<float> BId;
         float MId,tk1Id,tk2Id;
         //tk1:positive, tk2:negtive
         if(BInfo->type[j]==1)
           {
             BId.push_back(521);//B+-
-            MId = -1;
+            MId = -20;
             tk1Id = 321;//K+-
-            tk2Id = -1;
+            tk2Id = -20;
           }
         if(BInfo->type[j]==2)
           {
             BId.push_back(521);//B+-
-            MId = -1;
+            MId = -20;
             tk1Id = 211;//pi+-
-            tk2Id = -1;
+            tk2Id = -20;
           }
         if(BInfo->type[j]==3)
           {
@@ -1392,84 +1278,80 @@ public:
             tk1Id = 211;//pi+
             tk2Id = 211;//pi-
           }
-        if(BInfo->type[j]==4)
+        if(BInfo->type[j]==4 || BInfo->type[j]==5)
           {
             BId.push_back(511);//B0
             MId = 313;//K*0
-            tk1Id = 321;//K+
-            tk2Id = 211;//pi-
-          }
-        if(BInfo->type[j]==5)
-          {
-            BId.push_back(511);//B0
-            MId = 313;//K*0
-            tk1Id = 211;//pi+
-            tk2Id = 321;//K-
+            if ( float(BInfo->rftk2_mass[j]) == float(PION_MASS)) {
+              tk1Id = KAON_PDGID; 
+              tk2Id = PION_PDGID; 
+            } 
+            else if ( float(BInfo->rftk2_mass[j]) == float(KAON_MASS)) {
+              tk1Id = PION_PDGID; 
+              tk2Id = KAON_PDGID; 
+            }
           }
         if(BInfo->type[j]==6)
           {
             BId.push_back(531);//Bs
-            MId = 333;//phi
+            MId = 333;  //phi
             tk1Id = 321;//K+
             tk2Id = 321;//K-
           }
         if(BInfo->type[j]==7)
           {
-            BId.push_back(20443);//chic1
-            BId.push_back(100443);//psi'
-            BId.push_back(9920443);//np X3872
-            MId = 113;//rho
-            tk1Id = 211;//pi+
-            tk2Id = 211;//pi-
+            BId.push_back(20443);   //chic1
+            BId.push_back(100443);  //psi'
+            BId.push_back(9920443); //np X3872
+            MId = 113;   //rho
+            tk1Id = 211; //pi+
+            tk2Id = 211; //pi-
           }
 
-        int twoTks,kStar,flagkstar=0;
+        int twoTks;
         if(BInfo->type[j]==1 || BInfo->type[j]==2) twoTks=0;
         else twoTks=1;
-        if(BInfo->type[j]==4 || BInfo->type[j]==5) kStar=1;
-        else kStar=0;
-        //int nonprompt=0,prompt=0;
         
         // tk1
-        if(TrackInfo->geninfo_index[BInfo->rftk1_index[j]]>-1)
+        if(TrackInfo->geninfo_index[Btrk1Idx]>-1)
           {
             int level =0;
-            if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]])==tk1Id)
+            if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk1Idx]])==tk1Id)
               {
                 level = 1;
-                if(GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]>-1)
+                if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]>-1)
                   {
                     if(!twoTks)//one trk channel
                       {
                         mGenIdxTk1=0;
-                        if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]]), BId))
+                        if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]), BId))
                           {
                             level = 3;
-                            bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]];
+                            bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
                           }		  
                       }
                     else//two trk channel
                       {
-                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]])==MId) // w/ resonance
+                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]])==MId) // w/ resonance
                           {
                             level = 2;
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]]>-1)
+                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]>-1)
                               {
-                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]]]), BId))
+                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]]), BId))
                                   {
                                     level = 3;
-                                    bGenIdxTk1=GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]];
+                                    bGenIdxTk1=GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]];
                                   }
                               }
-                            mGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]];
+                            mGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
                           }
                         else if(BInfo->type[j]==7) // w/o resonance
                           {
                             mGenIdxTk1=0;
-                            if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]]), BId))
+                            if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]), BId))
                               {
                                 level = 3;
-                                bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]];
+                                bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
                               }
                           }
                       }
@@ -1487,34 +1369,34 @@ public:
           }
         else//two trk channel
           {
-            if(TrackInfo->geninfo_index[BInfo->rftk2_index[j]]>-1)
+            if(TrackInfo->geninfo_index[Btrk2Idx]>-1)
               {
                 int level =0;
-                if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]])==tk2Id)
+                if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk2Idx]])==tk2Id)
                   {
                     level = 1;
-                    if(GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]>-1)
+                    if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]>-1)
                       {
-                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]])==MId) // w/ resonance
+                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]])==MId) // w/ resonance
                           {
                             level = 2;
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]]>-1)
+                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]>-1)
                               {
-                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]]]), BId))
+                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]]), BId))
                                   {
                                     level = 3;
-                                    bGenIdxTk2 = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]];
+                                    bGenIdxTk2 = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]];
                                   }
                               }
-                            mGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]];
+                            mGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]];
                           }
                         else if(BInfo->type[j]==7) // w/o resonance
                           {
                             mGenIdxTk2 = 0;
-                            if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]]), BId))
+                            if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]), BId))
                               {
                                 level = 3;
-                                bGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]];
+                                bGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]];
                               }
                           }
                       }
@@ -1550,7 +1432,6 @@ public:
                               {
                                 level = 3;
                                 bGenIdxMu1=GenInfo->mo1[GenInfo->mo1[muidx]];
-                                flagkstar++;//=1
                                 if(murad) { level = 4; }
                               }
                           }
@@ -1587,7 +1468,6 @@ public:
                               {
                                 level = 3;
                                 bGenIdxMu2=GenInfo->mo1[GenInfo->mo1[muidx]];
-                                flagkstar++;//=2
                                 if(murad) { level = 4; }
                               }
                           }
@@ -1621,76 +1501,15 @@ public:
           }
         Bgen[typesize]+=(level*10000);
 
-        //kstar#############################################################################
-        if(kStar)
-          {
-            //tk1
-            if(TrackInfo->geninfo_index[BInfo->rftk1_index[j]]>-1)
-              {
-                if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]])==tk2Id)
-                  {
-                    if(GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]>-1)
-                      {
-                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]])==MId)
-                          {
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]]>-1)
-                              {
-                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]]]), BId))
-                                  {
-                                    flagkstar++;//=3
-                                    bGenIdxTk1=GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]]];
-                                  }
-                              }
-                            mGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk1_index[j]]];
-                          }
-                      }
-                  }
-              }
-            
-            //tk2
-            if(TrackInfo->geninfo_index[BInfo->rftk2_index[j]]>-1)
-              {
-                if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]])==tk1Id)
-                  {
-                    if(GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]>-1)
-                      {
-                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]])==MId)
-                          {
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]]>-1)
-                              {
-                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]]]), BId))
-                                  {
-                                    flagkstar++;//=4
-                                    bGenIdxTk2 = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]]];
-                                  }
-                              }
-                            mGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[BInfo->rftk2_index[j]]];
-                          }
-                      }
-                  }
-              }
-            if(flagkstar==4)
-              {
-                if((bGenIdxMu1!=-1) 
-                   && (bGenIdxMu1==bGenIdxMu2)
-                   && (bGenIdxMu1==bGenIdxTk1)
-                   && (bGenIdxMu1==bGenIdxTk2)
-                   )
-                  {
-                    Bgen[typesize]=41000;
-                  }
-              }
-          }//kstar End#############################################################################
-        
         int tgenIndex=BgenIndex[typesize];
-        if(Bgen[typesize]==23333 || Bgen[typesize]==41000 || Bgen[typesize]==24433 || Bgen[typesize]==24333 || Bgen[typesize]==23433)
+        
+        if(Bgen[typesize]==23333 || Bgen[typesize]==24433 || Bgen[typesize]==24333 || Bgen[typesize]==23433)
           {
             std::cout << "Signal found ("<< GenInfo->pdgId[tgenIndex] <<") with Bgenmass= " << GenInfo->mass[tgenIndex] << std::endl;
 
-
             Bgenpt[typesize] = GenInfo->pt[tgenIndex];
             BgenpdgId[typesize] = GenInfo->pdgId[tgenIndex];
-            Bgenmass[typesize] = GenInfo->mass[tgenIndex];
+            Bgenmass[typesize]  = GenInfo->mass[tgenIndex];
             BgencollisionId[typesize] = GenInfo->collisionId[tgenIndex];
             Bgeneta[typesize] = GenInfo->eta[tgenIndex];
             Bgenphi[typesize] = GenInfo->phi[tgenIndex];
@@ -1706,10 +1525,14 @@ public:
   void fillJpsiTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, bool REAL, EvtInfoBranches *EvtInfo, VtxInfoBranches *VtxInfo, MuonInfoBranches *MuonInfo, TrackInfoBranches *TrackInfo, BInfoBranches *BInfo, GenInfoBranches *GenInfo)
   {
     Jsize = typesize+1;
-    bP->SetPtEtaPhi(BInfo->uj_pt[j],BInfo->uj_eta[j]*0,BInfo->uj_phi[j]);
+
     bVtx->SetXYZ(BInfo->uj_vtxX[j]-EvtInfo->PVx,
                  BInfo->uj_vtxY[j]-EvtInfo->PVy,
                  BInfo->uj_vtxZ[j]*0-EvtInfo->PVz*0);
+
+    bP->SetPtEtaPhi(BInfo->uj_pt[j],BInfo->uj_eta[j]*0,BInfo->uj_phi[j]);
+    Jdtheta[typesize] = bP->Angle(*bVtx);
+
     b4P->SetPtEtaPhiM(BInfo->uj_pt[j],BInfo->uj_eta[j],BInfo->uj_phi[j],BInfo->uj_mass[j]);
     
     Jindex[typesize] = typesize;
@@ -1724,7 +1547,6 @@ public:
     Jdxyz[typesize] = TMath::Sqrt((BInfo->uj_vtxX[j]-EvtInfo->PVx)*(BInfo->uj_vtxX[j]-EvtInfo->PVx)+(BInfo->uj_vtxY[j]-EvtInfo->PVy)*(BInfo->uj_vtxY[j]-EvtInfo->PVy)+(BInfo->uj_vtxZ[j]-EvtInfo->PVz)*(BInfo->uj_vtxZ[j]-EvtInfo->PVz));
     Jchi2ndf[typesize] = BInfo->uj_vtxchi2[j]/BInfo->uj_vtxdof[j];
     Jchi2cl[typesize] = TMath::Prob(BInfo->uj_vtxchi2[j],BInfo->uj_vtxdof[j]);
-    Jdtheta[typesize] = bP->Angle(*bVtx);
     Jlxy[typesize] = ((BInfo->uj_vtxX[j]-EvtInfo->PVx)*b4P->Px() + (BInfo->uj_vtxY[j]-EvtInfo->PVy)*b4P->Py())/BInfo->uj_pt[j];
     float r2lxyBS = (BInfo->uj_vtxX[j]-EvtInfo->BSx+(BInfo->uj_vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz) * (BInfo->uj_vtxX[j]-EvtInfo->BSx+(BInfo->uj_vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz)
       + (BInfo->uj_vtxY[j]-EvtInfo->BSy+(BInfo->uj_vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz) * (BInfo->uj_vtxY[j]-EvtInfo->BSy+(BInfo->uj_vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz);
@@ -1914,9 +1736,8 @@ public:
       }//!REAL
 
   }
-
-  
-  bool signalGen(int Btype, int j, GenInfoBranches *GenInfo, int &subtype)
+ 
+  bool signalGen(int Btype, int j, GenInfoBranches *GenInfo)
   {//{{{
 
     if(Btype==8 || Btype==9)
@@ -1946,116 +1767,98 @@ public:
         return flag;
       }
     else
-      {
-        std::vector<float> BId;
-        float MId,tk1Id,tk2Id;
-        int twoTks;
-        //tk1:positive, tk2:negtive
-        if(Btype==1)
-          {
-            BId.push_back(521);//B+-
-            MId = -1;
-            tk1Id = 321;//K+-
-            tk2Id = -1;
-            twoTks = 0;
-          }
-        if(Btype==2)
-          {
-            BId.push_back(521);//B+-
-            MId = -1;
-            tk1Id = 211;//pi+-
-            tk2Id = -1;
-            twoTks = 0;
-          }
-        if(Btype==3)
-          {
-            BId.push_back(511);//B0
-            MId = 310;//Ks
-            tk1Id = 211;//pi+
-            tk2Id = -211;//pi-
-            twoTks = 1;
-          }
-        if(Btype==4)
-          {
-            BId.push_back(511);//B0
+    {
+      std::vector<float> BId;
+      float MId,tk1Id,tk2Id;
+      int twoTks;
+      //tk1:positive, tk2:negtive
+      if(Btype==1)
+        {
+          BId.push_back(521);//B+-
+          MId = -1;
+          tk1Id = 321;//K+-
+          tk2Id = -1;
+          twoTks = 0;
+        }
+      if(Btype==2)
+        {
+          BId.push_back(521);//B+-
+          MId = -1;
+          tk1Id = 211;//pi+-
+          tk2Id = -1;
+          twoTks = 0;
+        }
+      if(Btype==3)
+        {
+          BId.push_back(511);//B0
+          MId = 310;//Ks
+          tk1Id = 211;//pi+
+          tk2Id = -211;//pi-
+          twoTks = 1;
+        }
+      if(Btype==4)
+        {
+          BId.push_back(511);//B0
             MId = 313;//K*0
             tk1Id = 321;//K+
-            tk2Id = -211;//pi-
+            tk2Id = 211;//pi-
             twoTks = 1;
           }
-        if(Btype==5)
-          {
-            BId.push_back(511);//B0
-            MId = 313;//K*0
-            tk1Id = -321;//pi+
-            tk2Id = 211;//K-
-            twoTks = 1;
-          }
-        if(Btype==6)
-          {
-            BId.push_back(531);//Bs
-            MId = 333;//phi
+      if(Btype==6)
+        {
+          BId.push_back(531);//Bs
+          MId = 333;//phi
             tk1Id = 321;//K+
             tk2Id = -321;//K-
-            twoTks = 1;
-          }
-        if(Btype==7)
-          {            
-            BId.push_back(20443);   //chic1
-            BId.push_back(100443);  //psi'
-            BId.push_back(9920443); //X3872
-            MId = 113;    //rho
-            tk1Id = 211;  //pi+
-            tk2Id = -211; //pi-
-            twoTks = 1;
-          }
-        
-        int flag=0; subtype=0;
-        if(isBId(abs(GenInfo->pdgId[j]), BId))
-          {
-            if(GenInfo->nDa[j]>=2&&GenInfo->da1[j]!=-1&&GenInfo->da2[j]!=-1)
-              {
-                if(abs(GenInfo->pdgId[GenInfo->da1[j]])==443)//jpsi
-                  {
-                    if(GenInfo->da1[GenInfo->da1[j]]!=-1&&GenInfo->da2[GenInfo->da1[j]]!=-1)
-                      {
-                        if(abs(GenInfo->pdgId[GenInfo->da1[GenInfo->da1[j]]])==13&&abs(GenInfo->pdgId[GenInfo->da2[GenInfo->da1[j]]])==13)
-                          {
-                            if(!twoTks)
-                              {
-                                if(abs(GenInfo->pdgId[GenInfo->da2[j]])==tk1Id) flag++;
-                              }
-                            else
-                              {
-                                if(abs(GenInfo->pdgId[GenInfo->da2[j]])==MId) // w/ resonance
-                                  {
-                                    if(GenInfo->da1[GenInfo->da2[j]]!=-1 && GenInfo->da2[GenInfo->da2[j]]!=-1)
-                                      {
-                                        if(GenInfo->pdgId[GenInfo->da1[GenInfo->da2[j]]]==tk1Id && GenInfo->pdgId[GenInfo->da2[GenInfo->da2[j]]]==tk2Id) flag++;
-                                      }
-                                  }
-                                else if(GenInfo->da3[j]!=-1 && Btype==7) // w/o resonance
-                                  {
-                                    if(GenInfo->pdgId[GenInfo->da2[j]]==tk1Id && GenInfo->pdgId[GenInfo->da3[j]]==tk2Id)
-                                      { flag++; }
-                                  }
-                              }
-                            if(GenInfo->da1[GenInfo->da1[GenInfo->da1[j]]]!=-1)
-                              {
-                                if(abs(GenInfo->pdgId[GenInfo->da1[GenInfo->da1[GenInfo->da1[j]]]])==13) subtype++;
-                              }
-                            if(GenInfo->da1[GenInfo->da2[GenInfo->da1[j]]]!=-1)
-                              {
-                                if(abs(GenInfo->pdgId[GenInfo->da1[GenInfo->da2[GenInfo->da1[j]]]])==13) subtype++;
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-        return flag;
+          twoTks = 1;
+        }
+      if(Btype==7)
+      {            
+        BId.push_back(20443);   //chic1
+        BId.push_back(100443);  //psi'
+        BId.push_back(9920443); //X3872
+        MId = 113;   //rho
+        tk1Id = 211; //pi+-
+        tk2Id = 211; //pi+-
+        twoTks = 1;
       }
-    
+      
+      int flag=0; 
+      if(isBId(abs(GenInfo->pdgId[j]), BId))
+      {
+        if(GenInfo->nDa[j]>=2&&GenInfo->da1[j]!=-1&&GenInfo->da2[j]!=-1)
+        {
+          if(abs(GenInfo->pdgId[GenInfo->da1[j]])==443)//jpsi
+          {
+            if(GenInfo->da1[GenInfo->da1[j]]!=-1&&GenInfo->da2[GenInfo->da1[j]]!=-1)
+            {
+              if(abs(GenInfo->pdgId[GenInfo->da1[GenInfo->da1[j]]])==13&&abs(GenInfo->pdgId[GenInfo->da2[GenInfo->da1[j]]])==13)
+              {
+                if(!twoTks){ 
+                  if(abs(GenInfo->pdgId[GenInfo->da2[j]])==abs(tk1Id)) flag++;
+                }
+                else
+                {
+                  if(abs(GenInfo->pdgId[GenInfo->da2[j]])==MId) // w/ resonance
+                  {
+                    if(GenInfo->da1[GenInfo->da2[j]]!=-1 && GenInfo->da2[GenInfo->da2[j]]!=-1)
+                    {
+                      if( ( (abs(GenInfo->pdgId[GenInfo->da1[GenInfo->da2[j]]])==abs(tk1Id)) && (abs(GenInfo->pdgId[GenInfo->da2[GenInfo->da2[j]]])==abs(tk2Id)) ) ||
+                          ( (abs(GenInfo->pdgId[GenInfo->da1[GenInfo->da2[j]]])==abs(tk2Id)) && (abs(GenInfo->pdgId[GenInfo->da2[GenInfo->da2[j]]])==abs(tk1Id)) ) )flag++;
+                    }
+                  }
+                  else if(GenInfo->da3[j]!=-1 && Btype==7) // w/o resonance
+                  {
+                    if(abs(GenInfo->pdgId[GenInfo->da2[j]])==abs(tk1Id) && abs(GenInfo->pdgId[GenInfo->da3[j]])==abs(tk2Id)) flag++; 
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return flag;
+    }
   }//}}}
 
   template<typename T>

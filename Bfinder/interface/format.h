@@ -92,17 +92,17 @@
 
 class EvtInfoBranches{ //{{{
 public:
-  int	    RunNo;
-  int	    EvtNo;
-  int	    BxNo;
-  int	    LumiNo;
-  int CentBin;  // <- Add this
-  int	    Orbit;
-  bool	McFlag;
-  int     nBX;
-  int     BXPU[MAX_BX];
-  int     nPU[MAX_BX];
-  float   trueIT[MAX_BX];
+  int	RunNo;
+  int EvtNo;
+  int	BxNo;
+  int	LumiNo;
+  int CentBin;
+  int	Orbit;
+  int nBX;
+  bool McFlag;
+  int BXPU[MAX_BX];
+  int nPU[MAX_BX];
+  float trueIT[MAX_BX];
   //int     trgCount;                   //number of successfully triggered HLT path in the booking.
   //int     nTrgBook;                   //N_TRIGGER_BOOKING
   //char    trgBook[N_TRIGGER_BOOKINGS];//status of booked triggers
@@ -213,8 +213,8 @@ public:
     //root->SetBranchAddress("EvtInfo.BSWidthY"       ,&BSWidthY  );
     //root->SetBranchAddress("EvtInfo.BSWidthYErr"    ,&BSWidthYErr  );
     //root->SetBranchAddress("EvtInfo.PVc2p"    ,&PVc2p	);
-    root->Branch("EvtInfo.nChargedTracks"           , &nChargedTracks 	);
-    root->Branch("EvtInfo.nSelectedChargedTracks"   , &nSelectedChargedTracks);
+    root->SetBranchAddress("EvtInfo.nChargedTracks"           , &nChargedTracks 	);
+    root->SetBranchAddress("EvtInfo.nSelectedChargedTracks"   , &nSelectedChargedTracks);
   } //}}}
 }; //}}}
 
@@ -533,38 +533,38 @@ public:
   float   dedx         [ MAX_TRACK];
 
   void regTree(TTree *root, bool detailMode = false){//{{{
-    root->Branch("TrackInfo.size"           ,&size		    ,"TrackInfo.size/I"			);
-    root->Branch("TrackInfo.index"          ,index          ,"TrackInfo.index[TrackInfo.size]/I"	);
-    root->Branch("TrackInfo.handle_index"   ,handle_index   ,"TrackInfo.handle_index[TrackInfo.size]/I"	);
-    root->Branch("TrackInfo.charge"  	    ,charge         ,"TrackInfo.charge[TrackInfo.size]/I"	);
-    root->Branch("TrackInfo.pt"             ,pt             ,"TrackInfo.pt[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.eta"            ,eta            ,"TrackInfo.eta[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.phi"            ,phi            ,"TrackInfo.phi[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.ptErr"          ,ptErr          ,"TrackInfo.ptErr[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.etaErr"         ,etaErr         ,"TrackInfo.etaErr[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.phiErr"         ,phiErr         ,"TrackInfo.phiErr[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.striphit"	    ,striphit	    ,"TrackInfo.striphit[TrackInfo.size]/I"	);
-    root->Branch("TrackInfo.pixelhit"	    ,pixelhit	    ,"TrackInfo.pixelhit[TrackInfo.size]/I"	);
-    root->Branch("TrackInfo.nStripLayer"	,nStripLayer	,"TrackInfo.nStripLayer[TrackInfo.size]/I"	);
-    root->Branch("TrackInfo.nPixelLayer"	,nPixelLayer	,"TrackInfo.nPixelLayer[TrackInfo.size]/I"	);
-    root->Branch("TrackInfo.fpbarrelhit"	,fpbarrelhit	,"TrackInfo.fpbarrelhit[TrackInfo.size]/I");
-    root->Branch("TrackInfo.fpendcaphit"	,fpendcaphit	,"TrackInfo.fpendcaphit[TrackInfo.size]/I");
-    root->Branch("TrackInfo.chi2"		    ,chi2		    ,"TrackInfo.chi2[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.ndf"		    ,ndf		    ,"TrackInfo.ndf[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.d0"		        ,d0		        ,"TrackInfo.d0[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.d0error"	    ,d0error	    ,"TrackInfo.d0error[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dz"		        ,dz		        ,"TrackInfo.dz[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dzerror"	    ,dzerror	    ,"TrackInfo.dzerror[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dxy"		,dxy		        ,"TrackInfo.dxy[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dxyerror"	    ,dxyerror	    ,"TrackInfo.dxyerror[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dz1"                ,dz1                    ,"TrackInfo.dz1[TrackInfo.size]/F"		);
-    root->Branch("TrackInfo.dzerror1"       ,dzerror1       ,"TrackInfo.dzerror1[TrackInfo.size]/F"		);
-    root->Branch("TrackInfo.dxy1"               ,dxy1                   ,"TrackInfo.dxy1[TrackInfo.size]/F"		);
-    root->Branch("TrackInfo.dxyerror1"      ,dxyerror1      ,"TrackInfo.dxyerror1[TrackInfo.size]/F"		);
-    root->Branch("TrackInfo.geninfo_index"  ,geninfo_index  ,"TrackInfo.geninfo_index[TrackInfo.size]/I");
-    root->Branch("TrackInfo.geninfo_pdgId"  ,geninfo_pdgId  ,"TrackInfo.geninfo_pdgId[TrackInfo.size]/I");
-    root->Branch("TrackInfo.trackQuality"   ,trackQuality   ,"TrackInfo.trackQuality[TrackInfo.size]/I");
-    root->Branch("TrackInfo.highPurity"     ,highPurity     ,"TrackInfo.highPurity[TrackInfo.size]/O");
+    root->Branch("TrackInfo.size"         ,&size		   ,"TrackInfo.size/I"			);
+    root->Branch("TrackInfo.index"        ,index       ,"TrackInfo.index[TrackInfo.size]/I"	);
+    root->Branch("TrackInfo.handle_index" ,handle_index,"TrackInfo.handle_index[TrackInfo.size]/I"	);
+    root->Branch("TrackInfo.charge"  	    ,charge      ,"TrackInfo.charge[TrackInfo.size]/I"	);
+    root->Branch("TrackInfo.pt"           ,pt          ,"TrackInfo.pt[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.eta"          ,eta         ,"TrackInfo.eta[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.phi"          ,phi         ,"TrackInfo.phi[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.ptErr"        ,ptErr       ,"TrackInfo.ptErr[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.etaErr"       ,etaErr      ,"TrackInfo.etaErr[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.phiErr"       ,phiErr      ,"TrackInfo.phiErr[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.striphit"	    ,striphit	   ,"TrackInfo.striphit[TrackInfo.size]/I"	);
+    root->Branch("TrackInfo.pixelhit"	    ,pixelhit	   ,"TrackInfo.pixelhit[TrackInfo.size]/I"	);
+    root->Branch("TrackInfo.nStripLayer"	,nStripLayer ,"TrackInfo.nStripLayer[TrackInfo.size]/I"	);
+    root->Branch("TrackInfo.nPixelLayer"	,nPixelLayer ,"TrackInfo.nPixelLayer[TrackInfo.size]/I"	);
+    root->Branch("TrackInfo.fpbarrelhit"	,fpbarrelhit ,"TrackInfo.fpbarrelhit[TrackInfo.size]/I");
+    root->Branch("TrackInfo.fpendcaphit"	,fpendcaphit ,"TrackInfo.fpendcaphit[TrackInfo.size]/I");
+    root->Branch("TrackInfo.chi2"		      ,chi2		     ,"TrackInfo.chi2[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.ndf"		      ,ndf		     ,"TrackInfo.ndf[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.d0"		        ,d0		       ,"TrackInfo.d0[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.d0error"	    ,d0error	   ,"TrackInfo.d0error[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.dz"		        ,dz		       ,"TrackInfo.dz[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.dzerror"	    ,dzerror	   ,"TrackInfo.dzerror[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.dxy"		      ,dxy		     ,"TrackInfo.dxy[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.dxyerror"	    ,dxyerror	   ,"TrackInfo.dxyerror[TrackInfo.size]/F"	);
+    root->Branch("TrackInfo.dz1"          ,dz1         ,"TrackInfo.dz1[TrackInfo.size]/F"		);
+    root->Branch("TrackInfo.dzerror1"     ,dzerror1    ,"TrackInfo.dzerror1[TrackInfo.size]/F"		);
+    root->Branch("TrackInfo.dxy1"         ,dxy1        ,"TrackInfo.dxy1[TrackInfo.size]/F"		);
+    root->Branch("TrackInfo.dxyerror1"    ,dxyerror1      ,"TrackInfo.dxyerror1[TrackInfo.size]/F"		);
+    root->Branch("TrackInfo.geninfo_index",geninfo_index  ,"TrackInfo.geninfo_index[TrackInfo.size]/I");
+    root->Branch("TrackInfo.geninfo_pdgId",geninfo_pdgId  ,"TrackInfo.geninfo_pdgId[TrackInfo.size]/I");
+    root->Branch("TrackInfo.trackQuality" ,trackQuality   ,"TrackInfo.trackQuality[TrackInfo.size]/I");
+    root->Branch("TrackInfo.highPurity"   ,highPurity     ,"TrackInfo.highPurity[TrackInfo.size]/O");
     //root->Branch("TrackInfo.trkMVAVal"      ,trkMVAVal      ,"TrackInfo.trkMVAVal[TrackInfo.size]/F");
     //root->Branch("TrackInfo.trkAlgo"        ,trkAlgo        ,"TrackInfo.trkAlgo[TrackInfo.size]/I");
     //root->Branch("TrackInfo.originalTrkAlgo",originalTrkAlgo,"TrackInfo.originalTrkAlgo[TrackInfo.size]/I");
@@ -724,6 +724,8 @@ public:
   float  tktk_rftk2_pt[MAX_XB];
   float  tktk_rftk2_eta[MAX_XB];
   float  tktk_rftk2_phi[MAX_XB];
+  float rftk1_mass[MAX_XB];           //<------------------ save (the attributed) mass of tracks 
+  float rftk2_mass[MAX_XB];
     
   void regTree(TTree *root, bool detailMode = false){//{{{
     root->Branch("BInfo.uj_size"          , &uj_size       , "BInfo.uj_size/I"			);
@@ -789,6 +791,10 @@ public:
     root->Branch("BInfo.tktk_py"            , tktk_py            , "BInfo.tktk_py[BInfo.size]/F"	);
     root->Branch("BInfo.tktk_pz"            , tktk_pz            , "BInfo.tktk_pz[BInfo.size]/F"	);
 
+
+    root->Branch("BInfo.rftk1_mass"        ,rftk1_mass    , "BInfo.rftk1_mass[BInfo.size]/F"     );
+    root->Branch("BInfo.rftk2_mass"        ,rftk2_mass    , "BInfo.rftk2_mass[BInfo.size]/F"     );
+
     if(detailMode){
       root->Branch("BInfo.uj_rfmu1_pt"      , uj_rfmu1_pt    , "BInfo.uj_rfmu1_pt[BInfo.uj_size]/F");
       root->Branch("BInfo.uj_rfmu1_eta"     , uj_rfmu1_eta   , "BInfo.uj_rfmu1_eta[BInfo.uj_size]/F");
@@ -841,7 +847,6 @@ public:
     
   void setbranchadd(TTree *root, bool detailMode = false){//{{{
     root->SetBranchAddress("BInfo.uj_size"		   ,&uj_size	);
-    root->SetBranchAddress("BInfo.uj_size"		   ,&uj_size	    );
     root->SetBranchAddress("BInfo.uj_index"        ,uj_index   );
     root->SetBranchAddress("BInfo.uj_mass"         ,uj_mass   	);
     root->SetBranchAddress("BInfo.uj_pt"           ,uj_pt       );
@@ -903,6 +908,9 @@ public:
     root->SetBranchAddress("BInfo.tktk_px"           ,tktk_px     	);
     root->SetBranchAddress("BInfo.tktk_py"           ,tktk_py    	);
     root->SetBranchAddress("BInfo.tktk_pz"           ,tktk_pz   	);
+
+    root->SetBranchAddress("BInfo.rftk1_mass"        ,rftk1_mass    );
+    root->SetBranchAddress("BInfo.rftk2_mass"        ,rftk2_mass    );
 
     if(detailMode){
       root->SetBranchAddress("BInfo.uj_rfmu1_pt"     ,uj_rfmu1_pt     );
