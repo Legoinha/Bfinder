@@ -71,8 +71,6 @@ public:
   float     Bnorm_svpvDistance[MAX_XB];
   float     Bnorm_svpvDistance_2D[MAX_XB];
 
-  bool      BKstarTG[MAX_XB];
-
   int       Bisbestchi2[MAX_XB];
   float     BQvalue[MAX_XB];
   float     BQvalueuj[MAX_XB];
@@ -508,7 +506,6 @@ public:
        
 
         //BInfo.trkInfo
-        nt->Branch("BKstarTG",BKstarTG,"BKstarTG[Bsize]/O");
         nt->Branch("Btrk1Pt",Btrk1Pt,"Btrk1Pt[Bsize]/F");
         nt->Branch("Btrk2Pt",Btrk2Pt,"Btrk2Pt[Bsize]/F");
         nt->Branch("BtrkPtimb",BtrkPtimb,"BtrkPtimb[Bsize]/F");
@@ -773,7 +770,7 @@ public:
             else if(t==1) nt1->Fill(); // Jpsi pi
             else if(t==2) nt2->Fill(); // Jpsi Kshort
             else if(t==3) nt3->Fill(); // Jpsi Kstar 
-            else if(t==4) nt3->Fill(); // Jpsi Kstar WT (MC only!!)
+            else if(t==4) continue;     // NOT BEING USED now
             else if(t==5) nt5->Fill(); // Jpsi phi
             else if(t==6) nt6->Fill(); // Jpsi pi pi
           }
@@ -1075,7 +1072,6 @@ public:
     Btrk2Idx = int(BInfo->rftk2_index[j]);
 
     //Track 1 
-    BKstarTG[typesize]         = false;
     Btrk1Pt[typesize]          = TrackInfo->pt[Btrk1Idx];
     Btrk1Eta[typesize]         = TrackInfo->eta[Btrk1Idx];
     Btrk1Phi[typesize]         = TrackInfo->phi[Btrk1Idx];
@@ -1171,11 +1167,7 @@ public:
       Bnorm_trk2Dxy[typesize] = (Btrk2Dxy[typesize]) / (Btrk2DxyError[typesize]) ;
       Bnorm_trk2Dz[typesize]  = (Btrk2Dz[typesize])  / (Btrk2DzError[typesize])  ;
       Btrk2dR[typesize] = TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi[typesize]-Btrk2Phi[typesize])),2) + pow(Bujeta[typesize]-Btrk2Eta[typesize],2));
-
-      if(BInfo->type[j] == 4) { 
-        BKstarTG[typesize] = true; }  //B0 to Jpsi K*, w/ di-track system mass closer to K* mass
-      }
-
+    }
     float tk1px,tk1py,tk1pz,tk1E;
     float tk2px,tk2py,tk2pz,tk2E;
   
@@ -1251,6 +1243,7 @@ public:
         int bGenIdxTk2 = -1;
         int bGenIdxMu1 = -1;
         int bGenIdxMu2 = -1;
+        int flagB0WT = 0;
         // int ujGenIdxMu1=-1;
         // int ujGenIdxMu2=-1;
 
@@ -1278,7 +1271,7 @@ public:
             tk1Id = 211;//pi+
             tk2Id = 211;//pi-
           }
-        if(BInfo->type[j]==4 || BInfo->type[j]==5)
+        if(BInfo->type[j]==4)
           {
             BId.push_back(511);//B0
             MId = 313;//K*0
@@ -1312,53 +1305,53 @@ public:
         if(BInfo->type[j]==1 || BInfo->type[j]==2) twoTks=0;
         else twoTks=1;
         
-        // tk1
+        //tk1
         if(TrackInfo->geninfo_index[Btrk1Idx]>-1)
+        {
+          int level =0;
+          if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk1Idx]])==tk1Id)
           {
-            int level =0;
-            if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk1Idx]])==tk1Id)
+            level = 1;
+            if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]>-1)
+            {
+              if(!twoTks)//one trk channel
               {
-                level = 1;
-                if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]>-1)
-                  {
-                    if(!twoTks)//one trk channel
-                      {
-                        mGenIdxTk1=0;
-                        if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]), BId))
-                          {
-                            level = 3;
-                            bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
-                          }		  
-                      }
-                    else//two trk channel
-                      {
-                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]])==MId) // w/ resonance
-                          {
-                            level = 2;
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]>-1)
-                              {
-                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]]), BId))
-                                  {
-                                    level = 3;
-                                    bGenIdxTk1=GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]];
-                                  }
-                              }
-                            mGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
-                          }
-                        else if(BInfo->type[j]==7) // w/o resonance
-                          {
-                            mGenIdxTk1=0;
-                            if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]), BId))
-                              {
-                                level = 3;
-                                bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
-                              }
-                          }
-                      }
-                  }
+                mGenIdxTk1=0;
+                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]), BId))
+                {
+                  level = 3;
+                  bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
+                }		  
               }
-            Bgen[typesize]=level;
+              else//two trk channel
+              {
+                if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]])==MId) // w/ resonance
+                {
+                  level = 2;
+                  if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]>-1)
+                  {
+                    if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]]), BId))
+                    {
+                      level = 3;
+                      bGenIdxTk1=GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]];
+                    }
+                  }
+                  mGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
+                }
+                else if(BInfo->type[j]==7) // w/o resonance
+                {
+                  mGenIdxTk1=0;
+                  if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]), BId))
+                  {
+                    level = 3;
+                    bGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
+                  }
+                }
+              }
+            }
           }
+          Bgen[typesize]=level;
+        }
               
         //tk2
         if(!twoTks)//one trk channel
@@ -1368,43 +1361,43 @@ public:
             bGenIdxTk2=0;
           }
         else//two trk channel
+        {
+          if(TrackInfo->geninfo_index[Btrk2Idx]>-1)
           {
-            if(TrackInfo->geninfo_index[Btrk2Idx]>-1)
+            int level =0;
+            if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk2Idx]])==tk2Id)
+            {
+              level = 1;
+              if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]>-1)
               {
-                int level =0;
-                if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk2Idx]])==tk2Id)
+                if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]])==MId) // w/ resonance
+                {
+                  level = 2;
+                  if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]>-1)
                   {
-                    level = 1;
-                    if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]>-1)
-                      {
-                        if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]])==MId) // w/ resonance
-                          {
-                            level = 2;
-                            if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]>-1)
-                              {
-                                if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]]), BId))
-                                  {
-                                    level = 3;
-                                    bGenIdxTk2 = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]];
-                                  }
-                              }
-                            mGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]];
-                          }
-                        else if(BInfo->type[j]==7) // w/o resonance
-                          {
-                            mGenIdxTk2 = 0;
-                            if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]), BId))
-                              {
-                                level = 3;
-                                bGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]];
-                              }
-                          }
-                      }
+                    if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]]), BId))
+                    {
+                      level = 3;
+                      bGenIdxTk2 = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]];
+                    }
                   }
-                Bgen[typesize]+=(level*10);
+                  mGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]];
+                }
+                else if(BInfo->type[j]==7) // w/o resonance
+                {
+                  mGenIdxTk2 = 0;
+                  if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]), BId))
+                  {
+                    level = 3;
+                    bGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]];
+                  }
+                }
               }
+            }
+            Bgen[typesize]+=(level*10);
           }
-        
+        }
+
         //mu1
         if(MuonInfo->geninfo_index[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]]>-1)
           {
@@ -1432,6 +1425,7 @@ public:
                               {
                                 level = 3;
                                 bGenIdxMu1=GenInfo->mo1[GenInfo->mo1[muidx]];
+                                flagB0WT ++; // =1
                                 if(murad) { level = 4; }
                               }
                           }
@@ -1443,39 +1437,40 @@ public:
         
         //mu2
         if(MuonInfo->geninfo_index[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]]>-1)
-          {
-            int level = 0;
-            if(abs(GenInfo->pdgId[MuonInfo->geninfo_index[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]]])==13)
-              {
-                level=1;
-                int murad = 0;
-                int muidx = MuonInfo->geninfo_index[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]];
-                while(GenInfo->mo1[muidx]>-1)
-                  {
-                    if(abs(GenInfo->pdgId[GenInfo->mo1[muidx]])!=13) break;
-                    muidx = GenInfo->mo1[muidx];
-                    murad++;
-                  }
-                if(GenInfo->mo1[muidx]>-1)
-                  {
-                    if(GenInfo->pdgId[GenInfo->mo1[muidx]]==443)
-                      {
-                        // ujGenIdxMu2 = GenInfo->mo1[muidx];
-                        level=2;
-                        if(GenInfo->mo1[GenInfo->mo1[muidx]]>-1)
-                          {
-                            if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[muidx]]]), BId))
-                              {
-                                level = 3;
-                                bGenIdxMu2=GenInfo->mo1[GenInfo->mo1[muidx]];
-                                if(murad) { level = 4; }
-                              }
-                          }
-                      } 
-                  }
-              }
-            Bgen[typesize]+=(level*1000);
-          }
+        {
+          int level = 0;
+          if(abs(GenInfo->pdgId[MuonInfo->geninfo_index[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]]])==13)
+            {
+              level=1;
+              int murad = 0;
+              int muidx = MuonInfo->geninfo_index[BInfo->uj_rfmu2_index[BInfo->rfuj_index[j]]];
+              while(GenInfo->mo1[muidx]>-1)
+                {
+                  if(abs(GenInfo->pdgId[GenInfo->mo1[muidx]])!=13) break;
+                  muidx = GenInfo->mo1[muidx];
+                  murad++;
+                }
+              if(GenInfo->mo1[muidx]>-1)
+                {
+                  if(GenInfo->pdgId[GenInfo->mo1[muidx]]==443)
+                    {
+                      // ujGenIdxMu2 = GenInfo->mo1[muidx];
+                      level=2;
+                      if(GenInfo->mo1[GenInfo->mo1[muidx]]>-1)
+                        {
+                          if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[muidx]]]), BId))
+                            {
+                              level = 3;
+                              bGenIdxMu2=GenInfo->mo1[GenInfo->mo1[muidx]];
+                              flagB0WT ++; // =2
+                              if(murad) { level = 4; }
+                            }
+                        }
+                    } 
+                }
+            }
+          Bgen[typesize]+=(level*1000);
+        }
 
         int level=0;
         if(mGenIdxTk1!=-1 && mGenIdxTk2!=-1)
@@ -1499,13 +1494,72 @@ public:
                 BgenIndex[typesize] = bGenIdxMu1;
               }
           }
+        
         Bgen[typesize]+=(level*10000);
 
-        int tgenIndex=BgenIndex[typesize];
-        
-        if(Bgen[typesize]==23333 || Bgen[typesize]==24433 || Bgen[typesize]==24333 || Bgen[typesize]==23433)
+        // WT WT WT WT Kstart #############################################################################
+        if(BInfo->type[j]==4)
+        {
+          //tk1
+          if(TrackInfo->geninfo_index[Btrk1Idx]>-1)
           {
-            std::cout << "Signal found ("<< GenInfo->pdgId[tgenIndex] <<") with Bgenmass= " << GenInfo->mass[tgenIndex] << std::endl;
+            if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk1Idx]])==tk2Id)
+            {
+              if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]>-1)
+              {
+                if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]) == MId)
+                {
+                  if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]>-1)
+                  {
+                    if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]]]), BId))
+                    {
+                      flagB0WT ++;//=2
+                      bGenIdxTk1=GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]]];
+                    }
+                  }
+                  mGenIdxTk1=GenInfo->mo1[TrackInfo->geninfo_index[Btrk1Idx]];
+                }
+              }
+            }
+          }
+          //tk2
+          if(TrackInfo->geninfo_index[Btrk2Idx]>-1)
+          {
+            if(abs(GenInfo->pdgId[TrackInfo->geninfo_index[Btrk2Idx]])==tk1Id)
+            {
+              if(GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]>-1)
+              {
+                if(abs(GenInfo->pdgId[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]])==MId)
+                {
+                  if(GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]>-1)
+                  {
+                    if(isBId(abs(GenInfo->pdgId[GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]]]), BId))
+                    {
+                      flagB0WT ++;//=3
+                      bGenIdxTk2 = GenInfo->mo1[GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]]];
+                    }
+                  }
+                  mGenIdxTk2 = GenInfo->mo1[TrackInfo->geninfo_index[Btrk2Idx]];
+                }
+              }
+            }
+          }
+          if(flagB0WT==4)
+          {
+            if((bGenIdxMu1!=-1) && (bGenIdxMu1==bGenIdxMu2) && (bGenIdxMu1==bGenIdxTk1) && (bGenIdxMu1==bGenIdxTk2))
+            {
+              Bgen[typesize]=41000;
+              BgenIndex[typesize] = bGenIdxMu1;
+            }
+          }
+        }
+        //kstar End############################################################################
+
+        int tgenIndex= BgenIndex[typesize];
+        
+        if(Bgen[typesize]==41000 || Bgen[typesize]==23333 || Bgen[typesize]==24433 || Bgen[typesize]==24333 || Bgen[typesize]==23433 )
+          {
+            std::cout << GenInfo->pdgId[tgenIndex] << " ==> Signal found ("<<  Bgen[typesize] <<") with Bgenmass= " << GenInfo->mass[tgenIndex] << std::endl;
 
             Bgenpt[typesize] = GenInfo->pt[tgenIndex];
             BgenpdgId[typesize] = GenInfo->pdgId[tgenIndex];
