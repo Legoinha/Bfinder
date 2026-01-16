@@ -3,8 +3,8 @@
 # Type: data
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_pp_on_PbPb_2024_cff import Run3_pp_on_PbPb_2024
-process = cms.Process('HiForest', Run3_pp_on_PbPb_2024)
+from Configuration.Eras.Era_Run3_pp_on_PbPb_2025_cff import Run3_pp_on_PbPb_2025
+process = cms.Process('HiForest', Run3_pp_on_PbPb_2025)
 
 #process.options = cms.untracked.PSet(
 #    #wantSummary = cms.untracked.bool(True),
@@ -17,7 +17,7 @@ process = cms.Process('HiForest', Run3_pp_on_PbPb_2024)
 
 # HiForest info
 process.load("HeavyIonsAnalysis.EventAnalysis.HiForestInfo_cfi")
-process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 141X, data")
+process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 151X, data")
 
 # import subprocess, os
 # version = subprocess.check_output(
@@ -32,13 +32,13 @@ process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 141X, data")
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-        'root://xrootd-cms.infn.it//store/hidata/HIRun2023A/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/375/790/00000/56ad580f-b228-4f3c-b8e3-17f9d95c7654.root'
+        'root://xrootd-cms.infn.it//store/hidata/HIRun2025A/HIPhysicsRawPrime21/MINIAOD/PromptReco-v1/000/399/572/00000/3ec8161c-59b5-4fa6-a095-769705c8a9f2.root'
     ), 
 )
 
 # number of events to process, set to -1 to process all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(-1)
     )
 
 ###############################################################################
@@ -52,7 +52,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '141X_dataRun3_Prompt_v3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '151X_dataRun3_Prompt_v1', '')
 process.HiForestInfo.GlobalTagLabel = process.GlobalTag.globaltag
 
 ###############################################################################
@@ -355,8 +355,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1
-ivars.outputFile='HiForestMINIAOD_PbPb2024.root'
-ivars.inputFiles='root://xrootd-cms.infn.it//store/hidata/HIRun2024A/HIPhysicsRawPrime3/MINIAOD/PromptReco-v1/000/387/879/00000/60bf4d21-c62f-47ca-b368-0fa9984e018b.root'
+ivars.outputFile='HiForestMINIAOD_PbPb2025.root'
+ivars.inputFiles='root://xrootd-cms.infn.it//store/hidata/HIRun2025A/HIPhysicsRawPrime21/MINIAOD/PromptReco-v1/000/399/572/00000/3ec8161c-59b5-4fa6-a095-769705c8a9f2.root'
 ivars.parseArguments() # get and parse the command line arguments
 
 import os
