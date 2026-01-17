@@ -1488,18 +1488,24 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
 
       if (tk_it2->charge()>0) continue;
 
-      TLorentzVector v4_tk1,v4_tk2, v4_tk1_m2, v4_tk2_m1;
+      TLorentzVector v4_tk1, v4_tk2, v4_tk1_m2, v4_tk2_m1;
       ParticleMass tk1_mass = Tk1_MASS;
       ParticleMass tk2_mass = Tk2_MASS;
       v4_tk1.SetPtEtaPhiM(tk_it1->pt(),tk_it1->eta(),tk_it1->phi(),tk1_mass);
       v4_tk2.SetPtEtaPhiM(tk_it2->pt(),tk_it2->eta(),tk_it2->phi(),tk2_mass);
       double mass_tktk_system = (v4_tk1 + v4_tk2).Mag();
 
-      if (channel_number == 4 ){                                        // B0 to J/Psi K* case has two mass hypothesis
-        v4_tk1_m2.SetPtEtaPhiM(tk_it1->pt(),tk_it1->eta(),tk_it1->phi(),tk2_mass);              // Select track mass to give better agreement with K* mass 
+      if (channel_number == 4 ){                
+        // veto phi(1020)
+        TLorentzVector v4_tk2_VETO_phi_1020, v4_tk1_VETO_phi_1020;
+        v4_tk1_VETO_phi_1020.SetPtEtaPhiM(tk_it1->pt(), tk_it1->eta(), tk_it1->phi(), KAON_MASS); 
+        v4_tk2_VETO_phi_1020.SetPtEtaPhiM(tk_it2->pt(), tk_it2->eta(), tk_it2->phi(), KAON_MASS);
+        if((v4_tk1_VETO_phi_1020 + v4_tk2_VETO_phi_1020).Mag() < PHI_MASS+0.015){ continue; }
+
+        // B0 to J/Psi K* case has two mass hypothesis; Select track mass to give better agreement with K* mass 
+        v4_tk1_m2.SetPtEtaPhiM(tk_it1->pt(),tk_it1->eta(),tk_it1->phi(),tk2_mass);  
         v4_tk2_m1.SetPtEtaPhiM(tk_it2->pt(),tk_it2->eta(),tk_it2->phi(),tk1_mass);
         double mass_tktk_system_2 = (v4_tk2_m1 + v4_tk1_m2).Mag();
-        
         if((channel_number == 4) && (abs(KSTAR_MASS-mass_tktk_system) > abs(KSTAR_MASS-mass_tktk_system_2)))
         { 
               v4_tk1 = v4_tk1_m2;
