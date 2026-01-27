@@ -8,7 +8,7 @@ from CRABClient.UserUtilities import config
 config = config()
 
 config.section_("General")
-config.General.workArea = 'crab_projects_X'
+config.General.workArea = 'crab_projects_X_ppRef'
 config.General.transferOutputs = True
 config.General.transferLogs = False
 
@@ -18,7 +18,7 @@ config.JobType.psetName = "Bfinder_ppRef24_DATA.py"
 config.JobType.maxMemoryMB = 2000         # request high memory machines.
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 2000 # max = 2750
+config.JobType.maxJobRuntimeMin = 120 # max = 2750
 config.JobType.pyCfgParams = ['noprint']
 config.JobType.outputFiles = ['HiForestMINIAOD_ppRefData.root'] 
 
@@ -34,7 +34,7 @@ config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/
 
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"
-config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
+#config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
 
 # Multi crab part
 

@@ -67,11 +67,11 @@ process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("HeavyIonRcd"),
         tag = cms.string("CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v140x01_offline_Nominal"),
         #connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-        connect = cms.string("sqlite_file:/afs/cern.ch/work/n/nsaha/public/for_GO/DBfiles_2024/CentralityTable_HFtowers200_DataPbPb2024_periHYDJETshape_run3v140x01_offline_Nominal.db"),
+        connect = cms.string('sqlite_file:CentralityTable_HFtowers200_DataPbPb2024_periHYDJETshape_run3v140x01_offline_Nominal.db'),
         label = cms.untracked.string("HFtowers")
         ),
     ])
-    
+
 ###############################################################################
 
 # root output
@@ -294,8 +294,8 @@ from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
 
-process.Bfinder.Bchannel         = cms.vint32(0, 0, 0, 0, 0, 0, 1)
-process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) # before fit
+process.Bfinder.Bchannel         = cms.vint32(1, 0, 0, 1, 0, 1, 1)
+process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
 process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)
 process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit

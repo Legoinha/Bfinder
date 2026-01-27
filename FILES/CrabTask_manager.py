@@ -10,6 +10,15 @@ GREEN = "\033[92m"
 GREY = "\033[90m"
 RESET = "\033[0m"
 
+def parse_jobs_count(s):
+    if s is None:
+        return 0
+    s = s.strip()
+    if '/' in s:
+        s = s.split('/')[0]
+    m = re.search(r'(\d+)', s)
+    return int(m.group(1)) if m else 0
+
 def manage_crab_tasks(keyword=None):
     # Define the CRAB projects directory and log file
     crab_jobs_dir = "crab_projects_X"
@@ -31,6 +40,12 @@ def manage_crab_tasks(keyword=None):
             print(f"[!] No CRAB jobs found in '{crab_jobs_dir}' matching '{keyword if keyword else 'ALL JOBS'}'.")
             return
 
+        totalJOBS = len(crab_jobs)
+        counter = 0
+        total_RUNNING_jobs = 0
+        total_FINISHED_jobs = 0
+        total_FAILED_jobs = 0
+
         for job_dir in crab_jobs:
             print(f"\n'crab status -d {job_dir}'")
             log_file.write(f"\nChecking status of {job_dir}...\n")
@@ -43,7 +58,9 @@ def manage_crab_tasks(keyword=None):
                 continue
 
             # If job is finished, skip resubmission
+            
             if "finished     		100.0%" in result.stdout:
+                counter +=1
                 if "done         		100.0%" or "publication has been disabled in the CRAB configuration file" in result.stdout:
                     print(f"[✓] TASK DONE!")
                     log_file.write(f"[✓] TASK DONE! Dataset PATH SAVED \n")
@@ -70,30 +87,37 @@ def manage_crab_tasks(keyword=None):
                     break
 
                 if "finished     	" in line:  
-                    FINISHED_jobs = re.search(r'\((.*?)\)', line).group(1)
+                    raw = re.search(r'\((.*?)\)', line).group(1)
+                    FINISHED_jobs = parse_jobs_count(raw)
+                    total_FINISHED_jobs += FINISHED_jobs
                     print(f"{CYAN} {FINISHED_jobs} jobs FINISHED.{RESET}")
 
                 if "running      	" in line:
-                    RUNNING_jobs = re.search(r'\((.*?)\)', line).group(1)
-                    print(f"{GREEN} {RUNNING_jobs} jobs RUNNIG.    {RESET}")
+                    raw = re.search(r'\((.*?)\)', line).group(1)
+                    RUNNING_jobs = parse_jobs_count(raw)
+                    print(f"{GREEN} {RUNNING_jobs} jobs RUNNING.    {RESET}")
+                    total_RUNNING_jobs += RUNNING_jobs
 
                 if "idle         	" in line:  
-                    IDLE_jobs = re.search(r'\((.*?)\)', line).group(1)
+                    raw = re.search(r'\((.*?)\)', line).group(1)
+                    IDLE_jobs = parse_jobs_count(raw)
                     print(f"{GREY} {IDLE_jobs} jobs IDLE.          {RESET}")
 
                 if "unsubmitted  	" in line:
-                    UNSUBMITTED_jobs = re.search(r'\((.*?)\)', line).group(1)
+                    raw = re.search(r'\((.*?)\)', line).group(1)
+                    UNSUBMITTED_jobs = parse_jobs_count(raw)
                     print(f"{GREY} {UNSUBMITTED_jobs} jobs UNSUBMITTED. {RESET}")
 
                 if "   failed   " in line:
-                    FAILED_jobs = re.search(r'\((.*?)\)', line).group(1)
+                    raw = re.search(r'\((.*?)\)', line).group(1)
+                    FAILED_jobs = parse_jobs_count(raw)
+                    total_FAILED_jobs += FAILED_jobs
                     print(f"{RED} {FAILED_jobs} jobs FAILED.{RESET}")
 
-                    if False:
+                    if True:
                         print(f"{ORANGE}    [→] Resubmitting failed jobs.{RESET}")
                         log_file.write(f"[→] Resubmitting failed jobs. \n")
-
-                        resubmit_cmd = f"crab resubmit -d {job_dir} -- maxmemmory 2500"
+                        resubmit_cmd = f"crab resubmit -d {job_dir} --maxmemory 2000 --maxjobruntime 300"  #more memory if needed
                         resubmit_result = subprocess.run(resubmit_cmd, shell=True, capture_output=True, text=True)
 
                         if resubmit_result.returncode != 0:
@@ -104,8 +128,11 @@ def manage_crab_tasks(keyword=None):
                     else:
                         print(f"{ORANGE}[→] Automatic REsubmission is FALSE.{RESET}")
 
+
+
                 if "	toRetry" in line:
-                    RETRY_jobs = re.search(r'\((.*?)\)', line).group(1)
+                    raw = re.search(r'\((.*?)\)', line).group(1)
+                    RETRY_jobs = parse_jobs_count(raw)
                     print(f"{ORANGE} {RETRY_jobs} jobs to RETRY.{RESET}")
 
         print("\nAll tasks checked. See the log file for details:", log_filename)
@@ -122,6 +149,13 @@ def manage_crab_tasks(keyword=None):
         print(f"Output directories saved to: {log_OUTPUT_filename}")
     else:
         print(f"Output directories not available.")
+
+    print()
+    print(f"Total CRAB TASKS {CYAN}processed: {counter/totalJOBS*100:.2f}%{RESET}")
+    print(f"Total CRAB JOBS {GREEN}  running: {total_RUNNING_jobs}{RESET}")
+    print(f"Total CRAB JOBS         finished: {total_FINISHED_jobs}{RESET}")
+    print(f"Total CRAB JOBS {RED}    failed: {total_FAILED_jobs}{RESET}")
+    
 
 # Example usage:
 if __name__ == "__main__":

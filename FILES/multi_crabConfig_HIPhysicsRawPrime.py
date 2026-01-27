@@ -15,19 +15,19 @@ config.General.transferLogs = False
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "forest_miniAOD_run3_DATA_wBfinder_2023.py"
-config.JobType.maxMemoryMB = 2000         # request high memory machines.
+config.JobType.maxMemoryMB = 2000         #start w/ 2k then go higher if needed!
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 2000 # max = 2750
+config.JobType.maxJobRuntimeMin = 210 # max = 2750
 config.JobType.pyCfgParams = ['noprint']
-config.JobType.outputFiles = ['HiForestMINIAOD.root'] 
+config.JobType.outputFiles = ['HiForestMINIAOD.root']
 
 config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "FileBased"
-config.Data.unitsPerJob = 3
-config.Data.allowNonValidInputDataset = True
+config.Data.unitsPerJob = 5
+#config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
 config.Data.runRange = '374288-375823'
 config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions23HI/Cert_Collisions2023HI_374288_375823_Muon.json'
@@ -35,10 +35,9 @@ config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/
 config.section_("Site")
 #config.Site.storageSite = "T3_CH_CERNBOX"
 config.Site.storageSite = "T2_PT_NCG_Lisbon"
-config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
+#config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
 
 # Multi crab part
-
 def submit(config):
     try:
         crabCommand('submit', config = config, dryrun=False)
@@ -47,10 +46,10 @@ def submit(config):
     except ClientException as cle:
         print("Failed submitting task: %s" % (cle))
 
-# Submit the jobs: 32 HIRawPrime PDs, ~5.6k files each, average of 140k events/file
-config.Data.outLFNDirBase = '/store/user/hmarques/DATA_PbPb23/X3872'
+# Submit the jobs: 32 HIRawPrime PDs, 5.0 to 5.5k files each, average of 140k events/file
+config.Data.outLFNDirBase = '/store/user/hmarques/DATA_PbPb23'
 
-for i in range(32):   ###32
+for i in range(28):   ###32
 
     config.General.requestName = f'RawPrime{i}'
     config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2023A-PromptReco-v2/MINIAOD"

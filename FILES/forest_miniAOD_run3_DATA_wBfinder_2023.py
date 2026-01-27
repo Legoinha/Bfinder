@@ -283,8 +283,8 @@ from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
 
-process.Bfinder.Bchannel         = cms.vint32(0, 0, 0, 0, 0, 0, 1)
-process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) # before fit
+process.Bfinder.Bchannel         = cms.vint32(1, 0, 0, 1, 0, 1, 1)
+process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
 process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)
 process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
