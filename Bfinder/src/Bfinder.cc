@@ -997,7 +997,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           if(printInfo_){
             printf("B_counter: ");
             for(unsigned int i = 0; i < Bchannel_.size(); i++){
-              if (i==4) continue; //skip B0 -> J/psi K*0 (bad K* mass)
+              if (i==4) continue; //skip B0 -> J/psi K*0 (bad K* mass hypothesis)
               printf("%d/", B_counter[i]);
             }
             printf("\n");

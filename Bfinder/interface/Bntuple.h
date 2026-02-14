@@ -56,7 +56,7 @@ public:
   float     Bdxyz[MAX_XB];
   float     BdxyzErr[MAX_XB];
   float     Bchi2ndf[MAX_XB];
-  float     Bchi2cl[MAX_XB];
+  float     Bchi2Prob[MAX_XB];
   float     Bdtheta[MAX_XB];
   float     Bcos_dtheta[MAX_XB];
   float     Blxy[MAX_XB];
@@ -482,7 +482,7 @@ public:
         nt->Branch("Bdxyz",Bdxyz,"Bdxyz[Bsize]/F");
         nt->Branch("BdxyzErr",BdxyzErr,"BdxyzErr[Bsize]/F");
         nt->Branch("Bchi2ndf",Bchi2ndf,"Bchi2ndf[Bsize]/F");
-        nt->Branch("Bchi2cl",Bchi2cl,"Bchi2cl[Bsize]/F");
+        nt->Branch("Bchi2Prob",Bchi2Prob,"Bchi2Prob[Bsize]/F");
         nt->Branch("Bdtheta",Bdtheta,"Bdtheta[Bsize]/F");
         nt->Branch("Bcos_dtheta",Bcos_dtheta,"Bcos_dtheta[Bsize]/F");
 
@@ -770,7 +770,7 @@ public:
             else if(t==1) nt1->Fill(); // Jpsi pi
             else if(t==2) nt2->Fill(); // Jpsi Kshort
             else if(t==3) nt3->Fill(); // Jpsi Kstar 
-            else if(t==4) continue;     // NOT BEING USED now
+            else if(t==4) continue;    // NOT BEING USED now
             else if(t==5) nt5->Fill(); // Jpsi phi
             else if(t==6) nt6->Fill(); // Jpsi pi pi
           }
@@ -949,7 +949,7 @@ public:
     Bdxyz[typesize]  = TMath::Sqrt((BInfo->vtxX[j]-EvtInfo->PVx)*(BInfo->vtxX[j]-EvtInfo->PVx)+(BInfo->vtxY[j]-EvtInfo->PVy)*(BInfo->vtxY[j]-EvtInfo->PVy)+(BInfo->vtxZ[j]-EvtInfo->PVz)*(BInfo->vtxZ[j]-EvtInfo->PVz));
     BdxyzErr[typesize] = TMath::Sqrt(BInfo->vtxXErr[j]*BInfo->vtxXErr[j]+BInfo->vtxYErr[j]*BInfo->vtxYErr[j]+BInfo->vtxZErr[j]*BInfo->vtxZErr[j]);
     Bchi2ndf[typesize] = BInfo->vtxchi2[j]/BInfo->vtxdof[j];
-    Bchi2cl[typesize]  = TMath::Prob(BInfo->vtxchi2[j],BInfo->vtxdof[j]);
+    Bchi2Prob[typesize]  = TMath::Prob(BInfo->vtxchi2[j],BInfo->vtxdof[j]);
 
     Bmass_unfitted[typesize] = BInfo->unfitted_mass[j];
     Blxy[typesize] = ((BInfo->vtxX[j]-EvtInfo->PVx)*b4P->Px() + (BInfo->vtxY[j]-EvtInfo->PVy)*b4P->Py())/BInfo->pt[j];
