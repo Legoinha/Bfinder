@@ -749,8 +749,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               if( doMuPreCut_){
                 if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.4)   continue;
                 if((v4_mu1+v4_mu2).Pt() < jpsiPtCut_)               continue;
-              } else {
-                if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.6)   continue;       //<------ looser cut to ensure MC presel is fast while keeping MOST of the signal...
               }
 
               //Fit 2 muon
@@ -1495,19 +1493,20 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       v4_tk2.SetPtEtaPhiM(tk_it2->pt(),tk_it2->eta(),tk_it2->phi(),tk2_mass);
       double mass_tktk_system = (v4_tk1 + v4_tk2).Mag();
 
-      if (channel_number == 4 ){                
-        // veto phi(1020)
-        TLorentzVector v4_tk2_VETO_phi_1020, v4_tk1_VETO_phi_1020;
-        v4_tk1_VETO_phi_1020.SetPtEtaPhiM(tk_it1->pt(), tk_it1->eta(), tk_it1->phi(), KAON_MASS); 
-        v4_tk2_VETO_phi_1020.SetPtEtaPhiM(tk_it2->pt(), tk_it2->eta(), tk_it2->phi(), KAON_MASS);
-        if((v4_tk1_VETO_phi_1020 + v4_tk2_VETO_phi_1020).Mag() < PHI_MASS+0.015){ continue; }
+      if (channel_number == 4 ){ // veto phi(1020) in the B0 channel
+        if (doTkPreCut_){
+          TLorentzVector v4_tk2_VETO_phi_1020, v4_tk1_VETO_phi_1020;
+          v4_tk1_VETO_phi_1020.SetPtEtaPhiM(tk_it1->pt(), tk_it1->eta(), tk_it1->phi(), KAON_MASS); 
+          v4_tk2_VETO_phi_1020.SetPtEtaPhiM(tk_it2->pt(), tk_it2->eta(), tk_it2->phi(), KAON_MASS);
+          double mass_temp = (v4_tk1_VETO_phi_1020 + v4_tk2_VETO_phi_1020).Mag();
+          if( mass_temp < 1.035 && mass_temp > 1.005){ continue; }
+        }
 
         // B0 to J/Psi K* case has two mass hypothesis; Select track mass to give better agreement with K* mass 
         v4_tk1_m2.SetPtEtaPhiM(tk_it1->pt(),tk_it1->eta(),tk_it1->phi(),tk2_mass);  
         v4_tk2_m1.SetPtEtaPhiM(tk_it2->pt(),tk_it2->eta(),tk_it2->phi(),tk1_mass);
         double mass_tktk_system_2 = (v4_tk2_m1 + v4_tk1_m2).Mag();
-        if((channel_number == 4) && (abs(KSTAR_MASS-mass_tktk_system) > abs(KSTAR_MASS-mass_tktk_system_2)))
-        { 
+        if(abs(KSTAR_MASS-mass_tktk_system) > abs(KSTAR_MASS-mass_tktk_system_2)){ 
               v4_tk1 = v4_tk1_m2;
               v4_tk2 = v4_tk2_m1;
               tk1_mass = Tk2_MASS;
@@ -1524,7 +1523,6 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       reco::TransientTrack tk2MTT(*tk_it2, &(*bField) );
       if (!tk1PTT.isValid()) continue;
       if (!tk2MTT.isValid()) continue;
-
       float tk1_sigma = Functs.getParticleSigma(tk1_mass);
       float tk2_sigma = Functs.getParticleSigma(tk2_mass);
 
@@ -1534,7 +1532,6 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       RefCountedKinematicTree         tktk_VFT;
       RefCountedKinematicParticle tktk_VFP;
       RefCountedKinematicVertex   tktk_VFPvtx;
-
       tktk_candidate.push_back(pFactory.particle(tk1PTT,tk1_mass,chi,ndf,tk1_sigma));
       tktk_candidate.push_back(pFactory.particle(tk2MTT,tk2_mass,chi,ndf,tk2_sigma));
       tktk_VFT = tktk_fitter.fit(tktk_candidate);

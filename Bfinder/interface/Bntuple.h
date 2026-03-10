@@ -59,7 +59,7 @@ public:
   float     Bchi2Prob[MAX_XB];
   float     Bdtheta[MAX_XB];
   float     Bcos_dtheta[MAX_XB];
-  float     Blxy[MAX_XB];
+  float     BLxy[MAX_XB];
   float     BlxyBS[MAX_XB];
   float     BlxyBSErr[MAX_XB];
   float     BMaxDoca[MAX_XB];
@@ -486,7 +486,7 @@ public:
         nt->Branch("Bdtheta",Bdtheta,"Bdtheta[Bsize]/F");
         nt->Branch("Bcos_dtheta",Bcos_dtheta,"Bcos_dtheta[Bsize]/F");
 
-        //nt->Branch("Blxy",Blxy,"Blxy[Bsize]/F");
+        nt->Branch("BLxy",BLxy,"BLxy[Bsize]/F");
         //nt->Branch("BlxyBS",BlxyBS,"BlxyBS[Bsize]/F");
         //nt->Branch("BlxyBSErr",BlxyBSErr,"BlxyBSErr[Bsize]/F");
         nt->Branch("Balpha",Balpha,"Balpha[Bsize]/F");
@@ -509,11 +509,10 @@ public:
         nt->Branch("Btrk1Pt",Btrk1Pt,"Btrk1Pt[Bsize]/F");
         nt->Branch("Btrk2Pt",Btrk2Pt,"Btrk2Pt[Bsize]/F");
         nt->Branch("BtrkPtimb",BtrkPtimb,"BtrkPtimb[Bsize]/F");
-
         nt->Branch("Btrk1Eta",Btrk1Eta,"Btrk1Eta[Bsize]/F");  
         nt->Branch("Btrk2Eta",Btrk2Eta,"Btrk2Eta[Bsize]/F");  
-        //nt->Branch("Btrk1Phi",Btrk1Phi,"Btrk1Phi[Bsize]/F");  
-        //nt->Branch("Btrk2Phi",Btrk2Phi,"Btrk2Phi[Bsize]/F");  
+        nt->Branch("Btrk1Phi",Btrk1Phi,"Btrk1Phi[Bsize]/F");  
+        nt->Branch("Btrk2Phi",Btrk2Phi,"Btrk2Phi[Bsize]/F");  
         nt->Branch("Btrk1PtErr",Btrk1PtErr,"Btrk1PtErr[Bsize]/F");  
         nt->Branch("Btrk2PtErr",Btrk2PtErr,"Btrk2PtErr[Bsize]/F");
         //nt->Branch("Btrk1EtaErr",Btrk1EtaErr,"Btrk1EtaErr[Bsize]/F");
@@ -952,7 +951,7 @@ public:
     Bchi2Prob[typesize]  = TMath::Prob(BInfo->vtxchi2[j],BInfo->vtxdof[j]);
 
     Bmass_unfitted[typesize] = BInfo->unfitted_mass[j];
-    Blxy[typesize] = ((BInfo->vtxX[j]-EvtInfo->PVx)*b4P->Px() + (BInfo->vtxY[j]-EvtInfo->PVy)*b4P->Py())/BInfo->pt[j];
+    BLxy[typesize] = ((BInfo->vtxX[j]-EvtInfo->PVx)*b4P->Px() + (BInfo->vtxY[j]-EvtInfo->PVy)*b4P->Py())/BInfo->pt[j];
     float r2lxyBS = (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz) * (BInfo->vtxX[j]-EvtInfo->BSx+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz)
      + (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz) * (BInfo->vtxY[j]-EvtInfo->BSy+(BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdydz);
     float xlxyBS = BInfo->vtxX[j]-EvtInfo->BSx + (BInfo->vtxZ[j]-EvtInfo->BSz)*EvtInfo->BSdxdz;
