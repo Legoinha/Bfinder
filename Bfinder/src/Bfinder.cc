@@ -747,8 +747,11 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               v4_mu2.SetPtEtaPhiM(mu_it2->pt(),mu_it2->eta(),mu_it2->phi(),MUON_MASS);
 
               if( doMuPreCut_){
-                if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.4)   continue;
-                if((v4_mu1+v4_mu2).Pt() < jpsiPtCut_)               continue;
+                if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.18)   continue;
+                if((v4_mu1+v4_mu2).Pt() < jpsiPtCut_)                continue;
+              }
+              else{
+                if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.6)    continue;      //ensure MC is light and fast
               }
 
               //Fit 2 muon
