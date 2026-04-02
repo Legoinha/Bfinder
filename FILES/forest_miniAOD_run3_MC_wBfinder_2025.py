@@ -59,7 +59,7 @@ process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("HeavyIonRcd"),
         tag = cms.string("CentralityTable_HFtowers200_HydjetCello_v1401x0_official_MC2024"),
         #connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-        connect = cms.string('sqlite_file:CentralityTable_HFtowers200_DataPbPb2024_periHYDJETshape_run3v140x01_offline_Nominal.db'),
+        connect = cms.string("sqlite_file:/afs/cern.ch/work/n/nsaha/public/for_GO/DBfiles_2024/CentralityTable_HFtowers200_HydjetCello_v1401x0_official_MC2024.db"),
         label = cms.untracked.string("HFtowers")
         ),
     ])

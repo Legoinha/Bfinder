@@ -19,7 +19,7 @@ config.JobType.psetName = "forest_miniAOD_run3_DATA_wBfinder_2024.py"
 config.JobType.maxMemoryMB = 2000         #start w/ 2k then go higher if needed!
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 210 # max = 2750
+config.JobType.maxJobRuntimeMin = 240 # max = 2750
 config.JobType.pyCfgParams = ['noprint']
 config.JobType.outputFiles = ['HiForestMINIAOD_PbPb2024.root']
 config.JobType.inputFiles = ['CentralityTable_HFtowers200_DataPbPb2024_periHYDJETshape_run3v140x01_offline_Nominal.db']

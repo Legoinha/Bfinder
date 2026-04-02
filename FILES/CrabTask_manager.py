@@ -21,7 +21,7 @@ def parse_jobs_count(s):
 
 def manage_crab_tasks(keyword=None):
     # Define the CRAB projects directory and log file
-    crab_jobs_dir = "crab_projects_X"
+    crab_jobs_dir = "crab_projects_ppRef"
     log_filename = f"CrabTask_manager_jobStatus_{keyword if keyword else 'ALL'}.log"
     log_OUTPUT_filename = f"CrabTask_manager_OUTPUT_DIRs_{keyword if keyword else 'ALL'}.txt"
     output_datasets = []
@@ -114,10 +114,10 @@ def manage_crab_tasks(keyword=None):
                     total_FAILED_jobs += FAILED_jobs
                     print(f"{RED} {FAILED_jobs} jobs FAILED.{RESET}")
 
-                    if True:
+                    if False:
                         print(f"{ORANGE}    [→] Resubmitting failed jobs.{RESET}")
                         log_file.write(f"[→] Resubmitting failed jobs. \n")
-                        resubmit_cmd = f"crab resubmit -d {job_dir} --maxmemory 2000 --maxjobruntime 300"  #more memory if needed
+                        resubmit_cmd = f"crab resubmit -d {job_dir} --maxmemory 2000 --maxjobruntime 360"  #more memory if needed
                         resubmit_result = subprocess.run(resubmit_cmd, shell=True, capture_output=True, text=True)
 
                         if resubmit_result.returncode != 0:
@@ -128,15 +128,13 @@ def manage_crab_tasks(keyword=None):
                     else:
                         print(f"{ORANGE}[→] Automatic REsubmission is FALSE.{RESET}")
 
-
-
                 if "	toRetry" in line:
                     raw = re.search(r'\((.*?)\)', line).group(1)
                     RETRY_jobs = parse_jobs_count(raw)
                     print(f"{ORANGE} {RETRY_jobs} jobs to RETRY.{RESET}")
 
         print("\nAll tasks checked. See the log file for details:", log_filename)
-    
+
     # Sort dataset paths alphabetically
     if len(output_datasets) > 0:
         output_datasets.sort()
@@ -153,8 +151,8 @@ def manage_crab_tasks(keyword=None):
     print()
     print(f"Total CRAB TASKS {CYAN}processed: {counter/totalJOBS*100:.2f}%{RESET}")
     print(f"Total CRAB JOBS {GREEN}  running: {total_RUNNING_jobs}{RESET}")
-    print(f"Total CRAB JOBS         finished: {total_FINISHED_jobs}{RESET}")
-    print(f"Total CRAB JOBS {RED}    failed: {total_FAILED_jobs}{RESET}")
+    print(f"Total CRAB JOBS  finished: {total_FINISHED_jobs}{RESET}")
+    print(f"Total CRAB JOBS {RED}   failed: {total_FAILED_jobs}{RESET}")
     
 
 # Example usage:

@@ -5,6 +5,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_pp_on_PbPb_2023_cff import Run3_pp_on_PbPb_2023
 process = cms.Process('HiForest', Run3_pp_on_PbPb_2023)
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(2),
+)
+process.options.numberOfConcurrentLuminosityBlocks = 1
 
 ###############################################################################
 
@@ -265,7 +270,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1
-ivars.outputFile='HiForestMINIAOD.root'
+ivars.outputFile='HiForestMINIAOD_MC.root'
 ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_X3872/prompt_PSI2S_to_Jpsi_pipi_phat5_miniAOD/250317_095831/0000/step4_miniAOD_102.root'     #   PSI2S -> JPSI pi pi
 #ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_Bmesons/Bu_phat5_miniAOD/250402_160115/0000/step4_miniAOD_1.root'  #Bu
 

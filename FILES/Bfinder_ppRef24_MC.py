@@ -265,9 +265,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1
-ivars.outputFile='HiForestMINIAOD_ppRefMC.root'
+ivars.outputFile='HiForestMINIAOD_MC.root'
 
-ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/ppRef_X3872/prompt_X3872_to_Jpsi_Rho_phat5_miniAOD/250324_155722/0000/step3_miniAOD_1.root'
+#ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/ppRef_X3872/prompt_X3872_to_Jpsi_Rho_phat5_miniAOD/250324_155722/0000/step3_miniAOD_1.root'
+ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/Bzero_to_JpsiKstar_pthat10_prompt_miniAOD/260223_023950/0000/step3_miniAOD_100.root'
 
 
 import os

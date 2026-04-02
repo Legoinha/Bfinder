@@ -32,8 +32,6 @@ process.source = cms.Source("PoolSource",
 #import FWCore.PythonUtilities.LumiList as LumiList
 #process.source.lumisToProcess = LumiList.LumiList(filename = '/eos/user/c/cmsdqm/www/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json').getVLuminosityBlockRange()
 
-
-
 # number of events to process, set to -1 to process all events
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
@@ -259,7 +257,6 @@ process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter)
 
 
 #################### B finder #################
-#################### B finder #################
 runOnMC      = False
 VtxLabel     = "offlineSlimmedPrimaryVertices"
 TrkLabel     = "packedPFCandidates"
@@ -269,14 +266,14 @@ GenLabel     = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 
-process.Bfinder.Bchannel         = cms.vint32(0, 0, 0, 0, 0, 0, 1)
-process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) # before fit
-process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)
+process.Bfinder.Bchannel         = cms.vint32(1, 0, 0, 1, 0, 1, 1)
+process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
+process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)   ## > 0.5%
 process.Bfinder.tkPtCut          = cms.double(0.5) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
 process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
 
-process.Bfinder.doTkPreCut = cms.bool(True)
+process.Bfinder.doTkPreCut = cms.bool(False)
 process.Bfinder.doMuPreCut = cms.bool(True)
 
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_PPRefL1DoubleMu0_v6")
@@ -330,8 +327,13 @@ ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1 #1000
 ivars.outputFile='HiForestMINIAOD_ppRefData.root'
-ivars.inputFiles='root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon1/MINIAOD/PromptReco-v1/000/387/574/00000/04ec4e96-7888-4124-ad89-f0264c56c13a.root'
-#ivars.inputFiles='root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/396/00000/6cb77b24-8565-40a0-9332-116068728a09.root'
+ivars.inputFiles=cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon1/MINIAOD/PromptReco-v1/000/387/574/00000/04ec4e96-7888-4124-ad89-f0264c56c13a.root',
+                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/396/00000/6cb77b24-8565-40a0-9332-116068728a09.root',
+                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon3/MINIAOD/PromptReco-v1/000/387/396/00000/988b6ef5-e3bf-4658-a84f-b81268d896ae.root',
+                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon3/MINIAOD/PromptReco-v1/000/387/474/00000/a5fe8a70-0d57-4542-b8be-1604c5f31f8a.root',
+                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/474/00000/bb722f1d-da45-42b7-80fe-13dcaaeb7bfb.root',
+                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/574/00000/5e5a3665-0fef-4f02-b0e3-f2f852820f16.root'
+                                       )
 
 ivars.parseArguments() # get and parse the command line arguments
 

@@ -5,6 +5,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_pp_on_PbPb_2024_cff import Run3_pp_on_PbPb_2024
 process = cms.Process('HiForest', Run3_pp_on_PbPb_2024)
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(2),
+)
+process.options.numberOfConcurrentLuminosityBlocks = 1
 
 ###############################################################################
 
@@ -57,7 +62,7 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("HeavyIonRcd"),
-        tag = cms.string("CentralityTable_HFtowers200_HydjetCello_v1401x0_official_MC2024"),
+        tag = cms.string("CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v140x01_offline_Nominal"),
         #connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
         connect = cms.string('sqlite_file:CentralityTable_HFtowers200_DataPbPb2024_periHYDJETshape_run3v140x01_offline_Nominal.db'),
         label = cms.untracked.string("HFtowers")
@@ -275,8 +280,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1
-ivars.outputFile='HiForestMINIAOD.root'
-ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_X3872/prompt_PSI2S_to_Jpsi_pipi_phat5_miniAOD/250317_095831/0000/step4_miniAOD_102.root'     #   PSI2S -> JPSI pi pi
+ivars.outputFile='HiForestMINIAOD_MC.root'
+ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/leyao/MC_PbPb2024_prompt_X/leyao-MC_PbPb2024_prompt_X_phat10_miniAOD_v1_2_set2/260324_122121/0000/step3_MINIAOD_prompt_X_10.root'     #   PSI2S -> JPSI pi pi
 #ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_Bmesons/Bu_phat5_miniAOD/250402_160115/0000/step4_miniAOD_1.root'  #Bu
 
 

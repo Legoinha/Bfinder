@@ -49,7 +49,7 @@ def submit(config):
 # Submit the jobs: 32 HIRawPrime PDs, 5.0 to 5.5k files each, average of 140k events/file
 config.Data.outLFNDirBase = '/store/user/hmarques/DATA_PbPb23'
 
-for i in range(28):   ###32
+for i in range(32):   ###32
 
     config.General.requestName = f'RawPrime{i}'
     config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2023A-PromptReco-v2/MINIAOD"

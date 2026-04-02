@@ -8,7 +8,7 @@ from CRABClient.UserUtilities import config
 config = config()
 
 config.section_("General")
-config.General.workArea = 'crab_projects_X_ppRef'
+config.General.workArea = 'crab_projects_ppRef'
 config.General.transferOutputs = True
 config.General.transferLogs = False
 
@@ -18,7 +18,7 @@ config.JobType.psetName = "Bfinder_ppRef24_DATA.py"
 config.JobType.maxMemoryMB = 2000         # request high memory machines.
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 120 # max = 2750
+config.JobType.maxJobRuntimeMin = 300 # max = 2750
 config.JobType.pyCfgParams = ['noprint']
 config.JobType.outputFiles = ['HiForestMINIAOD_ppRefData.root'] 
 
