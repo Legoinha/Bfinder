@@ -967,8 +967,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               // RECONSTRUCTION: J/psi + pi pi <= psi', X(3872), Bs->J/psi f0
               //////////////////////////////////////////////////////////////////////////
 
-              mass_window[0] = 3;
-              mass_window[1] = 4.3;
+              mass_window[0] = 3.6;
+              mass_window[1] = 4;
               TkTk_window = 0;
 
               if(Bchannel_[6] == 1){
