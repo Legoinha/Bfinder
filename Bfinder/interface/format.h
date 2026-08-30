@@ -3,13 +3,13 @@
 #define _XBFRAMEFORMAT_H_
 
 //Note, when the array size gett too large, SetBranchAddress will fail, root will abort w/o error msg
-#define MAX_XB       25000
+#define MAX_XB       35000
 #define MAX_MUON     10000
-#define MAX_TRACK    6000
+#define MAX_TRACK    25000
 #define MAX_GEN      35000
 #define MAX_BX       150
-#define MAX_Vertices 4000
-#define MAX_TRIGGER  30
+#define MAX_Vertices 8000
+#define MAX_TRIGGER  40
 //
 
 
@@ -93,7 +93,7 @@
 class EvtInfoBranches{ //{{{
 public:
   int	RunNo;
-  int EvtNo;
+  ULong64_t EvtNo;
   int	BxNo;
   int	LumiNo;
   int CentBin;
@@ -135,12 +135,13 @@ public:
   float  BSWidthY;
   float  BSWidthYErr;
   //float	PVc2p;
-  int nChargedTracks;
-  int nSelectedChargedTracks;
+  float nChargedTracks;
+  float nChargedTracks_LOOSE;
+  float nChargedTracks_TIGHT;
 		
   void regTree(TTree *root){//{{{
     root->Branch("EvtInfo.RunNo"        , &RunNo                     , "EvtInfo.RunNo/I"			);
-    root->Branch("EvtInfo.EvtNo"        , &EvtNo                     , "EvtInfo.EvtNo/I"			);
+    root->Branch("EvtInfo.EvtNo"        , &EvtNo                     , "EvtInfo.EvtNo/l"			);
     root->Branch("EvtInfo.BxNo"         , &BxNo                      , "EvtInfo.BxNo/I"			);
     root->Branch("EvtInfo.CentBin"      , &CentBin                 , "EvtInfo.CentBin/I"    );  //CENTRALITY
     root->Branch("EvtInfo.LumiNo"       , &LumiNo                    , "EvtInfo.LumiNo/I"			);
@@ -173,8 +174,9 @@ public:
     //root->Branch("EvtInfo.BSWidthY"     , &BSWidthY                  , "EvtInfo.BSWidthY/F"		);
     //root->Branch("EvtInfo.BSWidthYErr"  , &BSWidthYErr               , "EvtInfo.BSWidthYErr/F"	);
     //root->Branch("EvtInfo.PVc2p"      , &PVc2p                     , "EvtInfo.PVc2p/F"			);//
-    root->Branch("EvtInfo.nChargedTracks"  , &nChargedTracks         , "EvtInfo.nChargedTracks/I"	);
-    root->Branch("EvtInfo.nSelectedChargedTracks", &nSelectedChargedTracks , "EvtInfo.nSelectedChargedTracks/I"	);
+    root->Branch("EvtInfo.nChargedTracks", &nChargedTracks, "EvtInfo.nChargedTracks/F");
+    root->Branch("EvtInfo.nChargedTracks_LOOSE", &nChargedTracks_LOOSE, "EvtInfo.nChargedTracks_LOOSE/F");
+    root->Branch("EvtInfo.nChargedTracks_TIGHT", &nChargedTracks_TIGHT, "EvtInfo.nChargedTracks_TIGHT/F");
 
   }//}}}
 
@@ -213,8 +215,9 @@ public:
     //root->SetBranchAddress("EvtInfo.BSWidthY"       ,&BSWidthY  );
     //root->SetBranchAddress("EvtInfo.BSWidthYErr"    ,&BSWidthYErr  );
     //root->SetBranchAddress("EvtInfo.PVc2p"    ,&PVc2p	);
-    root->SetBranchAddress("EvtInfo.nChargedTracks"           , &nChargedTracks 	);
-    root->SetBranchAddress("EvtInfo.nSelectedChargedTracks"   , &nSelectedChargedTracks);
+    root->SetBranchAddress("EvtInfo.nChargedTracks", &nChargedTracks);
+    root->SetBranchAddress("EvtInfo.nChargedTracks_LOOSE", &nChargedTracks_LOOSE);
+    root->SetBranchAddress("EvtInfo.nChargedTracks_TIGHT", &nChargedTracks_TIGHT);
   } //}}}
 }; //}}}
 
@@ -513,6 +516,7 @@ public:
   int	    fpendcaphit  [ MAX_TRACK];
   float	chi2         [ MAX_TRACK];
   float	ndf          [ MAX_TRACK];
+  // Legacy origin/reference-point fields retained for the Dfinder path.
   float	d0           [ MAX_TRACK];
   float	d0error      [ MAX_TRACK];
   float	dz           [ MAX_TRACK];
@@ -532,7 +536,7 @@ public:
   int   originalTrkAlgo[ MAX_TRACK];
   float   dedx         [ MAX_TRACK];
 
-  void regTree(TTree *root, bool detailMode = false){//{{{
+  void regTree(TTree *root, bool detailMode = false, bool saveLegacyImpactParameters = true){//{{{
     root->Branch("TrackInfo.size"         ,&size		   ,"TrackInfo.size/I"			);
     root->Branch("TrackInfo.index"        ,index       ,"TrackInfo.index[TrackInfo.size]/I"	);
     root->Branch("TrackInfo.handle_index" ,handle_index,"TrackInfo.handle_index[TrackInfo.size]/I"	);
@@ -551,12 +555,14 @@ public:
     root->Branch("TrackInfo.fpendcaphit"	,fpendcaphit ,"TrackInfo.fpendcaphit[TrackInfo.size]/I");
     root->Branch("TrackInfo.chi2"		      ,chi2		     ,"TrackInfo.chi2[TrackInfo.size]/F"	);
     root->Branch("TrackInfo.ndf"		      ,ndf		     ,"TrackInfo.ndf[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.d0"		        ,d0		       ,"TrackInfo.d0[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.d0error"	    ,d0error	   ,"TrackInfo.d0error[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dz"		        ,dz		       ,"TrackInfo.dz[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dzerror"	    ,dzerror	   ,"TrackInfo.dzerror[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dxy"		      ,dxy		     ,"TrackInfo.dxy[TrackInfo.size]/F"	);
-    root->Branch("TrackInfo.dxyerror"	    ,dxyerror	   ,"TrackInfo.dxyerror[TrackInfo.size]/F"	);
+    if(saveLegacyImpactParameters){
+      root->Branch("TrackInfo.d0"       ,d0       ,"TrackInfo.d0[TrackInfo.size]/F"      );
+      root->Branch("TrackInfo.d0error"  ,d0error  ,"TrackInfo.d0error[TrackInfo.size]/F" );
+      root->Branch("TrackInfo.dz"       ,dz       ,"TrackInfo.dz[TrackInfo.size]/F"      );
+      root->Branch("TrackInfo.dzerror"  ,dzerror  ,"TrackInfo.dzerror[TrackInfo.size]/F" );
+      root->Branch("TrackInfo.dxy"      ,dxy      ,"TrackInfo.dxy[TrackInfo.size]/F"     );
+      root->Branch("TrackInfo.dxyerror" ,dxyerror ,"TrackInfo.dxyerror[TrackInfo.size]/F");
+    }
     root->Branch("TrackInfo.dz1"          ,dz1         ,"TrackInfo.dz1[TrackInfo.size]/F"		);
     root->Branch("TrackInfo.dzerror1"     ,dzerror1    ,"TrackInfo.dzerror1[TrackInfo.size]/F"		);
     root->Branch("TrackInfo.dxy1"         ,dxy1        ,"TrackInfo.dxy1[TrackInfo.size]/F"		);
@@ -574,7 +580,7 @@ public:
     }
   }//}}}
 
-  void setbranchadd(TTree *root, bool detailMode = false){//{{{
+  void setbranchadd(TTree *root, bool detailMode = false, bool readLegacyImpactParameters = true){//{{{
     root->SetBranchAddress("TrackInfo.size"          , &size       );
     root->SetBranchAddress("TrackInfo.index"         , index       );
     root->SetBranchAddress("TrackInfo.handle_index"  , handle_index       );
@@ -593,12 +599,14 @@ public:
     root->SetBranchAddress("TrackInfo.fpendcaphit"   , fpendcaphit );
     root->SetBranchAddress("TrackInfo.chi2"          , chi2        );
     root->SetBranchAddress("TrackInfo.ndf"           , ndf         );
-    root->SetBranchAddress("TrackInfo.d0"            , d0          );
-    root->SetBranchAddress("TrackInfo.d0error"       , d0error     );
-    root->SetBranchAddress("TrackInfo.dz"            , dz          );
-    root->SetBranchAddress("TrackInfo.dzerror"       , dzerror     );
-    root->SetBranchAddress("TrackInfo.dxy"           , dxy          );
-    root->SetBranchAddress("TrackInfo.dxyerror"      , dxyerror     );
+    if(readLegacyImpactParameters){
+      root->SetBranchAddress("TrackInfo.d0"          , d0          );
+      root->SetBranchAddress("TrackInfo.d0error"     , d0error     );
+      root->SetBranchAddress("TrackInfo.dz"          , dz          );
+      root->SetBranchAddress("TrackInfo.dzerror"     , dzerror     );
+      root->SetBranchAddress("TrackInfo.dxy"         , dxy         );
+      root->SetBranchAddress("TrackInfo.dxyerror"    , dxyerror    );
+    }
     root->SetBranchAddress("TrackInfo.dz1"           , dz1        );
     root->SetBranchAddress("TrackInfo.dzerror1"      , dzerror1        );
     root->SetBranchAddress("TrackInfo.dxy1"          , dxy1       );
@@ -669,6 +677,7 @@ public:
   float  svpvDistance_2D[MAX_XB];
   float  svpvDisErr_2D[MAX_XB];
   float  MaxDoca[MAX_XB];
+  // Secondary-vertex coordinates (cm) and covariance elements (cm^2; legacy names end in Err).
   float  vtxX[MAX_XB];
   float  vtxY[MAX_XB];
   float  vtxZ[MAX_XB];
@@ -700,6 +709,7 @@ public:
     
   float  tktk_unfitted_mass[MAX_XB];
   float  tktk_unfitted_pt[MAX_XB];
+  bool   tktk_fitValid[MAX_XB];
   float  tktk_mass[MAX_XB];
   float  tktk_pt[MAX_XB];
   float  tktk_eta[MAX_XB];
@@ -783,6 +793,7 @@ public:
         
     root->Branch("BInfo.tktk_unfitted_mass" , tktk_unfitted_mass , "BInfo.tktk_unfitted_mass[BInfo.size]/F"     );
     root->Branch("BInfo.tktk_unfitted_pt"   , tktk_unfitted_pt   , "BInfo.tktk_unfitted_pt[BInfo.size]/F"     );
+    root->Branch("BInfo.tktk_fitValid"       , tktk_fitValid      , "BInfo.tktk_fitValid[BInfo.size]/O"         );
     root->Branch("BInfo.tktk_mass"          , tktk_mass          , "BInfo.tktk_mass[BInfo.size]/F"     );
     root->Branch("BInfo.tktk_pt"            , tktk_pt            , "BInfo.tktk_pt[BInfo.size]/F"	);
     root->Branch("BInfo.tktk_eta"           , tktk_eta           , "BInfo.tktk_eta[BInfo.size]/F"	);
@@ -901,6 +912,7 @@ public:
         
     root->SetBranchAddress("BInfo.tktk_unfitted_mass",tktk_unfitted_mass    );
     root->SetBranchAddress("BInfo.tktk_unfitted_pt"  ,tktk_unfitted_pt    );
+    root->SetBranchAddress("BInfo.tktk_fitValid"      ,tktk_fitValid       );
     root->SetBranchAddress("BInfo.tktk_mass"         ,tktk_mass    );
     root->SetBranchAddress("BInfo.tktk_pt"           ,tktk_pt     	);
     root->SetBranchAddress("BInfo.tktk_eta"          ,tktk_eta     	);

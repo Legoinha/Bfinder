@@ -1,3 +1,5 @@
 *.root
+# Keep runtime tracking-efficiency tables in the CMSSW package.
+!Bfinder/data/TRKeffCOR/**/*.root
 *.pyc
 *.log

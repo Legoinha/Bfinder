@@ -16,14 +16,15 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
         
         ## patMuonsWithTrigger
         process.load("MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff")
-        from MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff import addMCinfo, useL1MatchingWindowForSinglets, changeTriggerProcessName, switchOffAmbiguityResolution, addHLTL1Passthrough, useL1Stage2Candidates
+        from MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff import useL1MatchingWindowForSinglets, changeTriggerProcessName, switchOffAmbiguityResolution, addHLTL1Passthrough, useL1Stage2Candidates
 
         if runOnMC:
-                addMCinfo(process)
+                process.load("PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi")
                 process.muonMatch.maxDeltaR = cms.double(0.05)
-                process.muonMatch.resolveByMatchQuality = True
-                process.muonMatch.matched = "genMuons"
-                process.muonMatch.src = "muons"
+                process.muonMatch.resolveByMatchQuality = cms.bool(True)
+                process.muonMatch.matched = cms.InputTag(GenParticleLabel)
+                process.muonMatch.src = cms.InputTag("unpackedMuons")
+                process.load("HeavyIonsAnalysis.MuonAnalysis.unpackedMuonsWithGenMatch_cfi")
 
         changeTriggerProcessName(process, "HLT")
         switchOffAmbiguityResolution(process) # Switch off ambiguity resolution: allow multiple reco muons to match to the same trigger muon
@@ -77,9 +78,14 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
         process.muonMatchHLTTrackMu.maxDPtRel = 10.0
 
         # Make a sequence
-        process.patMuonSequence = cms.Sequence(process.patMuonsWithTriggerSequence)
-        # if runOnMC:
-        #         process.patMuonSequence.insert(0, process.genMuons)
+        if runOnMC:
+                process.patMuonSequence = cms.Sequence(
+                        process.muonMatch *
+                        process.unpackedMuonsWithGenMatch *
+                        process.patMuonsWithTriggerSequence
+                )
+        else:
+                process.patMuonSequence = cms.Sequence(process.patMuonsWithTriggerSequence)
 
         ### Set Bfinder option
         process.Bfinder = cms.EDAnalyzer('Bfinder',
@@ -100,6 +106,7 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          GenLabel = cms.InputTag(GenParticleLabel),
                                          MuonLabel = cms.InputTag('patMuonsWithTrigger'),
                                          TrackLabel = cms.InputTag(TrkLabel),
+                                         systemYear = cms.string("None"),
 
                                          centralitySrc    = cms.InputTag("hiCentrality"),
                                          centralityBinSrc = cms.InputTag("centralityBin","HFtowers"),   #CENTRALITY
@@ -187,7 +194,8 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
         process.DfinderSequence = cms.Sequence(process.Dfinder)
         process.finderSequence  = cms.Sequence(process.patMuonSequence*process.Bfinder*process.Dfinder)
 
-        changeToMiniAODforMuon(process)
+        muonInputTag = "unpackedMuonsWithGenMatch" if runOnMC else "unpackedMuons"
+        changeToMiniAODforMuon(process, muonInputTag)
 
 def setCutForAllChannelsDfinder(process, dPtCut = -1, dRapidityCut = -1, VtxChiProbCut = -1, svpvDistanceCut = -1, alphaCut = -1):
         for i in range(len(process.Dfinder.Dchannel)):

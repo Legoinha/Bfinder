@@ -239,13 +239,14 @@ process.pAna = cms.EndPath(process.skimanalysis)
 
 
 #################### B finder #################
-runOnMC = False
+runOnMC = True
 VtxLabel = "offlineSlimmedPrimaryVertices"
 TrkLabel = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
+process.Bfinder.systemYear = cms.string("ppRef2024")
 
 process.Bfinder.Bchannel   = cms.vint32(0, 0, 0, 0, 0, 0, 1)
 process.Bfinder.bPtCut     = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0) # before fit
@@ -283,4 +284,3 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(ivars.maxEvents))
 process.TFileService = cms.Service("TFileService", fileName = cms.string(ivars.outputFile))
-

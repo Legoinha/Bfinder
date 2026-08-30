@@ -281,6 +281,7 @@ GenLabel     = "prunedGenParticles"
 
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
+process.Bfinder.systemYear = cms.string("PbPb2023")
 process.Bfinder.MVAMapLabel = cms.InputTag(TrkLabel,"MVAValues")
 
 process.Bfinder.Bchannel         = cms.vint32(1, 0, 0, 1, 0, 1, 1)
@@ -295,23 +296,20 @@ process.Bfinder.doMuPreCut = cms.bool(True)
 
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("")
-process.BfinderSequence.insert(0, process.unpackedMuons)
-process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
 # process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
 
-process.p = cms.Path(process.BfinderSequence)
 
 #######################################################################################################################
 #######################################################################################################################
 # Muon filtering before running Bfinder to significantly speed up the processing
 MUONCUT = "isTrackerMuon && isGlobalMuon && ((abs(eta) <= 1.0 && pt > 3.5) || (1.0 < abs(eta) <= 2.4 && pt > 1.2)) && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && innerTrack.hitPattern.pixelLayersWithMeasurement > 0"
 process.muonSelector = cms.EDFilter("PATMuonRefSelector",
-                                        src = cms.InputTag("slimmedMuons"),
+                                        src = cms.InputTag("unpackedMuons"),
                                         cut = cms.string(MUONCUT),
                                         filter = cms.bool(True)
 )
 process.atLeastTwoMuons = cms.EDFilter("MuonRefPatCount",
-                                 src = cms.InputTag("slimmedMuons"),
+                                 src = cms.InputTag("unpackedMuons"),
                                   cut = cms.string(MUONCUT),
                                  minNumber = cms.uint32(2)
                                  )
@@ -333,7 +331,19 @@ process.hltHI.HLTPaths = ["HLT_HIMinimumBiasHF1AND*_v*"]
 process.hltHI.throw = False
 process.hltHI.andOr = True
 
-process.p.replace(process.BfinderSequence, process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.phfCoincFilter2Th4 * process.primaryVertexFilter * process.clusterCompatibilityFilter * process.hltHI * process.BfinderSequence)
+process.p = cms.Path(
+    process.phfCoincFilter2Th4 *
+    process.primaryVertexFilter *
+    process.clusterCompatibilityFilter *
+    process.hltHI *
+    process.unpackedTracksAndVertices *
+    process.unpackedMuons *
+    process.muonSelector *
+    process.atLeastTwoMuons *
+    process.dimuonSelection *
+    process.atLeastOneDimuon *
+    process.BfinderSequence
+)
 #######################################################################################################################
 #######################################################################################################################
 

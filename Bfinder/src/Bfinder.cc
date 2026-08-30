@@ -1,7 +1,12 @@
 // vim:set ts=4 sw=4 fdm=marker et:
 // Ntuplt creator for B meson related analysis.
-// Maintain and contact: ta-wei wang
-// Email: "tawei@mit.edu" or "ta-wei.wang@cern.ch"
+// Maintain and contact: Henrique Legoinha
+// Email: "henrique.legoinha@cern.ch"
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <memory>
+#include "Bfinder/Bfinder/interface/TrackingEfficiencyCorrector.h"
 #include "Bfinder/Bfinder/interface/format.h"
 #include "Bfinder/Bfinder/interface/Bntuple.h"
 #include "Bfinder/Bfinder/interface/utilities.h"
@@ -28,9 +33,8 @@ private:
         
   virtual void BranchOut2MuTk(
                               BInfoBranches &BInfo,
-                              std::vector<const reco::Track*> input_tracks,
-                              reco::Vertex thePrimaryV,
-                              std::vector<bool> isNeededTrack,
+                              const std::vector<const reco::Track*> &input_tracks,
+                              const reco::Vertex &thePrimaryV,
                               TLorentzVector v4_mu1,
                               TLorentzVector v4_mu2,
                               reco::TransientTrack muonPTT,
@@ -43,9 +47,8 @@ private:
                               );
   virtual void BranchOut2MuX_XtoTkTk(
                                      BInfoBranches &BInfo,
-                                     std::vector<const reco::Track*> input_tracks,
-                                     reco::Vertex thePrimaryV,
-                                     std::vector<bool> isNeededTrack,
+                                     const std::vector<const reco::Track*> &input_tracks,
+                                     const reco::Vertex &thePrimaryV,
                                      TLorentzVector v4_mu1,
                                      TLorentzVector v4_mu2,
                                      reco::TransientTrack muonPTT,
@@ -77,6 +80,10 @@ private:
   edm::ESHandle<MagneticField> bField;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
   edm::ParameterSet theConfig;
+  bfinder::SystemYear systemYear_;
+  std::unique_ptr<bfinder::TrackingEfficiencyCorrector> nominalTrackingEfficiency_;
+  std::unique_ptr<bfinder::TrackingEfficiencyCorrector> looseTrackingEfficiency_;
+  std::unique_ptr<bfinder::TrackingEfficiencyCorrector> tightTrackingEfficiency_;
 
   bool detailMode_;
   bool dropUnusedTracks_;
@@ -128,7 +135,7 @@ private:
   BInfoBranches       BInfo;
   GenInfoBranches     GenInfo;
   CommonFuncts        Functs;
-  BntupleBranches     *Bntuple = new BntupleBranches;
+  std::unique_ptr<BntupleBranches> Bntuple = std::make_unique<BntupleBranches>();
   TTree* nt0;
   TTree* nt1;
   TTree* nt2;
@@ -162,7 +169,7 @@ void Bfinder::beginJob()
   EvtInfo.regTree(root);
   //VtxInfo.regTree(root);
   MuonInfo.regTree(root, detailMode_, MuonTriggerMatchingPath_.size(), MuonTriggerMatchingFilter_.size());
-  TrackInfo.regTree(root, detailMode_);
+  TrackInfo.regTree(root, detailMode_, false);
   BInfo.regTree(root, detailMode_);
   GenInfo.regTree(root);
 }//}}}
@@ -210,16 +217,19 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   makeBntuple_        = iConfig.getParameter<bool>("makeBntuple");
   printInfo_          = iConfig.getParameter<bool>("printInfo");
   readDedx_           = iConfig.getParameter<bool>("readDedx");
+  systemYear_ = bfinder::systemYearFromString(iConfig.getParameter<std::string>("systemYear"));
 
-  /*
-  MuonCutLevel        = fs->make<TH1F>("MuonCutLevel"     , "MuonCutLevel"    , 10, 0, 10);
-  TrackCutLevel       = fs->make<TH1F>("TrackCutLevel"    , "TrackCutLevel"   , 10, 0, 10);
-  XbujCutLevel        = fs->make<TH1F>("XbujCutLevel"     , "XbujCutLevel"    , 10, 0, 10);
-  for(unsigned int i = 0; i < Bchannel_.size(); i++){
-    TH1F* XbMassCutLevel_temp      = fs->make<TH1F>(TString::Format("XbMassCutLevel_i")   ,TString::Format("XbMassCutLevel_i")  , 10, 0, 10);
-    XbMassCutLevel.push_back(XbMassCutLevel_temp);
+  if (systemYear_ != bfinder::SystemYear::kNone) {
+    // Quiet mode suppresses per-track out-of-range messages from the
+    // correction helper. Missing or incompatible tables remain fatal.
+    nominalTrackingEfficiency_ = std::make_unique<bfinder::TrackingEfficiencyCorrector>(
+        systemYear_, bfinder::TrackSelectionVariation::kNominal, true);
+    looseTrackingEfficiency_ = std::make_unique<bfinder::TrackingEfficiencyCorrector>(
+        systemYear_, bfinder::TrackSelectionVariation::kLoose, true);
+    tightTrackingEfficiency_ = std::make_unique<bfinder::TrackingEfficiencyCorrector>(
+        systemYear_, bfinder::TrackSelectionVariation::kTight, true);
   }
-  */
+
 }//}}}
 
 Bfinder::~Bfinder()
@@ -236,7 +246,7 @@ Bfinder::~Bfinder()
 void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //checking input parameter size
-  if( (Bchannel_.size() != bPtCut_.size()) || (bPtCut_.size() != bEtaCut_.size()) || (bEtaCut_.size() != VtxChiProbCut_.size()) || (VtxChiProbCut_.size() != svpvDistanceCut_.size()) || (svpvDistanceCut_.size() != MaxDocaCut_.size()) || (MaxDocaCut_.size() != alphaCut_.size())){
+  if( Bchannel_.size() != 7 || (Bchannel_.size() != bPtCut_.size()) || (bPtCut_.size() != bEtaCut_.size()) || (bEtaCut_.size() != VtxChiProbCut_.size()) || (VtxChiProbCut_.size() != svpvDistanceCut_.size()) || (svpvDistanceCut_.size() != MaxDocaCut_.size()) || (MaxDocaCut_.size() != alphaCut_.size())){
     std::cout<<"Unmatched input parameter vector size, EXIT"<<std::endl;
     return;
   }
@@ -260,9 +270,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto dedxHandle = iEvent.getHandle(dedxMap_); // edm::Handle<edm::ValueMap<reco::DeDxData>>
 
   edm::Handle<std::vector<reco::GenParticle>> gens;
-  if (!iEvent.isRealData()) {
-    gens = iEvent.getHandle(genLabel_);
-  }
+  if (!iEvent.isRealData()) {gens = iEvent.getHandle(genLabel_);}
   
   //=============== get centrality information ====================//
   edm::Handle<reco::Centrality> centrality;
@@ -270,14 +278,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle< int > cbin;                                                                                                                                                                
   iEvent.getByToken(centralityBinTags_,cbin);                                                                                                                                             
   //===============================================================//
-
-  // edm::Handle< std::vector<reco::Track> > etracks;
-  // iEvent.getByToken(trackLabelReco_, etracks);
-  // if(etracks->size() != tks->size()) 
-  //   { 
-  //     fprintf(stderr,"ERROR: number of tracks in pat::GenericParticle is different from reco::Track.\n"); 
-  //     exit(0);
-  //   }
 
   //CLEAN all memory
   memset(&EvtInfo     ,0x00,sizeof(EvtInfo)   );
@@ -295,25 +295,31 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.Orbit   = iEvent.orbitNumber();
   EvtInfo.McFlag  = !iEvent.isRealData();
 
+  int hiBin = -1;
   if (centrality.isValid() && cbin.isValid()) {
-    int centBin = *cbin;
-    EvtInfo.CentBin  = centBin/2;                                                                                                                                                                         
-    if(centBin < 0){edm::LogWarning ("Invalid value") <<"Invalid centrality value";}                                                                  
-    if(EvtInfo.CentBin < centmin_ ||EvtInfo.CentBin > centmax_) return;                                                                                   
-    //std::cout<<"centrality is: "<<EvtInfo.CentBin<<endl;
+    hiBin = *cbin;
+    EvtInfo.CentBin = hiBin / 2;
+    if (hiBin < 0 || hiBin > 199) {
+      edm::LogWarning("Invalid value") << "Invalid centrality value " << hiBin;
+      if (bfinder::isPbPb(systemYear_)) return;
+    }
+    if(EvtInfo.CentBin < centmin_ ||EvtInfo.CentBin > centmax_) return;
+  } else if (bfinder::isPbPb(systemYear_)) {
+    edm::LogWarning("Bfinder") << "PbPb tracking correction requires a valid centrality bin.";
+    return;
   }
   
   // Handle primary vertex properties
   Vertex thePrimaryV;    //, thePrimaryVmaxPt, thePrimaryVmaxMult;
   math::XYZPoint RefVtx; //, RefVtxmaxPt, RefVtxmaxMult;
   //get beamspot information
-  Vertex theBeamSpotV;
+  //Vertex theBeamSpotV;
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByToken(bsLabel_, beamSpotHandle);
   if (beamSpotHandle.isValid()){
     beamSpot = *beamSpotHandle;
-    theBeamSpotV = Vertex(beamSpot.position(), beamSpot.covariance3D());
+    //theBeamSpotV = Vertex(beamSpot.position(), beamSpot.covariance3D());
     EvtInfo.BSx             = beamSpot.x0();
     EvtInfo.BSy             = beamSpot.y0();
     EvtInfo.BSz             = beamSpot.z0();
@@ -336,105 +342,152 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::VertexCollection> VertexHandle;
   iEvent.getByToken(pvLabel_, VertexHandle);
 
-  /*  
-      if (!VertexHandle.failedToGet() && VertexHandle->size()>0){
-      //int nVtxTrks = 0;//outdated PV definition
-      double max_tkSt = 0;
-      for(std::vector<reco::Vertex>::const_iterator it_vtx = VertexHandle->begin(); it_vtx != VertexHandle->end(); it_vtx++){
-      if (!it_vtx->isValid()) continue;
-      //find primary vertex with largest St
-      double tkSt = 0;
-      for(std::vector<reco::TrackBaseRef>::const_iterator it_tk = it_vtx->tracks_begin();
-      it_tk != it_vtx->tracks_end(); it_tk++){
-      tkSt += it_tk->get()->pt();
-      }
-      if (tkSt > max_tkSt){
-      max_tkSt = tkSt;
-      thePrimaryV = Vertex(*it_vtx);
-      }
-      }
-      }else{ 
-      thePrimaryV = Vertex(beamSpot.position(), beamSpot.covariance3D());
-      }
-      RefVtx = thePrimaryV.position();
-  */
-
-  double PVBS_Pt_Max = -100.;
-  reco::Vertex PVtx_BS;
-  if( VertexHandle.isValid() && !VertexHandle.failedToGet() && VertexHandle->size() > 0) {
-    //const vector<reco::Vertex> VerticesBS = *VertexHandle;
-    for(std::vector<reco::Vertex>::const_iterator it_vtx = VertexHandle->begin();it_vtx != VertexHandle->end(); it_vtx++ ) {
-      if (VtxInfo.Size>=MAX_Vertices) {
-        std::cout << "PVBS " << VtxInfo.Size << std::endl;
-        fprintf(stderr,"ERROR: number of  Vertices exceeds the size of array.\n");
-        break;//exit(0);
-      }
-      VtxInfo.isValid[VtxInfo.Size] = it_vtx->isValid();
-      VtxInfo.isFake[VtxInfo.Size] = it_vtx->isFake();
-      VtxInfo.Ndof[VtxInfo.Size] = it_vtx->ndof();
-      VtxInfo.NormalizedChi2[VtxInfo.Size] = it_vtx->normalizedChi2();
-      VtxInfo.x[VtxInfo.Size] = it_vtx->x(); 
-      VtxInfo.y[VtxInfo.Size] = it_vtx->y();
-      VtxInfo.z[VtxInfo.Size] = it_vtx->z();
-      VtxInfo.Pt_Sum[VtxInfo.Size] = 0.;
-      VtxInfo.Pt_Sum2[VtxInfo.Size] = 0.;
-      //if its hiSelectedVertex, then there will be only one vertex and will have no associated tracks
-      if(int(VertexHandle->end()-VertexHandle->begin())==1){
-        thePrimaryV = *it_vtx;
-        VtxInfo.Size++;
-        break;
-      }
-
-      for (reco::Vertex::trackRef_iterator it = it_vtx->tracks_begin(); it != it_vtx->tracks_end(); it++) {
-        VtxInfo.Pt_Sum[VtxInfo.Size] += (*it)->pt();
-        VtxInfo.Pt_Sum2[VtxInfo.Size] += ((*it)->pt() * (*it)->pt());
-      }
-      if( VtxInfo.Pt_Sum[VtxInfo.Size] >= PVBS_Pt_Max ){
-        PVBS_Pt_Max = VtxInfo.Pt_Sum[VtxInfo.Size];
-        thePrimaryV = *it_vtx;
-      }            
-      VtxInfo.Size++;
-    }
-  }else{ 
-    thePrimaryV = Vertex(beamSpot.position(), beamSpot.covariance3D());
+  // offlineSlimmedPrimaryVertices is already ordered:
+  // element zero is the CMS-selected primary vertex.
+  if (VertexHandle.isValid() && !VertexHandle->empty() && VertexHandle->front().isValid() && !VertexHandle->front().isFake()) {
+    thePrimaryV = VertexHandle->front();
+  } else {
+    edm::LogWarning("Bfinder")
+        << "No valid primary vertex in event "
+        << iEvent.id();
+    return;
   }
-  RefVtx = thePrimaryV.position();
 
-  EvtInfo.PVx     = thePrimaryV.position().x();
-  EvtInfo.PVy     = thePrimaryV.position().y();
-  EvtInfo.PVz     = thePrimaryV.position().z();
+  RefVtx          = thePrimaryV.position();
+  EvtInfo.PVx     = thePrimaryV.x();
+  EvtInfo.PVy     = thePrimaryV.y();
+  EvtInfo.PVz     = thePrimaryV.z();
   EvtInfo.PVxE    = thePrimaryV.xError();
   EvtInfo.PVyE    = thePrimaryV.yError();
   EvtInfo.PVzE    = thePrimaryV.zError();
   EvtInfo.PVnchi2 = thePrimaryV.normalizedChi2();
   EvtInfo.PVchi2  = thePrimaryV.chi2();
+  // EvtInfo section}}}
+  
 
   auto input_muons = *muons;
+  const auto isUsableTrackRef = [](const reco::TrackRef& ref) { return ref.isNonnull() && ref.isAvailable();};
+
   std::vector<const reco::Track*> input_tracks;
+  std::vector<std::size_t> input_track_packed_indices;
+  input_tracks.reserve(std::min<std::size_t>(tks->size(), MAX_TRACK));
+  input_track_packed_indices.reserve(std::min<std::size_t>(tks->size(), MAX_TRACK));
+  EvtInfo.nChargedTracks = 0.f;
+  EvtInfo.nChargedTracks_LOOSE = 0.f;
+  EvtInfo.nChargedTracks_TIGHT = 0.f;
 
-  EvtInfo.nChargedTracks = 0;
-  EvtInfo.nSelectedChargedTracks = 0;
-  
-  for(auto tk_it = tks->begin(); tk_it != tks->end(); tk_it++){
-    auto track = getFromPC((*tk_it));
-
+  // TRACK loop section{{{
+  for(std::size_t packedIndex = 0; packedIndex < tks->size(); packedIndex++){
+    auto track = getFromPC((*tks)[packedIndex]);
     if (!track) continue;
-    if (abs(track->charge()) != 1) continue;
+    if (std::abs(track->charge()) != 1) continue;
 
-    input_tracks.push_back(track); 
-    
-    // FOR multiplicity 
-    if (abs(track->eta())   > 2.4) continue;
-  
-    EvtInfo.nChargedTracks++;
+    // Tracking-efficiency-corrected event multiplicities. All variations use
+    // the same track loop and common selection; only the IP-significance
+    // threshold and the matching correction table differ.
+    const double relativePtError = track->ptError() / track->pt();
+    const double dxyErrorPV = track->dxyError(RefVtx, thePrimaryV.covariance());
+    const double dzErrorPV = std::hypot(track->dzError(), thePrimaryV.zError());
+    const bool passesCommonMultiplicitySelection =
+        track->quality(reco::TrackBase::qualityByName("highPurity")) &&
+        track->pt() > 0.4 &&
+        std::abs(track->eta()) < 2.4 &&
+        std::isfinite(relativePtError) &&
+        relativePtError >= 0. &&
+        (track->pt() <= 10. || relativePtError <= 0.1) &&
+        std::isfinite(dxyErrorPV) &&
+        dxyErrorPV > 0. &&
+        std::isfinite(dzErrorPV) &&
+        dzErrorPV > 0.;
 
-    if (track->quality(reco::TrackBase::qualityByName("highPurity")) &&
-	    fabs(track->dxy(RefVtx) / track->dxyError()) < 3 && fabs(track->dz(RefVtx) / track->dzError()) < 3 &&
-	    fabs(track->ptError() / track->pt()) < 0.1) {
-	    EvtInfo.nSelectedChargedTracks++;
+    bool passesPbPbMultiplicitySelection = true;
+    if (bfinder::isPbPb(systemYear_)) {
+      const int trackerLayers = track->hitPattern().trackerLayersWithMeasurement();
+      const double normalizedChi2 = track->normalizedChi2();
+      // numberOfValidHits() is unsigned, so the official nHits >= 0
+      // requirement is automatically satisfied by reco::Track.
+      passesPbPbMultiplicitySelection =
+          trackerLayers > 0 &&
+          std::isfinite(normalizedChi2) &&
+          normalizedChi2 / trackerLayers >= 0.;
     }
+
+    if (passesCommonMultiplicitySelection && passesPbPbMultiplicitySelection) {
+      const double absDxySignificance = std::abs(track->dxy(RefVtx) / dxyErrorPV);
+      const double absDzSignificance = std::abs(track->dz(RefVtx) / dzErrorPV);
+      const auto addCorrectedTrack =
+          [&](float& multiplicity,
+              const std::unique_ptr<bfinder::TrackingEfficiencyCorrector>& correction) {
+            multiplicity += correction ? correction->getCorrection(track->pt(), track->eta(), hiBin) : 1.f;
+          };
+
+      if (absDxySignificance <= 5. && absDzSignificance <= 5.)
+        addCorrectedTrack(EvtInfo.nChargedTracks_LOOSE, looseTrackingEfficiency_);
+      if (absDxySignificance <= 3. && absDzSignificance <= 3.)
+        addCorrectedTrack(EvtInfo.nChargedTracks, nominalTrackingEfficiency_);
+      if (absDxySignificance <= 2. && absDzSignificance <= 2.)
+        addCorrectedTrack(EvtInfo.nChargedTracks_TIGHT, tightTrackingEfficiency_);
+    }
+    // EVT multiplicities
+
+    // Track quality pre-selection
+    if(doTkPreCut_){
+      if (track->pt()<tkPtCut_)           continue;
+      if (fabs(track->eta())>tkEtaCut_)   continue;
+      if( !(track->quality(reco::TrackBase::qualityByName("highPurity")))) continue;
+      if( fabs(track->ptError() / track->pt()) > 0.1) continue;
+      int nPixelLayers_nStripLayers = track->hitPattern().pixelLayersWithMeasurement() + track->hitPattern().stripLayersWithMeasurement();
+      if (nPixelLayers_nStripLayers <= 10) continue;
+      if (track->normalizedChi2() / nPixelLayers_nStripLayers > 0.18) continue;
+    }
+    // Track quality pre-selection
+
+    // Reject tracks that belong to a non-calo muon.
+    const auto packedTrackPtr = tks->ptrAt(packedIndex);
+    bool isMuonTrack = false;
+    for(auto it = input_muons.begin(); it != input_muons.end(); it++)
+    {
+      const auto muTrack = it->innerTrack();
+      if (!isUsableTrackRef(muTrack)) continue;
+      if((it->type()|(1<<4))==(1<<4)) continue;
+
+      // Prefer the persistent candidate identity whenever it is available.
+      const auto muonCandidate = it->originalObjectRef();
+      if (muonCandidate.isNonnull() && muonCandidate.isAvailable()) {
+        if (muonCandidate.id() == packedTrackPtr.id() &&
+            muonCandidate.key() == packedTrackPtr.key()) {
+          isMuonTrack = true;
+          break;
+        }
+        continue;
+      }
+
+      // Fallback for muons without an available candidate reference. These
+      // are the same tolerances used by MuonUnpacker to identify a track.
+      const double deltaPhi = std::atan2(std::sin(track->phi() - muTrack->phi()),
+                                         std::cos(track->phi() - muTrack->phi()));
+      if (track->charge() == muTrack->charge() &&
+          track->numberOfValidHits() == muTrack->numberOfValidHits() &&
+          fabs(track->eta() - muTrack->eta()) < 1.e-3 &&
+          fabs(deltaPhi) < 1.e-3 &&
+          fabs((track->pt() - muTrack->pt()) / muTrack->pt()) < 1.e-2) {
+        isMuonTrack = true;
+        break;
+      }
+    }
+    if (isMuonTrack) continue;
+    // Reject tracks that belong to a non-calo muon.
+
+    if(input_tracks.size() >= static_cast<std::size_t>(MAX_TRACK)){
+      fprintf(stderr,"ERROR: number of tracks exceeds the size of array.\n");
+      continue;
+    }
+
+    // keep the track and its packed index for later use
+    input_tracks.push_back(track);
+    input_track_packed_indices.push_back(packedIndex);
   }
-  //printf("-----*****DEBUG:End of EvtInfo.\n");
+  // TRACK loop section{{{
 
   // Double check size=0.
   MuonInfo.size   = 0;
@@ -444,9 +497,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   GenInfo.size    = 0;
     
   std::vector<int> B_counter;
-  for(unsigned int i = 0; i < Bchannel_.size(); i++){
-    B_counter.push_back(0);
-  }
+  for(unsigned int i = 0; i < Bchannel_.size(); i++){ B_counter.push_back(0);}
 
   try{
     const reco::GenParticle* genMuonPtr[MAX_MUON];
@@ -455,16 +506,16 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //standard check for validity of input data
     int genTrackPtr[MAX_TRACK];
     
-    if (input_muons.size() == 0){
-      if (printInfo_) std::cout << "There's no muon : " << iEvent.id() << std::endl;
+    if (input_muons.size() < 2 ){
+      if (printInfo_) std::cout << "There are less than 2 muons: " << iEvent.id() << std::endl;
     }else{
       if (printInfo_) std::cout << "Got " << input_muons.size() << " muons / ";
       if (input_tracks.size() == 0){
-        if (printInfo_) std::cout << "There's no track: " << iEvent.id() << std::endl;
+        if (printInfo_) std::cout << "However, there's no track: " << iEvent.id() << std::endl;
       }else{
         if (printInfo_) std::cout << "Got " << input_tracks.size() << " tracks" << std::endl;
         if (input_tracks.size() > 0 && input_muons.size() > 1){
-
+          
           //MuonInfo section{{{
           int PassedMuon = 0;
           int mu_hindex = -1;
@@ -475,31 +526,38 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               fprintf(stderr,"ERROR: number of muons exceeds the size of array.\n");
               break;//exit(0);
             }
-            
+
+            const auto innerTrack = mu_it->innerTrack();
+            const auto standAloneTrack = mu_it->standAloneMuon();
+            const auto globalTrack = mu_it->globalTrack();
+            const bool hasInnerTrack = isUsableTrackRef(innerTrack);
+            const bool hasStandAloneTrack = isUsableTrackRef(standAloneTrack);
+            const bool hasGlobalTrack = isUsableTrackRef(globalTrack);
+
             //Muon Id flag
             // *Bfinder* 
             MuonInfo.BfinderMuID[MuonInfo.size] = false;
-            if(mu_it->innerTrack().isNonnull()){
+            if(hasInnerTrack){
               if( (mu_it->isTrackerMuon() || mu_it->isGlobalMuon()) 
                   // && (muon::isGoodMuon(*mu_it,muon::TMOneStationTight)) 
-                  && fabs(mu_it->innerTrack()->dxy(RefVtx)) < 4.
-                  && fabs(mu_it->innerTrack()->dz(RefVtx))  < 35.
-                  && mu_it->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 
-                  && mu_it->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5
-                  && mu_it->innerTrack()->normalizedChi2() <= 1.8
+                  && fabs(innerTrack->dxy(RefVtx)) < 4.
+                  && fabs(innerTrack->dz(RefVtx))  < 35.
+                  && innerTrack->hitPattern().pixelLayersWithMeasurement() > 0
+                  && innerTrack->hitPattern().trackerLayersWithMeasurement() > 5
+                  && innerTrack->normalizedChi2() <= 1.8
                   )
                 MuonInfo.BfinderMuID[MuonInfo.size] = true;
             }
             // *HybridSoftMu*
             MuonInfo.HybridSoftMuID[MuonInfo.size] = false;
-            if(mu_it->innerTrack().isNonnull()){
+            if(hasInnerTrack){
               if( (mu_it->isTrackerMuon() && mu_it->isGlobalMuon()) 
                   // && muon::isGoodMuon(*mu_it,muon::TMOneStationTight) 
-                  && mu_it->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 
-                  && mu_it->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5
-                  // && mu_it->innerTrack()->quality(reco::TrackBase::highPurity)
-                  && fabs(mu_it->innerTrack()->dxy(RefVtx)) < 0.3
-                  && fabs(mu_it->innerTrack()->dz(RefVtx))  < 20.
+                  && innerTrack->hitPattern().pixelLayersWithMeasurement() > 0
+                  && innerTrack->hitPattern().trackerLayersWithMeasurement() > 5
+                  // && innerTrack->quality(reco::TrackBase::highPurity)
+                  && fabs(innerTrack->dxy(RefVtx)) < 0.3
+                  && fabs(innerTrack->dz(RefVtx))  < 20.
                   )
                 MuonInfo.HybridSoftMuID[MuonInfo.size] = true;
             }
@@ -559,17 +617,14 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             MuonInfo.geninfo_index  [MuonInfo.size] = -1;                       //initialize for later use
             MuonInfo.TMOneStationTight[MuonInfo.size] = muon::isGoodMuon(*mu_it,muon::TMOneStationTight);//For Muon ID for convenience
             MuonInfo.TrackerMuonArbitrated[MuonInfo.size] = muon::isGoodMuon(*mu_it,muon::TrackerMuonArbitrated);//For Muon ID for convenience
-            MuonInfo.SoftMuID[MuonInfo.size] = muon::isSoftMuon(*mu_it, thePrimaryV);
+            MuonInfo.SoftMuID[MuonInfo.size] = hasInnerTrack && muon::isSoftMuon(*mu_it, thePrimaryV);
             genMuonPtr              [MuonInfo.size] = 0;
             if (!iEvent.isRealData()) genMuonPtr [MuonInfo.size] = mu_it->genParticle();
 
             //Muon standalone info.
-            MuonInfo.isStandAloneMuon[MuonInfo.size] = false;
-            if(mu_it->isStandAloneMuon()){
-              MuonInfo.isStandAloneMuon[MuonInfo.size] = true;
-              reco::TrackRef tkref;
-              tkref = mu_it->standAloneMuon();
-              const reco::Track &trk = *tkref;
+            MuonInfo.isStandAloneMuon[MuonInfo.size] = mu_it->isStandAloneMuon();
+            if(mu_it->isStandAloneMuon() && hasStandAloneTrack){
+              const reco::Track &trk = *standAloneTrack;
               MuonInfo.StandAloneMuon_charge         [MuonInfo.size] = trk.charge();
               MuonInfo.StandAloneMuon_pt             [MuonInfo.size] = trk.pt();
               MuonInfo.StandAloneMuon_eta            [MuonInfo.size] = trk.eta();
@@ -580,47 +635,47 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               MuonInfo.StandAloneMuon_dxyPV          [MuonInfo.size] = trk.dxy(RefVtx);
             }
 
-            MuonInfo.outerTrackisNonnull[MuonInfo.size] = mu_it->outerTrack().isNonnull();
-            MuonInfo.innerTrackisNonnull[MuonInfo.size] = mu_it->innerTrack().isNonnull();
+            MuonInfo.outerTrackisNonnull[MuonInfo.size] = standAloneTrack.isNonnull();
+            MuonInfo.innerTrackisNonnull[MuonInfo.size] = innerTrack.isNonnull();
             //Muon inner track info.
-            if(mu_it->innerTrack().isNonnull()){
+            if(hasInnerTrack){
               //Muon inner track track quality
               //enum TrackQuality { undefQuality = -1, loose = 0, tight = 1, highPurity = 2, confirmed = 3, goodIterative = 4, looseSetWithPV = 5, highPuritySetWithPV = 6, qualitySize = 7}
               for(int tq = 0; tq < reco::TrackBase::qualitySize; tq++){
-                if (mu_it->innerTrack()->quality(static_cast<reco::TrackBase::TrackQuality>(tq))) MuonInfo.innerTrackQuality[MuonInfo.size] += 1 << (tq);
-                //std::cout<<"type: "<<mu_it->innerTrack()->quality(static_cast<reco::TrackBase::TrackQuality>(tq))<<std::endl;
+                if (innerTrack->quality(static_cast<reco::TrackBase::TrackQuality>(tq))) MuonInfo.innerTrackQuality[MuonInfo.size] += 1 << (tq);
+                //std::cout<<"type: "<<innerTrack->quality(static_cast<reco::TrackBase::TrackQuality>(tq))<<std::endl;
               }
-              MuonInfo.highPurity              [MuonInfo.size] = mu_it->innerTrack()->quality(reco::TrackBase::highPurity);
-              MuonInfo.normchi2                [MuonInfo.size] = mu_it->innerTrack()->normalizedChi2();
-              MuonInfo.i_striphit              [MuonInfo.size] = mu_it->innerTrack()->hitPattern().numberOfValidStripHits();
-              MuonInfo.i_pixelhit              [MuonInfo.size] = mu_it->innerTrack()->hitPattern().numberOfValidPixelHits();
-              MuonInfo.i_nStripLayer           [MuonInfo.size] = mu_it->innerTrack()->hitPattern().stripLayersWithMeasurement();
-              MuonInfo.i_nPixelLayer           [MuonInfo.size] = mu_it->innerTrack()->hitPattern().pixelLayersWithMeasurement();
-              MuonInfo.i_chi2                  [MuonInfo.size] = mu_it->innerTrack()->chi2();
-              MuonInfo.i_ndf                   [MuonInfo.size] = mu_it->innerTrack()->ndof();
-              //MuonInfo.fpbarrelhit             [MuonInfo.size] = mu_it->innerTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
-              //MuonInfo.fpendcaphit            [MuonInfo.size] = mu_it->innerTrack()->hitPattern().hasValidHitInFirstPixelEndcap();
+              MuonInfo.highPurity              [MuonInfo.size] = innerTrack->quality(reco::TrackBase::highPurity);
+              MuonInfo.normchi2                [MuonInfo.size] = innerTrack->normalizedChi2();
+              MuonInfo.i_striphit              [MuonInfo.size] = innerTrack->hitPattern().numberOfValidStripHits();
+              MuonInfo.i_pixelhit              [MuonInfo.size] = innerTrack->hitPattern().numberOfValidPixelHits();
+              MuonInfo.i_nStripLayer           [MuonInfo.size] = innerTrack->hitPattern().stripLayersWithMeasurement();
+              MuonInfo.i_nPixelLayer           [MuonInfo.size] = innerTrack->hitPattern().pixelLayersWithMeasurement();
+              MuonInfo.i_chi2                  [MuonInfo.size] = innerTrack->chi2();
+              MuonInfo.i_ndf                   [MuonInfo.size] = innerTrack->ndof();
+              //MuonInfo.fpbarrelhit             [MuonInfo.size] = innerTrack->hitPattern().hasValidHitInFirstPixelBarrel();
+              //MuonInfo.fpendcaphit            [MuonInfo.size] = innerTrack->hitPattern().hasValidHitInFirstPixelEndcap();
               //https://github.com/cms-sw/cmssw/blob/CMSSW_9_2_3/DataFormats/TrackReco/src/HitPattern.cc#L321
               //https://github.com/cms-sw/cmssw/blob/CMSSW_9_2_3/DataFormats/SiPixelDetId/interface/PixelSubdetector.h#L11
-              MuonInfo.fpbarrelhit             [MuonInfo.size] = mu_it->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1);
-              MuonInfo.fpendcaphit             [MuonInfo.size] = mu_it->innerTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
-              MuonInfo.ptErr                   [MuonInfo.size] = mu_it->track()->ptError();
-              MuonInfo.etaErr                  [MuonInfo.size] = mu_it->track()->etaError();
-              MuonInfo.phiErr                  [MuonInfo.size] = mu_it->track()->phiError();
-              MuonInfo.d0                      [MuonInfo.size] = mu_it->track()->d0();
-              MuonInfo.dz                      [MuonInfo.size] = mu_it->track()->dz();
-              MuonInfo.dzPV                    [MuonInfo.size] = mu_it->track()->dz(RefVtx);//==mu_it->innerTrack()->dxy(thePrimaryV.position());
-              MuonInfo.dxyPV                   [MuonInfo.size] = mu_it->track()->dxy(RefVtx);//==mu_it->innerTrack()->dz(thePrimaryV.position());
-              //mu_it->innerTrack()->hitPattern().trackerLayersWithMeasurement() == MuonInfo.i_nStripLayer + MuonInfo.i_nPixelLayer
+              MuonInfo.fpbarrelhit             [MuonInfo.size] = innerTrack->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelBarrel,1);
+              MuonInfo.fpendcaphit             [MuonInfo.size] = innerTrack->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
+              MuonInfo.ptErr                   [MuonInfo.size] = innerTrack->ptError();
+              MuonInfo.etaErr                  [MuonInfo.size] = innerTrack->etaError();
+              MuonInfo.phiErr                  [MuonInfo.size] = innerTrack->phiError();
+              MuonInfo.d0                      [MuonInfo.size] = innerTrack->d0();
+              MuonInfo.dz                      [MuonInfo.size] = innerTrack->dz();
+              MuonInfo.dzPV                    [MuonInfo.size] = innerTrack->dz(RefVtx);
+              MuonInfo.dxyPV                   [MuonInfo.size] = innerTrack->dxy(RefVtx);
+              //innerTrack->hitPattern().trackerLayersWithMeasurement() == MuonInfo.i_nStripLayer + MuonInfo.i_nPixelLayer
             }
             //Muon global track info.
-            MuonInfo.globalTrackisNonnull[MuonInfo.size] = mu_it->globalTrack().isNonnull();
-            if(mu_it->isGlobalMuon()){
-              MuonInfo.g_striphit [MuonInfo.size] = mu_it->globalTrack()->hitPattern().numberOfValidStripHits();
-              MuonInfo.g_pixelhit [MuonInfo.size] = mu_it->globalTrack()->hitPattern().numberOfValidPixelHits();
-              MuonInfo.g_chi2     [MuonInfo.size] = mu_it->globalTrack()->chi2();
-              MuonInfo.g_ndf      [MuonInfo.size] = mu_it->globalTrack()->ndof();
-              MuonInfo.nmuhit     [MuonInfo.size] = mu_it->globalTrack()->hitPattern().numberOfValidMuonHits();
+            MuonInfo.globalTrackisNonnull[MuonInfo.size] = globalTrack.isNonnull();
+            if(mu_it->isGlobalMuon() && hasGlobalTrack){
+              MuonInfo.g_striphit [MuonInfo.size] = globalTrack->hitPattern().numberOfValidStripHits();
+              MuonInfo.g_pixelhit [MuonInfo.size] = globalTrack->hitPattern().numberOfValidPixelHits();
+              MuonInfo.g_chi2     [MuonInfo.size] = globalTrack->chi2();
+              MuonInfo.g_ndf      [MuonInfo.size] = globalTrack->ndof();
+              MuonInfo.nmuhit     [MuonInfo.size] = globalTrack->hitPattern().numberOfValidMuonHits();
             }else{
               MuonInfo.g_striphit [MuonInfo.size] = -1;
               MuonInfo.g_pixelhit [MuonInfo.size] = -1;
@@ -632,7 +687,12 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             //https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMuonAnalysis
             int qm = 0;
             for(int qi=1; qi!= 24; ++qi){
-              if (muon::isGoodMuon(*mu_it, muon::SelectionType(qi))){
+              const auto selectionType = muon::SelectionType(qi);
+              if(selectionType == muon::GlobalMuonPromptTight && !hasGlobalTrack) continue;
+              if(selectionType == muon::GMTkChiCompatibility && !hasInnerTrack) continue;
+              if(selectionType == muon::GMStaChiCompatibility && !hasStandAloneTrack) continue;
+              if(selectionType == muon::TriggerIdLoose && !hasInnerTrack) continue;
+              if (muon::isGoodMuon(*mu_it, selectionType)){
                 qm += 1 << qi;
               }
             }
@@ -645,7 +705,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             else if (fabs(mu_it->eta()) >= 2.1 && fabs(mu_it->eta()) < 2.4 && mu_it->pt() >= 1.5)                                  {MuInAcc = true;} 
 
             //Can not be just CaloMuon or empty type
-            if((MuonInfo.type[MuonInfo.size]|(1<<4))==(1<<4)){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
+            if(!hasInnerTrack){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
+            else if((MuonInfo.type[MuonInfo.size]|(1<<4))==(1<<4)){ MuonInfo.isNeededMuon[MuonInfo.size] = false;}
             else if(doMuPreCut_ && !(MuInAcc)) { MuonInfo.isNeededMuon[MuonInfo.size] = false;}
             else {
               PassedMuon ++;
@@ -656,61 +717,15 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           //std::cout<<"PassedMuon: "<<PassedMuon<<std::endl;
           // printf("-----*****DEBUG:End of MuonInfo.\n");
 
-          //Preselect tracks{{{
-          std::vector<bool> isNeededTrack;// Are the tracks redundant?
-          int PassedTrk = 0;
-          for(auto tk_it_it=input_tracks.begin(); tk_it_it != input_tracks.end(); tk_it_it++){
-            if(PassedTrk >= MAX_TRACK){
-              fprintf(stderr,"ERROR: number of tracks exceeds the size of array.\n");
-              break;
-            }
-
-            auto tk_it = (*tk_it_it); 
-            isNeededTrack.push_back(false);
-            if (!tk_it) continue;
-            
-            // Track quality pre-selection
-            if(doTkPreCut_){
-              if (tk_it->pt()<tkPtCut_)           continue;
-              if (fabs(tk_it->eta())>tkEtaCut_)   continue;
-              
-              if( !(tk_it->quality(reco::TrackBase::qualityByName("highPurity")))) continue;
-              if( fabs(tk_it->ptError() / tk_it->pt()) >= 0.1) continue;
-              int nPixelLayers_nStripLayers = tk_it->hitPattern().pixelLayersWithMeasurement() + tk_it->hitPattern().stripLayersWithMeasurement();
-              if (nPixelLayers_nStripLayers <= 10) continue;
-              if (tk_it->normalizedChi2() / nPixelLayers_nStripLayers >= 0.18) continue;
-            }
-            // Track quality pre-selection
-
-            //reject if muon track 
-            bool isMuonTrack = false; 
-            for(auto it=input_muons.begin() ; it != input_muons.end(); it++){
-              if (!it->track().isNonnull()) continue;
-              if((it->type()|(1<<4))==(1<<4)) continue;//Don't clean track w.r.t. calo muon 
-              if (fabs(tk_it->pt() -it->track()->pt() )<0.00001 &&
-                  fabs(tk_it->eta()-it->track()->eta())<0.00001 &&
-                  fabs(tk_it->phi()-it->track()->phi())<0.00001 ){
-                isMuonTrack = true;
-                break;
-              }
-            }
-            if (isMuonTrack) continue;
-            //reject if muon track 
-
-            isNeededTrack[tk_it_it-input_tracks.begin()] = true;
-            PassedTrk++;
-          }//end of track preselection}}}
-          if(printInfo_) std::cout<<"PassedTrk: "<<PassedTrk<<std::endl;                    
-          //printf("-----*****DEBUG:End of track preselection.\n");
-
           // BInfo section{{{
           int mu1_index  = -1;
           int mu1_hindex = -1;
           bool gogogo = false;
 
           for(auto mu_it1=input_muons.begin(); mu_it1 != input_muons.end(); mu_it1++){
-            //check if muon track is non null
-            if(!mu_it1->track().isNonnull()) continue;
+            if (BInfo.uj_size >= MAX_XB) break;
+            const auto mu1Track = mu_it1->innerTrack();
+            if(!isUsableTrackRef(mu1Track)) continue;
             //Check if it in MuonInfo and isNeedeMuon
             mu1_hindex = int(mu_it1 - input_muons.begin());
             gogogo = false;
@@ -727,8 +742,9 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             int mu2_index = -1;
             int mu2_hindex = -1; 
             for(auto mu_it2=input_muons.begin(); mu_it2 != input_muons.end(); mu_it2++){
-              //check if muon track is non null
-              if(!mu_it2->track().isNonnull()) continue;
+              if (BInfo.uj_size >= MAX_XB) break;
+              const auto mu2Track = mu_it2->innerTrack();
+              if(!isUsableTrackRef(mu2Track)) continue;
               //Check if it in MuonInfo and isNeedeMuon
               mu2_hindex = int(mu_it2 - input_muons.begin()); 
               gogogo = false;
@@ -750,13 +766,10 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.18)   continue;
                 if((v4_mu1+v4_mu2).Pt() < jpsiPtCut_)                continue;
               }
-              else{
-                if(fabs((v4_mu1+v4_mu2).Mag() - JPSI_MASS) > 0.6)    continue;      //ensure MC is light and fast
-              }
 
               //Fit 2 muon
-              reco::TransientTrack muonPTT(mu_it1->track(), &(*bField) );
-              reco::TransientTrack muonMTT(mu_it2->track(), &(*bField) );
+              reco::TransientTrack muonPTT(mu1Track, &(*bField) );
+              reco::TransientTrack muonMTT(mu2Track, &(*bField) );
               if(!muonPTT.isValid()) continue;
               if(!muonMTT.isValid()) continue;
 
@@ -785,7 +798,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 
               double chi2_prob_uj = TMath::Prob(ujVFPvtx->chiSquared(), ujVFPvtx->degreesOfFreedom());
               if(doMuPreCut_){
-                if(fabs(ujVFP->currentState().mass()-JPSI_MASS) >= 0.15) continue;
+                if(fabs(ujVFP->currentState().mass()-JPSI_MASS) > 0.15) continue;
                 if(chi2_prob_uj < uj_VtxChiProbCut_ ) continue;
               }
 
@@ -832,14 +845,13 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               // RECONSTRUCTION: J/psi + K
               //////////////////////////////////////////////////////////////////////////
 
-              float mass_window[2] = {4.9, 6.};
+              float mass_window[2] = {4.9, 6.1};
 
               if(Bchannel_[0] == 1){
                 BranchOut2MuTk(
                                BInfo,
                                input_tracks,
                                thePrimaryV,
-                               isNeededTrack,
                                v4_mu1,
                                v4_mu2,
                                muonPTT,
@@ -864,7 +876,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                BInfo,
                                input_tracks,
                                thePrimaryV,
-                               isNeededTrack,
                                v4_mu1,
                                v4_mu2,
                                muonPTT,
@@ -883,14 +894,13 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
               float TkTk_window = 0.3;
               mass_window[0] = 4.9;
-              mass_window[1] = 6.0;
+              mass_window[1] = 6.1;
 
               if(Bchannel_[2] == 1){
                 BranchOut2MuX_XtoTkTk(
                                       BInfo,
                                       input_tracks,
                                       thePrimaryV,
-                                      isNeededTrack,
                                       v4_mu1,
                                       v4_mu2,
                                       muonPTT,
@@ -918,7 +928,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                       BInfo,
                                       input_tracks,
                                       thePrimaryV,
-                                      isNeededTrack,
                                       v4_mu1,
                                       v4_mu2,
                                       muonPTT,
@@ -946,7 +955,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                       BInfo,
                                       input_tracks,
                                       thePrimaryV,
-                                      isNeededTrack,
                                       v4_mu1,
                                       v4_mu2,
                                       muonPTT,
@@ -967,8 +975,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               // RECONSTRUCTION: J/psi + pi pi <= psi', X(3872), Bs->J/psi f0
               //////////////////////////////////////////////////////////////////////////
 
-              mass_window[0] = 3.6;
-              mass_window[1] = 4;
+              mass_window[0] = 3.1;
+              mass_window[1] = 4.5;
               TkTk_window = 0;
 
               if(Bchannel_[6] == 1){
@@ -976,7 +984,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                       BInfo,
                                       input_tracks,
                                       thePrimaryV,
-                                      isNeededTrack,
                                       v4_mu1,
                                       v4_mu2,
                                       muonPTT,
@@ -1018,9 +1025,6 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               break;
             }
 
-            if(tk_hindex>=int(isNeededTrack.size())) break;
-            if (isNeededTrack[tk_hindex]==false) continue;
-
             //Create list of relative xb candidates for later filling
             std::vector<int> listOfRelativeXbCands1;//1~nXb
             std::vector<int> listOfRelativeXbCands2;//1~nXb
@@ -1030,9 +1034,11 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
 
             if(dropUnusedTracks_ && listOfRelativeXbCands1.size() == 0 && listOfRelativeXbCands2.size() == 0) continue;//drop unused tracks
-                        
+
+            const std::size_t packedIndex = input_track_packed_indices[tk_hindex];
+            const auto packedTrackPtr = tks->ptrAt(packedIndex);
             TrackInfo.index          [TrackInfo.size] = TrackInfo.size;
-            TrackInfo.handle_index   [TrackInfo.size] = tk_hindex;
+            TrackInfo.handle_index   [TrackInfo.size] = static_cast<int>(packedIndex);
             TrackInfo.charge         [TrackInfo.size] = tk_it->charge();
             TrackInfo.pt             [TrackInfo.size] = tk_it->pt();
             TrackInfo.eta            [TrackInfo.size] = tk_it->eta();
@@ -1049,18 +1055,19 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             TrackInfo.fpendcaphit    [TrackInfo.size] = tk_it->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::PixelEndcap,1);
             TrackInfo.chi2           [TrackInfo.size] = tk_it->chi2();
             if (chi2Handle.isValid() && !chi2Handle.failedToGet())
-              TrackInfo.chi2           [TrackInfo.size] = (float)((*chi2Handle)[ tks->ptrAt( tk_hindex ) ]) * tk_it->ndof();
+              TrackInfo.chi2           [TrackInfo.size] = (float)((*chi2Handle)[packedTrackPtr]) * tk_it->ndof();
             TrackInfo.ndf            [TrackInfo.size] = tk_it->ndof();
-            TrackInfo.d0             [TrackInfo.size] = tk_it->d0();
-            TrackInfo.d0error        [TrackInfo.size] = tk_it->d0Error();
-            TrackInfo.dz             [TrackInfo.size] = tk_it->dz();
-            TrackInfo.dzerror        [TrackInfo.size] = tk_it->dzError();
-            TrackInfo.dxy            [TrackInfo.size] = tk_it->dxy();
-            TrackInfo.dxyerror       [TrackInfo.size] = tk_it->dxyError();
-            TrackInfo.dxy1           [TrackInfo.size] = tk_it->dxy(RefVtx);
-            TrackInfo.dxyerror1      [TrackInfo.size] = TMath::Sqrt(tk_it->dxyError()*tk_it->dxyError() + thePrimaryV.xError()*thePrimaryV.yError());
-            TrackInfo.dz1            [TrackInfo.size] = tk_it->dz(RefVtx);
-            TrackInfo.dzerror1       [TrackInfo.size] = TMath::Sqrt(tk_it->dzError()*tk_it->dzError() + thePrimaryV.zError()*thePrimaryV.zError());
+
+            // Impact parameters and uncertainties with respect to the selected PV.
+            const float trackDxyPV = tk_it->dxy(RefVtx);
+            const float trackDxyPVError = tk_it->dxyError(RefVtx, thePrimaryV.covariance());
+            const float trackDzPV = tk_it->dz(RefVtx);
+            const float trackDzPVError = std::hypot(tk_it->dzError(), thePrimaryV.zError());
+
+            TrackInfo.dxy1           [TrackInfo.size] = trackDxyPV;
+            TrackInfo.dxyerror1      [TrackInfo.size] = trackDxyPVError;
+            TrackInfo.dz1            [TrackInfo.size] = trackDzPV;
+            TrackInfo.dzerror1       [TrackInfo.size] = trackDzPVError;
             TrackInfo.highPurity     [TrackInfo.size] = tk_it->quality(reco::TrackBase::qualityByName("highPurity"));
             TrackInfo.geninfo_index  [TrackInfo.size] = -1; //initialize for later use
             TrackInfo.geninfo_pdgId  [TrackInfo.size] = -1; //initialize for later use
@@ -1072,8 +1079,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             // }else
             TrackInfo.dedx             [TrackInfo.size] = -1;
             if (dedxHandle.isValid() && !dedxHandle.failedToGet())
-              TrackInfo.dedx           [TrackInfo.size] = ((*dedxHandle)[ tks->ptrAt( tk_hindex ) ]).dEdx();
-            
+              TrackInfo.dedx           [TrackInfo.size] = ((*dedxHandle)[packedTrackPtr]).dEdx();
 
             // Gen-match
             // https://github.com/cms-sw/cmssw/blob/CMSSW_11_2_X/CommonTools/UtilAlgos/interface/MatchByDRDPt.h
@@ -1223,17 +1229,18 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   catch (std::exception & err){
     std::cout  << "Exception during event number: " << iEvent.id()
                << "\n" << err.what() << "\n";
+    return;
   }//catch 
 
     
   //Made a Bntuple on the fly
   if(makeBntuple_){
-    int ifchannel[8];
-    for(int ichannel=0; ichannel<8; ichannel++){ ifchannel[ichannel] = Bchannel_[ichannel];}
+    int ifchannel[8] = {0};
+    for(int ichannel=0; ichannel<7; ichannel++){ ifchannel[ichannel] = Bchannel_[ichannel];}
     bool REAL = iEvent.isRealData();
     int Btypesize[8]={0,0,0,0,0,0,0,0};  
     Bntuple->makeNtuple(ifchannel, Btypesize, REAL, &EvtInfo, &VtxInfo, &MuonInfo, &TrackInfo, &BInfo, &GenInfo, nt0, nt1, nt2, nt3, nt5, nt6, nt7);
-    if(!REAL) Bntuple->fillGenTree(ntGen, &GenInfo);
+    if(!REAL) Bntuple->fillGenTree(ntGen, &GenInfo, Bchannel_);
   }
 }
 
@@ -1276,9 +1283,8 @@ void Bfinder::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 void Bfinder::BranchOut2MuTk(
                              BInfoBranches &BInfo, 
                              // std::vector<pat::PackedCandidate> input_tracks,
-                             std::vector<const reco::Track*> input_tracks,
-                             reco::Vertex thePrimaryV,
-                             std::vector<bool> isNeededTrack,
+                             const std::vector<const reco::Track*> &input_tracks,
+                             const reco::Vertex &thePrimaryV,
                              TLorentzVector v4_mu1, 
                              TLorentzVector v4_mu2,
                              reco::TransientTrack muonPTT,
@@ -1298,9 +1304,8 @@ void Bfinder::BranchOut2MuTk(
   float muon_sigma = Functs.getParticleSigma(muon_mass);
 
   for(auto tk_it_it1=input_tracks.begin(); tk_it_it1 != input_tracks.end(); tk_it_it1++){
+    if (BInfo.size >= MAX_XB) break;
     tk1_hindex = int(tk_it_it1 - input_tracks.begin());
-    if(tk1_hindex>=int(isNeededTrack.size())) break;
-    if (!isNeededTrack[tk1_hindex]) continue;
     auto tk_it1 = (*tk_it_it1);
 
     if (abs(tk_it1->charge()) != 1) continue;
@@ -1326,9 +1331,9 @@ void Bfinder::BranchOut2MuTk(
     if (MaximumDoca > MaxDocaCut_[channel_number-1]) continue;
       
     ParticleMass uj_mass = MuMu_MASS;
-    MultiTrackKinematicConstraint *uj_c = new TwoTrackMassKinematicConstraint(uj_mass);
+    TwoTrackMassKinematicConstraint uj_c(uj_mass);
     KinematicConstrainedVertexFitter kcvFitter;
-    xbVFT = kcvFitter.fit(Xb_candidate, uj_c); // <--------------- FIT --------------- 
+    xbVFT = kcvFitter.fit(Xb_candidate, &uj_c); // <--------------- FIT ---------------
     if (!xbVFT->isValid()) continue;
 
     xbVFT->movePointerToTheTop();
@@ -1376,22 +1381,21 @@ void Bfinder::BranchOut2MuTk(
     BInfo.pzE[BInfo.size]           = sqrt(xbVFP->currentState().kinematicParametersError().matrix()(5,5));
     BInfo.MaxDoca[BInfo.size]       = MaximumDoca;
 
-    VertexDistance3D a3d;
-    //https://github.com/cms-sw/cmssw/blob/CMSSW_7_5_0/RecoVertex/VertexTools/src/VertexDistance3D.cc
-    BInfo.svpvDistance[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).value();
-    BInfo.svpvDisErr[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).error();
-    if((BInfo.svpvDistance[BInfo.size]/BInfo.svpvDisErr[BInfo.size]) < svpvDistanceCut_[channel_number-1]) continue;
+    const auto svpv3D = VertexDistance3D().distance(thePrimaryV, xbVFPvtx->vertexState());
+    BInfo.svpvDistance[BInfo.size] = svpv3D.value();
+    BInfo.svpvDisErr[BInfo.size] = svpv3D.error();
+    if (!std::isfinite(BInfo.svpvDistance[BInfo.size]) || !std::isfinite(BInfo.svpvDisErr[BInfo.size]) ||
+        BInfo.svpvDisErr[BInfo.size] <= 0. || BInfo.svpvDistance[BInfo.size] / BInfo.svpvDisErr[BInfo.size] < svpvDistanceCut_[channel_number-1]) {
+      continue;
+    }
 
-    reco::Vertex::Point vp1(thePrimaryV.position().x(), thePrimaryV.position().y(), 0.);
-    reco::Vertex::Point vp2(xbVFPvtx->vertexState().position().x(), xbVFPvtx->vertexState().position().y(), 0.);
-    ROOT::Math::SVector<double, 6> sv1(thePrimaryV.covariance(0,0), thePrimaryV.covariance(0,1), thePrimaryV.covariance(1,1), 0., 0., 0.);
-    ROOT::Math::SVector<double, 6> sv2(xbVFPvtx->vertexState().error().cxx(), xbVFPvtx->vertexState().error().cyx(), xbVFPvtx->vertexState().error().cyy(), 0., 0., 0.);
-    reco::Vertex::Error ve1(sv1);
-    reco::Vertex::Error ve2(sv2);
-    reco::Vertex v1(vp1, ve1);
-    reco::Vertex v2(vp2, ve2);
-    BInfo.svpvDistance_2D[BInfo.size] = a3d.distance(v1, v2).value();
-    BInfo.svpvDisErr_2D[BInfo.size]   = a3d.distance(v1, v2).error();
+    const auto svpv2D = VertexDistanceXY().distance(thePrimaryV, xbVFPvtx->vertexState());
+    BInfo.svpvDistance_2D[BInfo.size] = svpv2D.value();
+    BInfo.svpvDisErr_2D[BInfo.size] = svpv2D.error();
+    if (!std::isfinite(BInfo.svpvDistance_2D[BInfo.size]) || !std::isfinite(BInfo.svpvDisErr_2D[BInfo.size]) ||
+        BInfo.svpvDisErr_2D[BInfo.size] <= 0.) {
+      continue;
+    }
 
     BInfo.vtxX[BInfo.size]      = xbVFPvtx->position().x();
     BInfo.vtxY[BInfo.size]      = xbVFPvtx->position().y();
@@ -1446,9 +1450,8 @@ void Bfinder::BranchOut2MuTk(
 //BranchOut2MuX{{{
 void Bfinder::BranchOut2MuX_XtoTkTk(
                                     BInfoBranches &BInfo, 
-                                    std::vector<const reco::Track*> input_tracks,
-                                    reco::Vertex thePrimaryV,
-                                    std::vector<bool> isNeededTrack,
+                                    const std::vector<const reco::Track*> &input_tracks,
+                                    const reco::Vertex &thePrimaryV,
                                     TLorentzVector v4_mu1, 
                                     TLorentzVector v4_mu2,
                                     reco::TransientTrack muonPTT,
@@ -1474,8 +1477,6 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
 
   for(auto tk_it_it1=input_tracks.begin(); tk_it_it1 != input_tracks.end() ; tk_it_it1++){
     tk1_hindex = int(tk_it_it1 - input_tracks.begin());
-    if(tk1_hindex>=int(isNeededTrack.size())) break;
-    if (!isNeededTrack[tk1_hindex]) continue;
     auto tk_it1 = (*tk_it_it1);
 
     if (tk_it1->charge()<0) continue;
@@ -1483,8 +1484,6 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
     for(auto tk_it_it2=input_tracks.begin(); tk_it_it2 != input_tracks.end() ; tk_it_it2++){
       if (BInfo.size >= MAX_XB) break;
       tk2_hindex = int(tk_it_it2 - input_tracks.begin());
-      if(tk2_hindex>=int(isNeededTrack.size())) break;
-      if (!isNeededTrack[tk2_hindex]) continue;
       auto tk_it2 = (*tk_it_it2);
 
       if (tk_it2->charge()>0) continue;
@@ -1581,8 +1580,8 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       if (MaximumDoca > MaxDocaCut_[channel_number-1]) continue;
 
       ParticleMass uj_mass = MuMu_MASS;
-      MultiTrackKinematicConstraint *uj_c = new  TwoTrackMassKinematicConstraint(uj_mass); 
-      xbVFT = kcvFitter.fit(Xb_candidate, uj_c);   // <--------------- FIT --------------- 
+      TwoTrackMassKinematicConstraint uj_c(uj_mass);
+      xbVFT = kcvFitter.fit(Xb_candidate, &uj_c);   // <--------------- FIT ---------------
       if (!xbVFT->isValid()) continue;
 
       xbVFT->movePointerToTheTop();
@@ -1645,22 +1644,21 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       BInfo.pzE[BInfo.size]     = sqrt(xbVFP->currentState().kinematicParametersError().matrix()(5,5));
       BInfo.MaxDoca[BInfo.size] = MaximumDoca;
 
-      VertexDistance3D a3d;
-      //https://github.com/cms-sw/cmssw/blob/CMSSW_7_5_0/RecoVertex/VertexTools/src/VertexDistance3D.cc
-      BInfo.svpvDistance[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).value();
-      BInfo.svpvDisErr[BInfo.size] = a3d.distance(thePrimaryV,xbVFPvtx->vertexState()).error();
-      if( (BInfo.svpvDistance[BInfo.size]/BInfo.svpvDisErr[BInfo.size]) < svpvDistanceCut_[channel_number-1]) continue;
-           
-      reco::Vertex::Point vp1(thePrimaryV.position().x(), thePrimaryV.position().y(), 0.);
-      reco::Vertex::Point vp2(xbVFPvtx->vertexState().position().x(), xbVFPvtx->vertexState().position().y(), 0.);
-      ROOT::Math::SVector<double, 6> sv1(thePrimaryV.covariance(0,0), thePrimaryV.covariance(0,1), thePrimaryV.covariance(1,1), 0., 0., 0.);
-      ROOT::Math::SVector<double, 6> sv2(xbVFPvtx->vertexState().error().cxx(), xbVFPvtx->vertexState().error().cyx(), xbVFPvtx->vertexState().error().cyy(), 0., 0., 0.);
-      reco::Vertex::Error ve1(sv1);
-      reco::Vertex::Error ve2(sv2);
-      reco::Vertex v1(vp1, ve1);
-      reco::Vertex v2(vp2, ve2);
-      BInfo.svpvDistance_2D[BInfo.size] = a3d.distance(v1, v2).value();
-      BInfo.svpvDisErr_2D[BInfo.size] = a3d.distance(v1, v2).error();
+      const auto svpv3D = VertexDistance3D().distance(thePrimaryV, xbVFPvtx->vertexState());
+      BInfo.svpvDistance[BInfo.size] = svpv3D.value();
+      BInfo.svpvDisErr[BInfo.size] = svpv3D.error();
+      if (!std::isfinite(BInfo.svpvDistance[BInfo.size]) || !std::isfinite(BInfo.svpvDisErr[BInfo.size]) || 
+          BInfo.svpvDisErr[BInfo.size] <= 0. || BInfo.svpvDistance[BInfo.size] / BInfo.svpvDisErr[BInfo.size] < svpvDistanceCut_[channel_number-1]) {
+        continue;
+      }
+
+      const auto svpv2D = VertexDistanceXY().distance(thePrimaryV, xbVFPvtx->vertexState());
+      BInfo.svpvDistance_2D[BInfo.size] = svpv2D.value();
+      BInfo.svpvDisErr_2D[BInfo.size] = svpv2D.error();
+      if (!std::isfinite(BInfo.svpvDistance_2D[BInfo.size]) || !std::isfinite(BInfo.svpvDisErr_2D[BInfo.size]) ||
+          BInfo.svpvDisErr_2D[BInfo.size] <= 0.) {
+        continue;
+      }
 
       BInfo.vtxX[BInfo.size]    = xbVFPvtx->position().x();
       BInfo.vtxY[BInfo.size]    = xbVFPvtx->position().y();
@@ -1690,9 +1688,11 @@ void Bfinder::BranchOut2MuX_XtoTkTk(
       //tktk fit info
       BInfo.tktk_unfitted_mass[BInfo.size] = (v4_tk1+v4_tk2).Mag();
       BInfo.tktk_unfitted_pt[BInfo.size]   = (v4_tk1+v4_tk2).Pt();
+      BInfo.tktk_fitValid[BInfo.size]      = false;
 
 
       if(tktk_VFT->isValid() && tktk_VFPvtx->vertexIsValid()){
+        BInfo.tktk_fitValid[BInfo.size] = true;
         std::vector<RefCountedKinematicParticle> tktkCands  = tktk_VFT->finalStateParticles();
         tktk_4vec.SetPxPyPzE(tktk_VFP->currentState().kinematicParameters().momentum().x(),
                              tktk_VFP->currentState().kinematicParameters().momentum().y(),

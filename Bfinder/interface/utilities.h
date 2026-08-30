@@ -2,6 +2,8 @@
 #ifndef _UTILITIES_H_
 #define _UTILITIES_H_
 
+#include <cmath>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -101,15 +103,16 @@ public:
 
   float getParticleSigma(double mass)
   {
-    if(mass == ELECTRON_MASS)
+    constexpr double massTolerance = 1.e-6;
+    if(std::abs(mass - ELECTRON_MASS) < massTolerance)
       return 0.013E-9f;
-    else if(mass == MUON_MASS)
+    else if(std::abs(mass - MUON_MASS) < massTolerance)
       return 4E-9f;
-    else if(mass == PION_MASS)
+    else if(std::abs(mass - PION_MASS) < massTolerance)
       return 3.5E-7f;
-    else if(mass == KAON_MASS)
+    else if(std::abs(mass - KAON_MASS) < massTolerance)
       return 1.6E-5f;
-    else if(mass == PROTON_MASS)
+    else if(std::abs(mass - PROTON_MASS) < massTolerance)
       return 8E-8f;
     else
       return 1E-6;

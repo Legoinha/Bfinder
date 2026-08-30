@@ -44,7 +44,7 @@ int BntupleMerger()
 
   int      Bsize;
   int      RunNo;
-  int      EvtNo;
+  ULong64_t EvtNo;
   int      LumiNo;
   ntKp->SetBranchAddress("Bsize",&Bsize);
   ntKp->SetBranchAddress("RunNo",&RunNo);
@@ -61,8 +61,8 @@ int BntupleMerger()
   TTree* ntSkim_new = ntSkim->CloneTree(0);
 
   Int_t fCurrent = -1;
-  map< pair<int, int>, int> eList;
-  map< pair<int, int>, int>::iterator it;
+  map< pair<ULong64_t, int>, int> eList;
+  map< pair<ULong64_t, int>, int>::iterator it;
   int nDuplicate = 0;
 
   Long64_t nentries = ntKp->GetEntries();
@@ -86,9 +86,9 @@ int BntupleMerger()
 
       //if ((HLTriggers&(ULong64_t)pow(2,0))==(ULong64_t)pow(2,0)) {
       bool isDuplicate = false;
-      pair<int, int> element = make_pair(EvtNo, RunNo);
-      pair<pair<int, int>, int> element2 = make_pair(element, i);
-      pair<map<pair<int, int>, int>::iterator, bool> result = eList.insert(element2);
+      pair<ULong64_t, int> element = make_pair(EvtNo, RunNo);
+      pair<pair<ULong64_t, int>, int> element2 = make_pair(element, i);
+      pair<map<pair<ULong64_t, int>, int>::iterator, bool> result = eList.insert(element2);
       if (result.second == 0) {
         cout << " Duplicated event in File " << inFileNames[fCurrent] << " : " << RunNo << " " << EvtNo << endl;
 	    isDuplicate = true;

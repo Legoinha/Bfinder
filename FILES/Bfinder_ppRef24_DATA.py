@@ -265,6 +265,7 @@ GenLabel     = "prunedGenParticles"
 
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
+process.Bfinder.systemYear = cms.string("ppRef2024")
 
 process.Bfinder.Bchannel         = cms.vint32(1, 0, 0, 1, 0, 1, 1)
 process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
@@ -273,7 +274,7 @@ process.Bfinder.tkPtCut          = cms.double(0.5) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
 process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
 
-process.Bfinder.doTkPreCut = cms.bool(False)
+process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)
 
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_PPRefL1DoubleMu0_v6")
@@ -327,8 +328,7 @@ ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1 #1000
 ivars.outputFile='HiForestMINIAOD_ppRefData.root'
-ivars.inputFiles=cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon1/MINIAOD/PromptReco-v1/000/387/574/00000/04ec4e96-7888-4124-ad89-f0264c56c13a.root',
-                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/396/00000/6cb77b24-8565-40a0-9332-116068728a09.root',
+ivars.inputFiles=cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/396/00000/6cb77b24-8565-40a0-9332-116068728a09.root',
                                        'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon3/MINIAOD/PromptReco-v1/000/387/396/00000/988b6ef5-e3bf-4658-a84f-b81268d896ae.root',
                                        'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon3/MINIAOD/PromptReco-v1/000/387/474/00000/a5fe8a70-0d57-4542-b8be-1604c5f31f8a.root',
                                        'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/474/00000/bb722f1d-da45-42b7-80fe-13dcaaeb7bfb.root',

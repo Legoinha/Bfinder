@@ -249,7 +249,7 @@ process.pAna = cms.EndPath(process.skimanalysis)
 
 
 #################### B finder #################
-runOnMC = False
+runOnMC = True
 VtxLabel = "offlineSlimmedPrimaryVertices"
 TrkLabel = "packedPFCandidates"
 TrkChi2Label = "packedPFCandidateTrackChi2"
