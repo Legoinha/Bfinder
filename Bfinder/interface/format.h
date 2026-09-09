@@ -3,13 +3,13 @@
 #define _XBFRAMEFORMAT_H_
 
 //Note, when the array size gett too large, SetBranchAddress will fail, root will abort w/o error msg
-#define MAX_XB       35000
-#define MAX_MUON     10000
-#define MAX_TRACK    25000
-#define MAX_GEN      35000
+#define MAX_XB       15000
+#define MAX_MUON     5000
+#define MAX_TRACK    4000
+#define MAX_GEN      30000
 #define MAX_BX       150
-#define MAX_Vertices 8000
-#define MAX_TRIGGER  40
+#define MAX_Vertices 4000
+#define MAX_TRIGGER  30
 //
 
 
