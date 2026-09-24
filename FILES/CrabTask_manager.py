@@ -21,7 +21,7 @@ def parse_jobs_count(s):
 
 def manage_crab_tasks(keyword=None):
     # Define the CRAB projects directory and log file
-    crab_jobs_dir = "crab_projects_ppRef"
+    crab_jobs_dir = "crab_projects_X_pbpb23"
     log_filename = f"CrabTask_manager_jobStatus_{keyword if keyword else 'ALL'}.log"
     log_OUTPUT_filename = f"CrabTask_manager_OUTPUT_DIRs_{keyword if keyword else 'ALL'}.txt"
     output_datasets = []
@@ -114,10 +114,10 @@ def manage_crab_tasks(keyword=None):
                     total_FAILED_jobs += FAILED_jobs
                     print(f"{RED} {FAILED_jobs} jobs FAILED.{RESET}")
 
-                    if False:
+                    if True:
                         print(f"{ORANGE}    [→] Resubmitting failed jobs.{RESET}")
                         log_file.write(f"[→] Resubmitting failed jobs. \n")
-                        resubmit_cmd = f"crab resubmit -d {job_dir} --maxmemory 2000 --maxjobruntime 360"  #more memory if needed
+                        resubmit_cmd = f"crab resubmit -d {job_dir} --maxmemory 2000 --maxjobruntime 1800"  #--siteblacklist=T2_BE_IIHE 
                         resubmit_result = subprocess.run(resubmit_cmd, shell=True, capture_output=True, text=True)
 
                         if resubmit_result.returncode != 0:

@@ -18,7 +18,7 @@ config.JobType.psetName = "Bfinder_ppRef24_DATA.py"
 config.JobType.maxMemoryMB = 2000         # request high memory machines.
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 300 # max = 2750
+config.JobType.maxJobRuntimeMin = 500 # max = 2750
 config.JobType.pyCfgParams = ['noprint']
 config.JobType.outputFiles = ['HiForestMINIAOD_ppRefData.root'] 
 
@@ -26,11 +26,18 @@ config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "EventAwareLumiBased"
-config.Data.unitsPerJob = 400000
+config.Data.unitsPerJob = 500000
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
 config.Data.runRange = '387474-387721'
 config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_ppref_387474_387721_Muon.json'
+
+config.Data.ignoreLocality = True      ## only when necessay (to speed up job processing)
+config.Site.whitelist = [
+    'T2_CH_CERN','T2_BE_IIHE','T2_DE_DESY','T2_DE_RWTH','T2_ES_CIEMAT',
+    'T2_IT_Bari','T2_IT_Legnaro','T2_IT_Rome','T2_UK_London_Brunel', 'T2_PT_NCG_Lisbon',
+    'T2_US_Caltech','T2_US_Florida','T2_US_MIT','T2_US_Nebraska','T2_US_Purdue','T2_US_UCSD','T2_US_Wisconsin'
+]
 
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"

@@ -328,12 +328,11 @@ ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1 #1000
 ivars.outputFile='HiForestMINIAOD_ppRefData.root'
-ivars.inputFiles=cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/396/00000/6cb77b24-8565-40a0-9332-116068728a09.root',
-                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon3/MINIAOD/PromptReco-v1/000/387/396/00000/988b6ef5-e3bf-4658-a84f-b81268d896ae.root',
-                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon3/MINIAOD/PromptReco-v1/000/387/474/00000/a5fe8a70-0d57-4542-b8be-1604c5f31f8a.root',
-                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/474/00000/bb722f1d-da45-42b7-80fe-13dcaaeb7bfb.root',
-                                       'root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/574/00000/5e5a3665-0fef-4f02-b0e3-f2f852820f16.root'
-                                       )
+ivars.inputFiles=cms.untracked.vstring("root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon0/MINIAOD/PromptReco-v1/000/387/522/00000/fb334a7e-2e35-4485-963c-a8ce2f07b79a.root",
+                                    "root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon2/MINIAOD/PromptReco-v1/000/387/590/00000/f54982fe-3dcf-4d59-bb71-942dcb7b1344.root",
+                                    "root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon1/MINIAOD/PromptReco-v1/000/387/640/00000/59288202-e390-415d-8cdc-c250f2f2f4b3.root",
+                                    "root://cmsxrootd.fnal.gov//store/data/Run2024J/PPRefDoubleMuon3/MINIAOD/PromptReco-v1/000/387/716/00000/681edf2d-44cd-4feb-a233-4a26d839a2e9.root"
+)
 
 ivars.parseArguments() # get and parse the command line arguments
 

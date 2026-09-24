@@ -126,8 +126,7 @@ process.forest = cms.Path(
     # process.zdcanalyzer #+
 #    process.unpackedMuons +
 #    process.muonAnalyzer
-    )
-
+)
 #customisation
 
 addR3Jets = False
@@ -248,10 +247,11 @@ from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 process.Bfinder.systemYear = cms.string("ppRef2024")
 
-process.Bfinder.Bchannel   = cms.vint32(0, 0, 0, 0, 0, 0, 1)
-process.Bfinder.bPtCut     = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0) # before fit
-process.Bfinder.doTkPreCut = cms.bool(False)
-process.Bfinder.doMuPreCut = cms.bool(False)
+process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
+
+process.Bfinder.bPtCut     = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0) # before fit
+process.Bfinder.doTkPreCut = cms.bool(True)
+process.Bfinder.doMuPreCut = cms.bool(True)
 
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_PPRefL1DoubleMu0_v6")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL1fL1sDoubleMu0L1Filtered0PPRef")
@@ -268,8 +268,16 @@ ivars = VarParsing.VarParsing('analysis')
 ivars.maxEvents = -1
 ivars.outputFile='HiForestMINIAOD_MC.root'
 
-#ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/ppRef_X3872/prompt_X3872_to_Jpsi_Rho_phat5_miniAOD/250324_155722/0000/step3_miniAOD_1.root'
-ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/Bzero_to_JpsiKstar_pthat10_prompt_miniAOD/260223_023950/0000/step3_miniAOD_100.root'
+ivars.inputFiles=cms.untracked.vstring("root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/PSI2S_to_JPsiPiPi_pthat10_prompt_miniAOD/260225_231337/0000/step3_miniAOD_1.root",
+                                       "root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/PSI2S_to_JPsiPiPi_pthat10_prompt_miniAOD/260225_231337/0000/step3_miniAOD_10.root",
+                                       "root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/PSI2S_to_JPsiPiPi_pthat10_prompt_miniAOD/260225_231337/0000/step3_miniAOD_11.root",
+                                       "root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/PSI2S_to_JPsiPiPi_pthat10_prompt_miniAOD/260225_231337/0000/step3_miniAOD_12.root",
+                                       "root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/PSI2S_to_JPsiPiPi_pthat10_prompt_miniAOD/260225_231337/0000/step3_miniAOD_13.root",
+                                       "root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/PSI2S_to_JPsiPiPi_pthat10_prompt_miniAOD/260225_231337/0000/step3_miniAOD_14.root",
+                                       "root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/PSI2S_to_JPsiPiPi_pthat10_prompt_miniAOD/260225_231337/0000/step3_miniAOD_16.root"
+)
+
+#ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_ppRef_X/Bzero_to_JpsiKstar_pthat10_prompt_miniAOD/260223_023950/0000/step3_miniAOD_100.root'
 
 
 import os

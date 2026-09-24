@@ -7,7 +7,7 @@ from Configuration.Eras.Era_Run3_pp_on_PbPb_2023_cff import Run3_pp_on_PbPb_2023
 process = cms.Process('HiForest', Run3_pp_on_PbPb_2023)
 process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(0),
-    numberOfThreads = cms.untracked.uint32(2),
+    numberOfThreads = cms.untracked.uint32(1),
 )
 process.options.numberOfConcurrentLuminosityBlocks = 1
 
@@ -253,10 +253,15 @@ from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 process.Bfinder.systemYear = cms.string("PbPb2023")
 
-process.Bfinder.Bchannel   = cms.vint32(0, 0, 0, 0, 0, 0, 1) 
-process.Bfinder.bPtCut     = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
-process.Bfinder.doTkPreCut = cms.bool(False)
-process.Bfinder.doMuPreCut = cms.bool(False)
+process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
+
+process.Bfinder.bPtCut     = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0) # before fit
+process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)   ## > 0.5%
+process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
+process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
+process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
+process.Bfinder.doTkPreCut = cms.bool(True)
+process.Bfinder.doMuPreCut = cms.bool(True)
 
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("")

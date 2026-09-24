@@ -259,6 +259,10 @@ finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
 
 process.Bfinder.Bchannel   = cms.vint32(0, 0, 0, 0, 0, 0, 1) 
 process.Bfinder.bPtCut     = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
+process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)   ## > 0.5%
+process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
+process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
+process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
 process.Bfinder.doTkPreCut = cms.bool(False)
 process.Bfinder.doMuPreCut = cms.bool(False)
 
