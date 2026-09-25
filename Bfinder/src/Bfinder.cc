@@ -10,6 +10,7 @@
 #include "Bfinder/Bfinder/interface/format.h"
 #include "Bfinder/Bfinder/interface/Bntuple.h"
 #include "Bfinder/Bfinder/interface/utilities.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 //
 // class declaration
 //
@@ -93,6 +94,7 @@ private:
   std::vector<std::string> MuonTriggerMatchingFilter_;
   //edm::InputTag hltLabel_;
   edm::EDGetTokenT< reco::GenParticleCollection > genLabel_;
+  edm::EDGetTokenT< GenEventInfoProduct > genInfoToken_;   // generator pThat for MC
   edm::EDGetTokenT< edm::View<pat::Muon> > muonLabel_;
   edm::EDGetTokenT< edm::View<pat::PackedCandidate> > trackLabel_;
   edm::EDGetTokenT< edm::ValueMap<float> > chi2Map_;
@@ -188,6 +190,7 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   MuonTriggerMatchingPath_ = iConfig.getParameter<std::vector<std::string> >("MuonTriggerMatchingPath");
   MuonTriggerMatchingFilter_ = iConfig.getParameter<std::vector<std::string> >("MuonTriggerMatchingFilter");
   genLabel_       = consumes< reco::GenParticleCollection >(iConfig.getParameter<edm::InputTag>("GenLabel"));
+  genInfoToken_   = consumes< GenEventInfoProduct >(edm::InputTag("generator"));
   trackLabel_     = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
   chi2Map_        = consumes< edm::ValueMap<float> >(iConfig.getParameter< edm::InputTag >("TrackChi2Label"));
   dedxMap_        = consumes< edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("TrackDedxLabel"));
@@ -294,6 +297,8 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.LumiNo  = iEvent.luminosityBlock();
   EvtInfo.Orbit   = iEvent.orbitNumber();
   EvtInfo.McFlag  = !iEvent.isRealData();
+  // Generator pThat, needed to weight the inclusive pThat>X MC samples correctly.
+  if (!iEvent.isRealData()) EvtInfo.pthat = iEvent.get(genInfoToken_).binningValues()[0];
 
   int hiBin = -1;
   if (centrality.isValid() && cbin.isValid()) {

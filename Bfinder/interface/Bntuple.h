@@ -18,6 +18,7 @@ public:
   float    PVx;
   float    PVy;
   float    PVz;
+  float    pthat;   // generator pThat, per event; 0 in data
   float    PVxE;
   float    PVyE;
   float    PVzE;
@@ -324,6 +325,7 @@ public:
     nt->Branch("PVx",&PVx);
     nt->Branch("PVy",&PVy);
     nt->Branch("PVz",&PVz);
+    nt->Branch("pthat",&pthat);
     nt->Branch("PVxE",&PVxE);
     nt->Branch("PVyE",&PVyE);
     nt->Branch("PVzE",&PVzE);
@@ -656,6 +658,7 @@ public:
   void buildGenBranch(TTree* nt)
   {
     nt->Branch("Gsize",&Gsize);
+    nt->Branch("pthat",&pthat);   // set by fillTreeEvt() for the same event
     nt->Branch("Gy",Gy,"Gy[Gsize]/F");
     //nt->Branch("Geta",Geta,"Geta[Gsize]/F");
     //nt->Branch("Gphi",Gphi,"Gphi[Gsize]/F");
@@ -843,6 +846,7 @@ public:
     PVx = EvtInfo->PVx;
     PVy = EvtInfo->PVy;
     PVz = EvtInfo->PVz;
+    pthat = EvtInfo->pthat;
     PVxE = EvtInfo->PVxE;
     PVyE = EvtInfo->PVyE;
     PVzE = EvtInfo->PVzE;

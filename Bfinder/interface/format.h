@@ -100,6 +100,7 @@ public:
   int	Orbit;
   int nBX;
   bool McFlag;
+  float pthat;   // generator pThat (GenEventInfoProduct binning value); 0 in data
   int BXPU[MAX_BX];
   int nPU[MAX_BX];
   float trueIT[MAX_BX];
@@ -147,6 +148,7 @@ public:
     root->Branch("EvtInfo.LumiNo"       , &LumiNo                    , "EvtInfo.LumiNo/I"			);
     //root->Branch("EvtInfo.Orbit"        , &Orbit                     , "EvtInfo.Orbit/I"			);
     root->Branch("EvtInfo.McFlag"       , &McFlag                    , "EvtInfo.McFlag/O"			);
+    root->Branch("EvtInfo.pthat"        , &pthat                     , "EvtInfo.pthat/F"			);
     //root->Branch("EvtInfo.nBX"          , &nBX                       , "EvtInfo.nBX/I" 			);
     //root->Branch("EvtInfo.BXPU"         , BXPU                       , "EvtInfo.BXPU[EvtInfo.nBX]/I");
     //root->Branch("EvtInfo.nPU"          , nPU                        , "EvtInfo.nPU[EvtInfo.nBX]/I");
@@ -188,6 +190,7 @@ public:
     root->SetBranchAddress("EvtInfo.CentBin"        ,&CentBin       );
     //root->SetBranchAddress("EvtInfo.Orbit"          ,&Orbit       );
     root->SetBranchAddress("EvtInfo.McFlag"         ,&McFlag      );
+    root->SetBranchAddress("EvtInfo.pthat"          ,&pthat       );
     //root->SetBranchAddress("EvtInfo.nBX"            ,&nBX         );
     //root->SetBranchAddress("EvtInfo.BXPU"           ,BXPU         );
     //root->SetBranchAddress("EvtInfo.nPU"            ,nPU          );
