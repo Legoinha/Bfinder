@@ -163,6 +163,26 @@ def build_task_config(sample_key, pthat):
     return task_config
 
 
+# Private ppRef samples (DAS instance prod/phys03). The request names are the path patterns
+# used for them in Analysis_CODES/flatER/config/mc_normalization.csv.
+PRIVATE_SAMPLES = {
+    "MC_PRIVATE_prompt_X3872_to_Jpsi_Rho_phat10_Bfinder":
+        "/MC_ppRef_X/hmarques-X3872_prompt_to_JPsiRho_pthat10_miniAOD-6f03abc0b379285456b22033b16cec86/USER",
+    "MC_PRIVATE_nonprompt_X3872_to_Jpsi_Rho_phat5_Bfinder":
+        "/ppRef_X3872/hmarques-nonprompt_X3872_to_Jpsi_Rho_phat5_miniAOD-b08ea5aba0caf44286efb8557bf5e709/USER",
+}
+
+
+def build_private_task_config(request_name, dataset):
+    # Same ppRef settings as the official samples; only the input and the names differ.
+    task_config = build_task_config(("ppref", "prompt", "psi2s"), PTHAT_BINS[0])
+    task_config.Data.inputDBS = "phys03"
+    task_config.Data.inputDataset = dataset
+    task_config.General.requestName = request_name
+    task_config.Data.outputDatasetTag = request_name
+    return task_config
+
+
 def run_crab_submit(task_config):
     try:
         crabCommand("submit", config=task_config, dryrun=False)
@@ -190,6 +210,12 @@ def submit(task_config):
         )
 
 
+def submit_private_samples(private_flags):
+    for request_name, enabled in private_flags.items():
+        if enabled:
+            submit(build_private_task_config(request_name, PRIVATE_SAMPLES[request_name]))
+
+
 def submit_enabled_samples(submission_flags):
     for sample_key, enabled in submission_flags.items():
         if not enabled:
@@ -204,9 +230,13 @@ def submit_enabled_samples(submission_flags):
 ######################################################################################################################################################
 
 # Official ppRef samples.
-SUBMIT_PPREF_MC_PROMPT_X_PIPI = True
-SUBMIT_PPREF_MC_PROMPT_PSI2S = True
-SUBMIT_PPREF_MC_NONPROMPT_PSI2S = True
+SUBMIT_PPREF_MC_PROMPT_X_PIPI = False
+SUBMIT_PPREF_MC_PROMPT_PSI2S = False
+SUBMIT_PPREF_MC_NONPROMPT_PSI2S = False
+
+# Private ppRef samples (see PRIVATE_SAMPLES).
+SUBMIT_PPREF_MC_PRIVATE_PROMPT_X_RHO = True
+SUBMIT_PPREF_MC_PRIVATE_NONPROMPT_X_RHO = True
 
 # Official PbPb23 samples.
 SUBMIT_PBPB23_MC_PROMPT_X = False
@@ -228,5 +258,12 @@ SUBMISSION_FLAGS = {
 }
 
 
+PRIVATE_SUBMISSION_FLAGS = {
+    "MC_PRIVATE_prompt_X3872_to_Jpsi_Rho_phat10_Bfinder": SUBMIT_PPREF_MC_PRIVATE_PROMPT_X_RHO,
+    "MC_PRIVATE_nonprompt_X3872_to_Jpsi_Rho_phat5_Bfinder": SUBMIT_PPREF_MC_PRIVATE_NONPROMPT_X_RHO,
+}
+
+
 if __name__ == "__main__":
     submit_enabled_samples(SUBMISSION_FLAGS)
+    submit_private_samples(PRIVATE_SUBMISSION_FLAGS)
