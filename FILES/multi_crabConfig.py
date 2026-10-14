@@ -8,14 +8,14 @@ from CRABClient.UserUtilities import config
 config = config()
 
 config.section_("General")
-config.General.workArea = 'crab_projects_ppRef'
+config.General.workArea = 'crab_projects_ppRef_DATA'
 config.General.transferOutputs = True
 config.General.transferLogs = False
 
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "Bfinder_ppRef24_DATA.py"
-config.JobType.maxMemoryMB = 2000         # request high memory machines.
+config.JobType.maxMemoryMB = 2200         # request high memory machines.
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
 config.JobType.maxJobRuntimeMin = 500 # max = 2750

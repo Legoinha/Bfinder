@@ -121,6 +121,10 @@ public:
   float	PVzE;
   float	PVnchi2;
   float	PVchi2;
+  int nPV;
+  int puFilterOlv;    // ppRef pileup flags (PileupStudy puTag*): 1 = no pileup vertex found, 0 = pileup, -1 = not run
+  int puFilterGplus;
+  int puFilterVtx1;
   float  BSx;
   float  BSy;
   float  BSz;
@@ -139,6 +143,7 @@ public:
   float nChargedTracks;
   float nChargedTracks_LOOSE;
   float nChargedTracks_TIGHT;
+  float nChargedTracks_UNCORR; // nominal selection, no tracking-efficiency correction
 		
   void regTree(TTree *root){//{{{
     root->Branch("EvtInfo.RunNo"        , &RunNo                     , "EvtInfo.RunNo/I"			);
@@ -161,6 +166,10 @@ public:
     root->Branch("EvtInfo.PVzE"         , &PVzE                      , "EvtInfo.PVzE/F"           );
     root->Branch("EvtInfo.PVnchi2"      , &PVnchi2                   , "EvtInfo.PVnchi2/F"		);
     root->Branch("EvtInfo.PVchi2"       , &PVchi2                    , "EvtInfo.PVchi2/F"			);
+    root->Branch("EvtInfo.nPV"           , &nPV                       , "EvtInfo.nPV/I"             );
+    root->Branch("EvtInfo.puFilterOlv"   , &puFilterOlv               , "EvtInfo.puFilterOlv/I"     );
+    root->Branch("EvtInfo.puFilterGplus" , &puFilterGplus             , "EvtInfo.puFilterGplus/I"   );
+    root->Branch("EvtInfo.puFilterVtx1"  , &puFilterVtx1              , "EvtInfo.puFilterVtx1/I"    );
     //root->Branch("EvtInfo.BSx"          , &BSx                       , "EvtInfo.BSx/F"			);
     //root->Branch("EvtInfo.BSy"          , &BSy                       , "EvtInfo.BSy/F"			);
     //root->Branch("EvtInfo.BSz"          , &BSz                       , "EvtInfo.BSz/F"			);
@@ -179,6 +188,7 @@ public:
     root->Branch("EvtInfo.nChargedTracks", &nChargedTracks, "EvtInfo.nChargedTracks/F");
     root->Branch("EvtInfo.nChargedTracks_LOOSE", &nChargedTracks_LOOSE, "EvtInfo.nChargedTracks_LOOSE/F");
     root->Branch("EvtInfo.nChargedTracks_TIGHT", &nChargedTracks_TIGHT, "EvtInfo.nChargedTracks_TIGHT/F");
+    root->Branch("EvtInfo.nChargedTracks_UNCORR", &nChargedTracks_UNCORR, "EvtInfo.nChargedTracks_UNCORR/F");
 
   }//}}}
 
@@ -203,6 +213,10 @@ public:
     root->SetBranchAddress("EvtInfo.PVzE"           ,&PVzE	);
     root->SetBranchAddress("EvtInfo.PVnchi2"        ,&PVnchi2	);
     root->SetBranchAddress("EvtInfo.PVchi2"         ,&PVchi2	);
+    root->SetBranchAddress("EvtInfo.nPV"             ,&nPV        );
+    root->SetBranchAddress("EvtInfo.puFilterOlv"     ,&puFilterOlv  );
+    root->SetBranchAddress("EvtInfo.puFilterGplus"   ,&puFilterGplus);
+    root->SetBranchAddress("EvtInfo.puFilterVtx1"    ,&puFilterVtx1 );
     //root->SetBranchAddress("EvtInfo.BSx"            ,&BSx	    );
     //root->SetBranchAddress("EvtInfo.BSy"            ,&BSy	    );
     //root->SetBranchAddress("EvtInfo.BSz"            ,&BSz	    );
@@ -221,6 +235,7 @@ public:
     root->SetBranchAddress("EvtInfo.nChargedTracks", &nChargedTracks);
     root->SetBranchAddress("EvtInfo.nChargedTracks_LOOSE", &nChargedTracks_LOOSE);
     root->SetBranchAddress("EvtInfo.nChargedTracks_TIGHT", &nChargedTracks_TIGHT);
+    root->SetBranchAddress("EvtInfo.nChargedTracks_UNCORR", &nChargedTracks_UNCORR);
   } //}}}
 }; //}}}
 

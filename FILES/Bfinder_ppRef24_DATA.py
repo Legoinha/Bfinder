@@ -273,7 +273,6 @@ process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005
 process.Bfinder.tkPtCut          = cms.double(0.5) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
 process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
-
 process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)
 
@@ -281,6 +280,14 @@ process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_PPRefL1DoubleMu0_v6")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL1fL1sDoubleMu0L1Filtered0PPRef")
 process.BfinderSequence.insert(0, process.unpackedMuons)
 process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
+
+# ppRef pileup decisions (PileupStudy fork, puTagSequence): stored by Bfinder as
+# puFilterOlv (nominal) / puFilterGplus / puFilterVtx1; never rejects, cut offline
+process.load('PileupStudy.PileupFilter.pileUpFilter_ppRef5p36TeV_miniAOD_cff')
+process.BfinderSequence.insert(0, process.puTagSequence)
+process.Bfinder.PileupFlagOlv   = cms.InputTag('puTagOlv')
+process.Bfinder.PileupFlagGplus = cms.InputTag('puTagGplus')
+process.Bfinder.PileupFlagVtx1  = cms.InputTag('puTagVtx1')
 process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
 
 process.p = cms.Path(process.BfinderSequence)

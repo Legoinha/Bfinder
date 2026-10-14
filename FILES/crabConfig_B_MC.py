@@ -38,7 +38,7 @@ CAMPAIGNS = {
     "pbpb23": {
         "pset": "forest_miniAOD_run3_MC_wBfinder_2023.py",
         "work_area": "crab_projects_B/MC_pbpb23",
-        "out_lfn": "/store/user/hmarques/MC_PbPb23_Bmesons/",
+        "out_lfn": "/store/user/hmarques/RUN3_MCs/MC_PbPb23_Bmesons/",
         "processing": "HINPbPbSpring23MiniAOD-132X_mcRun3_2023_realistic_HI_v9-v2",
         "request_prefix": "MC_PbPb",
         "name_suffix": "pbpb23",
@@ -46,7 +46,7 @@ CAMPAIGNS = {
     "ppref": {
         "pset": "Bfinder_ppRef24_MC.py",
         "work_area": "crab_projects_B/MC_ppRef",
-        "out_lfn": "/store/user/hmarques/MC_ppRef_Bmesons/",
+        "out_lfn": "/store/user/hmarques/RUN3_MCs/MC_ppRef_Bmesons/",
         "processing": "RunIIIpp5p36Winter24MiniAOD-141X_mcRun3_2024_realistic_ppRef5TeV_v7-v2",
         "request_prefix": "MC_ppRef",
         "name_suffix": "",
@@ -153,7 +153,7 @@ def build_task_config(sample_key, pthat):
     task_config.Data.inputDBS = "global"
     task_config.Data.inputDataset = build_dataset(campaign, sample, pthat)
     task_config.Data.splitting = "EventAwareLumiBased"
-    task_config.Data.unitsPerJob = 2000
+    task_config.Data.unitsPerJob = 50000
     task_config.Data.totalUnits = -1
     task_config.Data.ignoreLocality = True
     task_config.Data.publication = False
@@ -167,7 +167,7 @@ def build_task_config(sample_key, pthat):
     task_config.Data.outputDatasetTag = base_name
 
     task_config.Site.whitelist = SITE_WHITELIST
-    task_config.Site.storageSite = "T2_PT_NCG_Lisbon"
+    task_config.Site.storageSite = "T3_CH_CERNBOX"
 
     return task_config
 
@@ -219,9 +219,9 @@ def submit_enabled_samples(submission_flags):
 SUBMIT_PPREF_MC_BPLUS = True
 
 # Official PbPb23 B-meson samples.
-SUBMIT_PBPB23_MC_BPLUS = True
-SUBMIT_PBPB23_MC_BS = True
-SUBMIT_PBPB23_MC_BZERO = True
+SUBMIT_PBPB23_MC_BPLUS = False
+SUBMIT_PBPB23_MC_BS = False
+SUBMIT_PBPB23_MC_BZERO = False
 
 
 SUBMISSION_FLAGS = {

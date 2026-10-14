@@ -24,6 +24,10 @@ public:
   float    PVzE;
   float    PVnchi2;
   float    PVchi2;
+  int      nPV;
+  int      puFilterOlv;    // 1 = no pileup vertex found, 0 = pileup, -1 = not run
+  int      puFilterGplus;
+  int      puFilterVtx1;
   float    BSx;
   float    BSy;
   float    BSz;
@@ -41,6 +45,7 @@ public:
   float    nChargedTracks;
   float    nChargedTracks_LOOSE;
   float    nChargedTracks_TIGHT;
+  float    nChargedTracks_UNCORR;
   
   //BInfo
   int       Bindex[MAX_XB];
@@ -330,6 +335,10 @@ public:
     nt->Branch("PVyE",&PVyE);
     nt->Branch("PVzE",&PVzE);
     nt->Branch("PVnchi2",&PVnchi2);
+    nt->Branch("nPV",&nPV);
+    nt->Branch("puFilterOlv",&puFilterOlv);
+    nt->Branch("puFilterGplus",&puFilterGplus);
+    nt->Branch("puFilterVtx1",&puFilterVtx1);
     //nt->Branch("PVchi2",&PVchi2);
     /*
     nt->Branch("BSx",&BSx);
@@ -350,6 +359,7 @@ public:
     nt->Branch("nChargedTracks",&nChargedTracks);
     nt->Branch("nChargedTracks_LOOSE",&nChargedTracks_LOOSE);
     nt->Branch("nChargedTracks_TIGHT",&nChargedTracks_TIGHT);
+    nt->Branch("nChargedTracks_UNCORR",&nChargedTracks_UNCORR);
     
     if(isJpsi)
       {
@@ -852,6 +862,10 @@ public:
     PVzE = EvtInfo->PVzE;
     PVnchi2 = EvtInfo->PVnchi2;
     PVchi2 = EvtInfo->PVchi2;
+    nPV = EvtInfo->nPV;
+    puFilterOlv = EvtInfo->puFilterOlv;
+    puFilterGplus = EvtInfo->puFilterGplus;
+    puFilterVtx1 = EvtInfo->puFilterVtx1;
     BSx = EvtInfo->BSx;
     BSy = EvtInfo->BSy;
     BSz = EvtInfo->BSz;
@@ -869,6 +883,7 @@ public:
     nChargedTracks = EvtInfo->nChargedTracks;
     nChargedTracks_LOOSE = EvtInfo->nChargedTracks_LOOSE;
     nChargedTracks_TIGHT = EvtInfo->nChargedTracks_TIGHT;
+    nChargedTracks_UNCORR = EvtInfo->nChargedTracks_UNCORR;
 
   }
   

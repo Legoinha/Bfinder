@@ -117,6 +117,10 @@ def finderMaker_75X(process, runOnMC = True, VtxLabel = "hiSelectedVertex", TrkL
                                          TrackDedxLabel = cms.InputTag('dedxEstimator:dedxAllLikelihood'),
                                          BSLabel = cms.InputTag("offlineBeamSpot"),
                                          PVLabel = cms.InputTag(VtxLabel),
+                                         # ppRef pileup decisions (PileupStudy puTagSequence); empty = not run (-1 in the ntuple)
+                                         PileupFlagOlv   = cms.InputTag(""),
+                                         PileupFlagGplus = cms.InputTag(""),
+                                         PileupFlagVtx1  = cms.InputTag(""),
                                          tkPtCut = cms.double(0.0),   #before fit
                                          tkEtaCut = cms.double(999.),  #before fit  
                                          jpsiPtCut = cms.double(0.0), #before fit

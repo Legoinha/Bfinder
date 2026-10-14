@@ -95,6 +95,8 @@ private:
   //edm::InputTag hltLabel_;
   edm::EDGetTokenT< reco::GenParticleCollection > genLabel_;
   edm::EDGetTokenT< GenEventInfoProduct > genInfoToken_;   // generator pThat for MC
+  // ppRef pileup decisions (PileupStudy puTag* producers); uninitialized when not configured
+  edm::EDGetTokenT< bool > puFilterOlvToken_, puFilterGplusToken_, puFilterVtx1Token_;
   edm::EDGetTokenT< edm::View<pat::Muon> > muonLabel_;
   edm::EDGetTokenT< edm::View<pat::PackedCandidate> > trackLabel_;
   edm::EDGetTokenT< edm::ValueMap<float> > chi2Map_;
@@ -191,6 +193,12 @@ Bfinder::Bfinder(const edm::ParameterSet& iConfig):theConfig(iConfig)
   MuonTriggerMatchingFilter_ = iConfig.getParameter<std::vector<std::string> >("MuonTriggerMatchingFilter");
   genLabel_       = consumes< reco::GenParticleCollection >(iConfig.getParameter<edm::InputTag>("GenLabel"));
   genInfoToken_   = consumes< GenEventInfoProduct >(edm::InputTag("generator"));
+  const auto consumesFlag = [this](const edm::InputTag& tag) {
+    return tag.label().empty() ? edm::EDGetTokenT<bool>() : consumes<bool>(tag);
+  };
+  puFilterOlvToken_   = consumesFlag(iConfig.getParameter<edm::InputTag>("PileupFlagOlv"));
+  puFilterGplusToken_ = consumesFlag(iConfig.getParameter<edm::InputTag>("PileupFlagGplus"));
+  puFilterVtx1Token_  = consumesFlag(iConfig.getParameter<edm::InputTag>("PileupFlagVtx1"));
   trackLabel_     = consumes< edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
   chi2Map_        = consumes< edm::ValueMap<float> >(iConfig.getParameter< edm::InputTag >("TrackChi2Label"));
   dedxMap_        = consumes< edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("TrackDedxLabel"));
@@ -300,6 +308,13 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Generator pThat, needed to weight the inclusive pThat>X MC samples correctly.
   if (!iEvent.isRealData()) EvtInfo.pthat = iEvent.get(genInfoToken_).binningValues()[0];
 
+  const auto readFlag = [&iEvent](const edm::EDGetTokenT<bool>& token) {
+    return token.isUninitialized() ? -1 : static_cast<int>(iEvent.get(token));
+  };
+  EvtInfo.puFilterOlv   = readFlag(puFilterOlvToken_);
+  EvtInfo.puFilterGplus = readFlag(puFilterGplusToken_);
+  EvtInfo.puFilterVtx1  = readFlag(puFilterVtx1Token_);
+
   int hiBin = -1;
   if (centrality.isValid() && cbin.isValid()) {
     hiBin = *cbin;
@@ -358,6 +373,11 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
   }
 
+  EvtInfo.nPV = 0;
+  for (const auto& vertex : *VertexHandle) {
+    if (vertex.isValid() && !vertex.isFake()) ++EvtInfo.nPV;
+  }
+
   RefVtx          = thePrimaryV.position();
   EvtInfo.PVx     = thePrimaryV.x();
   EvtInfo.PVy     = thePrimaryV.y();
@@ -380,6 +400,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.nChargedTracks = 0.f;
   EvtInfo.nChargedTracks_LOOSE = 0.f;
   EvtInfo.nChargedTracks_TIGHT = 0.f;
+  EvtInfo.nChargedTracks_UNCORR = 0.f;
 
   // TRACK loop section{{{
   for(std::size_t packedIndex = 0; packedIndex < tks->size(); packedIndex++){
@@ -428,8 +449,10 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (absDxySignificance <= 5. && absDzSignificance <= 5.)
         addCorrectedTrack(EvtInfo.nChargedTracks_LOOSE, looseTrackingEfficiency_);
-      if (absDxySignificance <= 3. && absDzSignificance <= 3.)
+      if (absDxySignificance <= 3. && absDzSignificance <= 3.) {
         addCorrectedTrack(EvtInfo.nChargedTracks, nominalTrackingEfficiency_);
+        EvtInfo.nChargedTracks_UNCORR += 1.f;
+      }
       if (absDxySignificance <= 2. && absDzSignificance <= 2.)
         addCorrectedTrack(EvtInfo.nChargedTracks_TIGHT, tightTrackingEfficiency_);
     }

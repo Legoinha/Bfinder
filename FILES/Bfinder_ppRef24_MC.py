@@ -5,6 +5,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_2024_ppRef_cff import Run3_2024_ppRef
 process = cms.Process('HiForest', Run3_2024_ppRef)
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+)
+process.options.numberOfConcurrentLuminosityBlocks = 1
 
 ###############################################################################
 
@@ -249,7 +254,11 @@ process.Bfinder.systemYear = cms.string("ppRef2024")
 
 process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
 
-process.Bfinder.bPtCut     = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0) # before fit
+process.Bfinder.bPtCut           = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
+process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)   ## > 0.5%
+process.Bfinder.tkPtCut          = cms.double(0.5) # before fit
+process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
+process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
 process.Bfinder.doTkPreCut = cms.bool(True)
 process.Bfinder.doMuPreCut = cms.bool(True)
 
@@ -257,6 +266,14 @@ process.Bfinder.MuonTriggerMatchingPath = cms.vstring("HLT_PPRefL1DoubleMu0_v6")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("hltL1fL1sDoubleMu0L1Filtered0PPRef")
 process.BfinderSequence.insert(0, process.unpackedMuons)
 process.BfinderSequence.insert(0, process.unpackedTracksAndVertices)
+
+# ppRef pileup decisions (PileupStudy fork, puTagSequence): stored by Bfinder as
+# puFilterOlv (nominal) / puFilterGplus / puFilterVtx1; never rejects, cut offline
+process.load('PileupStudy.PileupFilter.pileUpFilter_ppRef5p36TeV_miniAOD_cff')
+process.BfinderSequence.insert(0, process.puTagSequence)
+process.Bfinder.PileupFlagOlv   = cms.InputTag('puTagOlv')
+process.Bfinder.PileupFlagGplus = cms.InputTag('puTagGplus')
+process.Bfinder.PileupFlagVtx1  = cms.InputTag('puTagVtx1')
 process.unpackedMuons.muonSelectors = cms.vstring() # uncomment for pp
 
 process.p = cms.Path(process.BfinderSequence)
