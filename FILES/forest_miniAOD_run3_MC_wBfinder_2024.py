@@ -44,7 +44,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '141X_mcRun3_2024_realistic_HI_v11', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '141X_mcRun3_2024_realistic_HI_v17', '')  # v17 contains the official 2024 MC centrality table (HydjetCello_v1401x0_official_MC2024)
 process.HiForestInfo.GlobalTagLabel = process.GlobalTag.globaltag
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
@@ -58,16 +58,7 @@ process.GlobalTag.toGet.extend([
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
-
-process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
-process.GlobalTag.toGet.extend([
-    cms.PSet(record = cms.string("HeavyIonRcd"),
-        tag = cms.string("CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v140x01_offline_Nominal"),
-        #connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-        connect = cms.string('sqlite_file:CentralityTable_HFtowers200_DataPbPb2024_periHYDJETshape_run3v140x01_offline_Nominal.db'),
-        label = cms.untracked.string("HFtowers")
-        ),
-    ])
+# Centrality table taken from the GlobalTag (no sqlite override needed for 2024 MC)
 
 ###############################################################################
 
