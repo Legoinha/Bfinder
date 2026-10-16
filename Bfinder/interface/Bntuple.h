@@ -14,6 +14,7 @@ public:
   int      LumiNo;
   int      Bsize;
   int      CentBin;   // centrality bin
+  float    hiHF;      // HF tower ET sum, to re-bin offline with nominal/SysUp/SysDown tables
   int      Jsize;
   float    PVx;
   float    PVy;
@@ -325,6 +326,7 @@ public:
     //EvtInfo
     nt->Branch("RunNo",&RunNo);
     nt->Branch("CentBin", &CentBin);  //centrality
+    nt->Branch("hiHF", &hiHF);
     nt->Branch("EvtNo",&EvtNo);
     nt->Branch("LumiNo",&LumiNo);
     nt->Branch("PVx",&PVx);
@@ -669,6 +671,7 @@ public:
   {
     nt->Branch("Gsize",&Gsize);
     nt->Branch("pthat",&pthat);   // set by fillTreeEvt() for the same event
+    nt->Branch("hiHF",&hiHF);     // likewise; for gen-level denominators vs centrality
     nt->Branch("Gy",Gy,"Gy[Gsize]/F");
     //nt->Branch("Geta",Geta,"Geta[Gsize]/F");
     //nt->Branch("Gphi",Gphi,"Gphi[Gsize]/F");
@@ -852,6 +855,7 @@ public:
     EvtNo = EvtInfo->EvtNo;
     LumiNo = EvtInfo->LumiNo;
     CentBin = EvtInfo->CentBin; //centrality
+    hiHF = EvtInfo->hiHF;
 
     PVx = EvtInfo->PVx;
     PVy = EvtInfo->PVy;

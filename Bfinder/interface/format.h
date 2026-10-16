@@ -97,6 +97,7 @@ public:
   int	BxNo;
   int	LumiNo;
   int CentBin;
+  float hiHF;    // HF tower ET sum (centrality variable); -1 if no centrality
   int	Orbit;
   int nBX;
   bool McFlag;
@@ -150,6 +151,7 @@ public:
     root->Branch("EvtInfo.EvtNo"        , &EvtNo                     , "EvtInfo.EvtNo/l"			);
     root->Branch("EvtInfo.BxNo"         , &BxNo                      , "EvtInfo.BxNo/I"			);
     root->Branch("EvtInfo.CentBin"      , &CentBin                 , "EvtInfo.CentBin/I"    );  //CENTRALITY
+    root->Branch("EvtInfo.hiHF"         , &hiHF                      , "EvtInfo.hiHF/F"            );
     root->Branch("EvtInfo.LumiNo"       , &LumiNo                    , "EvtInfo.LumiNo/I"			);
     //root->Branch("EvtInfo.Orbit"        , &Orbit                     , "EvtInfo.Orbit/I"			);
     root->Branch("EvtInfo.McFlag"       , &McFlag                    , "EvtInfo.McFlag/O"			);
@@ -198,6 +200,7 @@ public:
     root->SetBranchAddress("EvtInfo.BxNo"           ,&BxNo        );
     root->SetBranchAddress("EvtInfo.LumiNo"         ,&LumiNo      );
     root->SetBranchAddress("EvtInfo.CentBin"        ,&CentBin       );
+    root->SetBranchAddress("EvtInfo.hiHF"           ,&hiHF        );
     //root->SetBranchAddress("EvtInfo.Orbit"          ,&Orbit       );
     root->SetBranchAddress("EvtInfo.McFlag"         ,&McFlag      );
     root->SetBranchAddress("EvtInfo.pthat"          ,&pthat       );

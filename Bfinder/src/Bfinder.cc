@@ -316,6 +316,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.puFilterVtx1  = readFlag(puFilterVtx1Token_);
 
   int hiBin = -1;
+  EvtInfo.hiHF = centrality.isValid() ? centrality->EtHFtowerSum() : -1.f;
   if (centrality.isValid() && cbin.isValid()) {
     hiBin = *cbin;
     EvtInfo.CentBin = hiBin / 2;
