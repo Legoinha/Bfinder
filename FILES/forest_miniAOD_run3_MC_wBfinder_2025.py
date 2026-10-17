@@ -57,9 +57,10 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("HeavyIonRcd"),
-        tag = cms.string("CentralityTable_HFtowers200_HydjetCello_v1401x0_official_MC2024"),
+        tag = cms.string("CentralityTable_HFtowers200_HydjetCello_v1510x0_official_MC2025"),
         #connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-        connect = cms.string("sqlite_file:/afs/cern.ch/work/n/nsaha/public/for_GO/DBfiles_2024/CentralityTable_HFtowers200_HydjetCello_v1401x0_official_MC2024.db"),
+        # 2025 MC table not yet in a GT; ship this .db with crab (config.JobType.inputFiles)
+        connect = cms.string("sqlite_file:CentralityTable_HFtowers200_HydjetCello_v1510x0_official_MC2025.db"),
         label = cms.untracked.string("HFtowers")
         ),
     ])
