@@ -25,7 +25,7 @@ config.JobType.maxMemoryMB = 2500         # 2024 jobs: median 1941 MB, 19% above
 
 config.JobType.numCores = 1 # must match the number of threads enabled in the pset config file!
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxJobRuntimeMin = 660 # max = 2750
+config.JobType.maxJobRuntimeMin = 1200 # max = 2750; 660 was too short on slow sites (2025: max 638 min, 13 jobs killed at T2_BE_IIHE)
 config.JobType.pyCfgParams = ['noprint']
 config.JobType.outputFiles = ['HiForestMINIAOD_PbPb2025.root']
 # 2025 centrality table is not in any GT yet: ship the sqlite file (connect = sqlite_file:<name> in the pset)
