@@ -5,6 +5,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_pp_on_PbPb_2025_cff import Run3_pp_on_PbPb_2025
 process = cms.Process('HiForest', Run3_pp_on_PbPb_2025)
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+)
+process.options.numberOfConcurrentLuminosityBlocks = 1
 
 ###############################################################################
 
@@ -39,7 +44,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '151X_mcRun3_2025_realistic_HI_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '151X_mcRun3_2025_realistic_HI_v5', '')  # GT of the HINPbPbWinter25 production (and of our private 2025 MC)
 process.HiForestInfo.GlobalTagLabel = process.GlobalTag.globaltag
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
@@ -59,7 +64,7 @@ process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("HeavyIonRcd"),
         tag = cms.string("CentralityTable_HFtowers200_HydjetCello_v1510x0_official_MC2025"),
         #connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-        # 2025 MC table not yet in a GT; ship this .db with crab (config.JobType.inputFiles)
+        # 2025 MC table not yet in a GT (v5 still has the MC2024 one); ship this .db with crab (config.JobType.inputFiles)
         connect = cms.string("sqlite_file:CentralityTable_HFtowers200_HydjetCello_v1510x0_official_MC2025.db"),
         label = cms.untracked.string("HFtowers")
         ),
@@ -245,6 +250,8 @@ process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilte
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter)
 process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
+# 2025 centrality event selection (SWGuideHeavyIonCentrality): pprimaryVertexFilter && phfCoincFilter3Th5 (stored as skim flag, not applied)
+process.pphfCoincFilter3Th5 = cms.Path(process.phfCoincFilter3Th5)
 process.pAna = cms.EndPath(process.skimanalysis)
 
 
@@ -257,6 +264,8 @@ TrkChi2Label = "packedPFCandidateTrackChi2"
 GenLabel = "prunedGenParticles"
 from Bfinder.finderMaker.finderMaker_75X_cff import finderMaker_75X
 finderMaker_75X(process, runOnMC, VtxLabel, TrkLabel, TrkChi2Label, GenLabel)
+# TODO: no 2025 tracking-efficiency tables yet -> no correction (nChargedTracks_UNCORR); redo when available (same as 2025 data)
+process.Bfinder.systemYear = cms.string("None")
 
 process.Bfinder.Bchannel   = cms.vint32(0, 0, 0, 0, 0, 0, 1) 
 process.Bfinder.bPtCut     = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit
@@ -264,8 +273,8 @@ process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005
 process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
 process.Bfinder.uj_VtxChiProbCut = cms.double(0.01)
-process.Bfinder.doTkPreCut = cms.bool(False)
-process.Bfinder.doMuPreCut = cms.bool(False)
+process.Bfinder.doTkPreCut = cms.bool(True)
+process.Bfinder.doMuPreCut = cms.bool(True)
 
 process.Bfinder.MuonTriggerMatchingPath = cms.vstring("")
 process.Bfinder.MuonTriggerMatchingFilter = cms.vstring("")
@@ -280,8 +289,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ivars = VarParsing.VarParsing('analysis')
 
 ivars.maxEvents = -1
-ivars.outputFile='HiForestMINIAOD.root'
-ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_X3872/prompt_PSI2S_to_Jpsi_pipi_phat5_miniAOD/250317_095831/0000/step4_miniAOD_102.root'     #   PSI2S -> JPSI pi pi
+ivars.outputFile='HiForestMINIAOD_MC.root'
+ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb2025_X3872/X3872ToJpsiRho_prompt_pthat10_TuneCP5_5p36TeV_pythia8_HydjetCELLO/MC_PbPb2025_151X_MINIAOD_v1/261018_030737/0000/MINIAOD_18.root'     #   X -> J/psi rho (private 2025)
 #ivars.inputFiles='root://cmsxrootd.fnal.gov//store/user/hmarques/MC_PbPb_Bmesons/Bu_phat5_miniAOD/250402_160115/0000/step4_miniAOD_1.root'  #Bu
 
 
