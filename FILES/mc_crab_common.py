@@ -141,7 +141,9 @@ def crab_config(task, pset_path):
     c.Data.totalUnits = -1
     c.Data.ignoreLocality = True
     c.Data.publication = False
-    c.Data.outLFNDirBase = f"/store/user/hmarques/RUN3_MCs/{campaign['out_dir']}_{analysis['out_label']}/"
+    # e.g. /store/user/hmarques/RUN3_MCs/MC_PbPb25_X3872_PRIVATE/ (= /eos/user/h/hmarques/RUN3_MCs/... on CERNBox)
+    c.Data.outLFNDirBase = (f"/store/user/hmarques/RUN3_MCs/{campaign['out_dir']}_{analysis['out_label']}"
+                            f"_{task['mode'].upper()}/")
     c.Data.outputDatasetTag = task["tag"]
 
     c.Site.whitelist = SITE_WHITELIST
