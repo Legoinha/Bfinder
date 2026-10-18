@@ -25,6 +25,12 @@ OFFICIAL_SAMPLES = {
     ("pbpb23", "prompt", "x3872_pipi"): {"primary": "PromptX3872ToJPsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
     ("pbpb23", "prompt", "psi2s"): {"primary": "PromptPsi2SToJPsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
     ("pbpb23", "nonprompt", "psi2s"): {"primary": "NonpromptPsi2SToJPsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    # PbPb 2024: defined in McM (CMSSW_14_1_9_patch3), not produced yet
+    ("pbpb24", "prompt", "x3872"): {"primary": "promptX3872ToJpsiRho_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    ("pbpb24", "nonprompt", "x3872"): {"primary": "nonpromptX3872ToJpsiRho_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    ("pbpb24", "prompt", "x3872_pipi"): {"primary": "promptX3872ToJpsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    ("pbpb24", "prompt", "psi2s"): {"primary": "PromptPsi2SToJPsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    ("pbpb24", "nonprompt", "psi2s"): {"primary": "NonpromptPsi2SToJPsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
     ("ppref24", "prompt", "psi2s"): {"primary": "PromptPsi2SToJPsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
     ("ppref24", "nonprompt", "psi2s"): {"primary": "NonpromptPsi2SToJPsiPiPi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
     ("ppref24", "prompt", "x3872_pipi"): {
@@ -73,9 +79,10 @@ MODES = {
     ("pbpb23", "prompt",    "psi2s"):      "no_run",
     ("pbpb23", "nonprompt", "psi2s"):      "no_run",
 
-    # PbPb 2024 (no official; private production to come)
+    # PbPb 2024 (official: defined in McM, not produced yet; private production to come)
     ("pbpb24", "prompt",    "x3872"):      "no_run",
     ("pbpb24", "nonprompt", "x3872"):      "no_run",
+    ("pbpb24", "prompt",    "x3872_pipi"): "no_run",
     ("pbpb24", "prompt",    "psi2s"):      "no_run",
     ("pbpb24", "nonprompt", "psi2s"):      "no_run",
 

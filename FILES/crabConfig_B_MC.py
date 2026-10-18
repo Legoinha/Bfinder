@@ -27,6 +27,10 @@ OFFICIAL_SAMPLES = {
     ("pbpb23", "bs"): {"primary": "B0sToJPsiPhi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
     ("pbpb23", "bzero"): {"primary": "B0ToJPsiKStar_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
     ("ppref24", "bplus"): {"primary": "BplusToJPsiKplus_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    # PbPb 2024: defined in McM (CMSSW_14_1_9_patch3), not produced yet
+    ("pbpb24", "bplus"): {"primary": "BplusToJPsiKplus_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    ("pbpb24", "bs"): {"primary": "B0sToJPsiPhi_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
+    ("pbpb24", "bzero"): {"primary": "B0ToJPsiKStar_pThat-{pthat}_TuneCP5_5p36TeV_pythia8-evtgen"},
 }
 
 # Private MiniAOD in phys03: a pattern with {pthat} (a '*' is resolved in DAS) or an explicit {pthat: dataset} dict.
@@ -49,7 +53,7 @@ MODES = {
     ("pbpb23", "bzero"): "no_run",
     ("pbpb23", "bs"):    "no_run",
 
-    # PbPb 2024 (no official)
+    # PbPb 2024 (official: defined in McM, not produced yet)
     ("pbpb24", "bplus"): "no_run",
     ("pbpb24", "bzero"): "no_run",
     ("pbpb24", "bs"):    "no_run",

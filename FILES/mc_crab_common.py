@@ -39,7 +39,9 @@ CAMPAIGNS = {
     "pbpb24": {
         "cmssw": "CMSSW_14_1_",
         "pset": "forest_miniAOD_run3_MC_wBfinder_2024.py",
-        "official_processing": None,  # no official PbPb 2024 signal MC
+        # official PbPb 2024 B/onia requests (HIN-HINPbPbWinter24GSHIMix-00040..79, CMSSW_14_1_9_patch3) are only
+        # defined in McM: the '*' is resolved in DAS once they are produced, until then the tasks are skipped
+        "official_processing": "HINPbPbWinter24MiniAOD-*",
         "work_dir": "MC_pbpb24",
         "out_dir": "MC_PbPb24",
         "units_per_job": 2000,
@@ -184,13 +186,14 @@ def main(analysis, tasks, problems):
         if not release.startswith(campaign["cmssw"]):
             skipped.append((task, f"needs {campaign['cmssw']}X (this is {release or 'no cmsenv'})"))
             continue
+        instance = "prod/phys03" if task["mode"] == "private" else "global"
         if "*" in task["dataset"]:
-            found = das_datasets(task["dataset"], "prod/phys03")
+            found = das_datasets(task["dataset"], instance)
             if len(found) != 1:
                 skipped.append((task, f"{len(found)} DAS matches for {task['dataset']}"))
                 continue
             task["dataset"] = found[0]
-        elif not das_datasets(task["dataset"], "prod/phys03" if task["mode"] == "private" else "global"):
+        elif not das_datasets(task["dataset"], instance):
             skipped.append((task, f"not in DAS: {task['dataset']}"))
             continue
         ready.append(task)
