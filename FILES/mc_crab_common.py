@@ -20,7 +20,7 @@ MODES = ("official", "private", "no_run")
 PTHAT_BINS = (5, 10, 15, 30, 50)
 
 SITE_WHITELIST = [
-    "T2_CH_CERN", "T2_BE_IIHE", "T2_DE_DESY", "T2_DE_RWTH", "T2_ES_CIEMAT", "T2_IT_Bari", "T2_IT_Legnaro", "T2_IT_Rome",
+    "T2_CH_CERN", "T2_DE_DESY", "T2_DE_RWTH",  # no T2_BE_IIHE / T2_ES_CIEMAT (Oct 2026 failures) "T2_IT_Bari", "T2_IT_Legnaro", "T2_IT_Rome",
     "T2_UK_London_Brunel", "T2_US_Caltech", "T2_US_MIT", "T2_US_Nebraska", "T2_US_Purdue", "T2_US_UCSD", "T2_US_Wisconsin",
     "T2_US_Vanderbilt",  # private MiniAOD storage
 ]

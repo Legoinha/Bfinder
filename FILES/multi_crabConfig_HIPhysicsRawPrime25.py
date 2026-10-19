@@ -43,8 +43,9 @@ config.Data.outLFNDirBase = '/store/user/hmarques/DATA_PbPb25'
 
 config.section_("Site")
 config.Site.storageSite = "T2_PT_NCG_Lisbon"
+# T2_BE_IIHE / T2_ES_CIEMAT left out: Oct 2026 job kills, bad job reports and input read errors (8028) there
 config.Site.whitelist = [
-    'T2_CH_CERN','T2_BE_IIHE','T2_DE_DESY','T2_DE_RWTH','T2_ES_CIEMAT',
+    'T2_CH_CERN','T2_DE_DESY','T2_DE_RWTH',
     'T2_IT_Bari','T2_IT_Rome','T2_UK_London_Brunel', 'T2_PT_NCG_Lisbon',
     'T2_US_Caltech','T2_US_Florida','T2_US_MIT','T2_US_Nebraska','T2_US_Purdue','T2_US_UCSD','T2_US_Wisconsin'
 ]
