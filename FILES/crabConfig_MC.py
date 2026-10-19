@@ -39,24 +39,25 @@ OFFICIAL_SAMPLES = {
     },
 }
 
-# Private MiniAOD in phys03: a pattern with {pthat} (a '*' is resolved in DAS, e.g. the publication hash),
-# or an explicit {pthat: dataset} dict for older single-pThat samples.
+# Private MiniAOD in phys03 (X3872/MC_private_prod_<year>): one production per campaign, all pThat 5-50, named
+# /<process>_pthat<N>_TuneCP5_5p36TeV_pythia8<suffix>/hmarques-<tag>-<hash>/USER (the '*' hash is resolved in DAS).
+# These supersede the older single-pThat private ppRef X(3872) samples (no pileup), which are no longer used.
+PRIVATE_PRODUCTIONS = {   # campaign: (primary-dataset suffix, publication tag)
+    "pbpb23": ("_HydjetDrum5F", "MC_PbPb2023_132X_MINIAOD_v1"),
+    "pbpb24": ("_HydjetCELLO", "MC_PbPb2024_141X_MINIAOD_v1"),
+    "pbpb25": ("_HydjetCELLO", "MC_PbPb2025_151X_MINIAOD_v1"),
+    "ppref24": ("", "MC_ppRef2024_141X_MINIAOD_v1"),
+}
+PRIVATE_PROCESSES = {
+    ("prompt", "x3872"): "X3872ToJpsiRho_prompt",
+    ("nonprompt", "x3872"): "X3872ToJpsiRho_nonprompt",
+    ("prompt", "psi2s"): "Psi2SToJpsiPiPi_prompt",
+    ("nonprompt", "psi2s"): "Psi2SToJpsiPiPi_nonprompt",
+}
 PRIVATE_SAMPLES = {
-    ("pbpb25", "prompt", "x3872"):
-        "/X3872ToJpsiRho_prompt_pthat{pthat}_TuneCP5_5p36TeV_pythia8_HydjetCELLO/hmarques-MC_PbPb2025_151X_MINIAOD_v1-*/USER",
-    ("pbpb25", "nonprompt", "x3872"):
-        "/X3872ToJpsiRho_nonprompt_pthat{pthat}_TuneCP5_5p36TeV_pythia8_HydjetCELLO/hmarques-MC_PbPb2025_151X_MINIAOD_v1-*/USER",
-    ("pbpb25", "prompt", "psi2s"):
-        "/Psi2SToJpsiPiPi_prompt_pthat{pthat}_TuneCP5_5p36TeV_pythia8_HydjetCELLO/hmarques-MC_PbPb2025_151X_MINIAOD_v1-*/USER",
-    ("pbpb25", "nonprompt", "psi2s"):
-        "/Psi2SToJpsiPiPi_nonprompt_pthat{pthat}_TuneCP5_5p36TeV_pythia8_HydjetCELLO/hmarques-MC_PbPb2025_151X_MINIAOD_v1-*/USER",
-    # older single-pThat ppRef samples
-    ("ppref24", "prompt", "x3872"): {
-        10: "/MC_ppRef_X/hmarques-X3872_prompt_to_JPsiRho_pthat10_miniAOD-6f03abc0b379285456b22033b16cec86/USER",
-    },
-    ("ppref24", "nonprompt", "x3872"): {
-        5: "/ppRef_X3872/hmarques-nonprompt_X3872_to_Jpsi_Rho_phat5_miniAOD-b08ea5aba0caf44286efb8557bf5e709/USER",
-    },
+    (campaign, production, decay): f"/{process}_pthat{{pthat}}_TuneCP5_5p36TeV_pythia8{suffix}/hmarques-{tag}-*/USER"
+    for campaign, (suffix, tag) in PRIVATE_PRODUCTIONS.items()
+    for (production, decay), process in PRIVATE_PROCESSES.items()
 }
 
 
@@ -65,21 +66,21 @@ PRIVATE_SAMPLES = {
 ######################################################################################################################################################
 
 MODES = {
-    # ppRef 2024 (official: psi2S, X->J/psi pipi prompt; private: X->J/psi rho)
+    # ppRef 2024 (official: psi2S, X->J/psi pipi prompt; private MC_ppRef2024_141X_MINIAOD_v1: X->J/psi rho, psi2S)
     ("ppref24", "prompt",    "x3872"):      "no_run",
     ("ppref24", "nonprompt", "x3872"):      "no_run",
     ("ppref24", "prompt",    "x3872_pipi"): "no_run",
     ("ppref24", "prompt",    "psi2s"):      "no_run",
     ("ppref24", "nonprompt", "psi2s"):      "no_run",
 
-    # PbPb 2023 (official: all)
+    # PbPb 2023 (official: all; private MC_PbPb2023_132X_MINIAOD_v1: X->J/psi rho, psi2S)
     ("pbpb23", "prompt",    "x3872"):      "no_run",
     ("pbpb23", "nonprompt", "x3872"):      "no_run",
     ("pbpb23", "prompt",    "x3872_pipi"): "no_run",
     ("pbpb23", "prompt",    "psi2s"):      "no_run",
     ("pbpb23", "nonprompt", "psi2s"):      "no_run",
 
-    # PbPb 2024 (official: defined in McM, not produced yet; private production to come)
+    # PbPb 2024 (official: defined in McM, not produced yet; private MC_PbPb2024_141X_MINIAOD_v1: X->J/psi rho, psi2S)
     ("pbpb24", "prompt",    "x3872"):      "no_run",
     ("pbpb24", "nonprompt", "x3872"):      "no_run",
     ("pbpb24", "prompt",    "x3872_pipi"): "no_run",
