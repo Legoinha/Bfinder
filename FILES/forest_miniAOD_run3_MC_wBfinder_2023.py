@@ -255,7 +255,7 @@ process.Bfinder.systemYear = cms.string("PbPb2023")
 
 process.Bfinder.Bchannel = cms.vint32(0, 0, 0, 0, 0, 0, 1)
 
-process.Bfinder.bPtCut     = cms.vdouble(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0) # before fit
+process.Bfinder.bPtCut     = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0) # before fit (B channels as in data)
 process.Bfinder.VtxChiProbCut    = cms.vdouble(0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005)   ## > 0.5%
 process.Bfinder.tkPtCut          = cms.double(0.9) # before fit
 process.Bfinder.tkEtaCut         = cms.double(2.4) # before fit
