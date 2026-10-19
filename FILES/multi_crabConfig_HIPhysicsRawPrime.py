@@ -11,7 +11,7 @@ import subprocess
 #   python3 multi_crabConfig_HIPhysicsRawPrime.py --submit --only 0   -> submit only the tasks of HIPhysicsRawPrime0 (test)
 # Refuses to submit while old outputs are still at LIP (/store/user/hmarques/DATA_PbPb23), so old and new productions never mix.
 HERE = os.path.dirname(os.path.abspath(__file__))
-LIP = 'root://xroot01.ncg.ingrid.pt:1094'
+LIP_DAV = 'davs://gftp06.a.incd.pt:8443/cms'
 
 from CRABClient.UserUtilities import config
 config = config()
@@ -52,7 +52,8 @@ config.Site.whitelist = [
 
 def old_outputs_at_lip():
     """Entries left in the output folder at LIP (empty list if it was cleaned or never existed)."""
-    out = subprocess.run(['xrdfs', LIP, 'ls', config.Data.outLFNDirBase], capture_output=True, text=True)
+    # WebDAV (the door CRAB writes through); the xrootd door can serve stale listings after a move
+    out = subprocess.run(['gfal-ls', LIP_DAV + config.Data.outLFNDirBase], capture_output=True, text=True)
     return out.stdout.split() if out.returncode == 0 else []
 
 
