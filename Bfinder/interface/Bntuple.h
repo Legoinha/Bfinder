@@ -65,6 +65,8 @@ public:
   float     Bcos_dtheta[MAX_XB];
   float     BLxy[MAX_XB];
   float     BMaxDoca[MAX_XB];
+  int       Bdr3_mult[MAX_XB];
+  int       Bdr5_mult[MAX_XB];
   float     Balpha[MAX_XB];
   // PV-to-SV distances and uncertainties in cm; normalized values are dimensionless.
   float     BsvpvDistance[MAX_XB];
@@ -477,6 +479,8 @@ public:
         nt->Branch("BsvpvDisErr_2D",BsvpvDisErr_2D,"BsvpvDisErr_2D[Bsize]/F");
         nt->Branch("Bnorm_svpvDistance",Bnorm_svpvDistance,"Bnorm_svpvDistance[Bsize]/F");
         nt->Branch("Bnorm_svpvDistance_2D",Bnorm_svpvDistance_2D,"Bnorm_svpvDistance_2D[Bsize]/F");
+        nt->Branch("Bdr3_mult",Bdr3_mult,"Bdr3_mult[Bsize]/I");
+        nt->Branch("Bdr5_mult",Bdr5_mult,"Bdr5_mult[Bsize]/I");
 
         /*
         nt->Branch("BMaxDoca",BMaxDoca,"BMaxDoca[Bsize]/F");
@@ -927,6 +931,8 @@ public:
     Bnorm_svpvDistance_2D[typesize] = BsvpvDistance_2D[typesize] / BsvpvDisErr_2D[typesize];
 
     BMaxDoca[typesize] = BInfo->MaxDoca[j];
+    Bdr3_mult[typesize] = BInfo->dr3_mult[j];
+    Bdr5_mult[typesize] = BInfo->dr5_mult[j];
     
     b4P->SetPtEtaPhiM(MuonInfo->pt[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]],MuonInfo->eta[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]],MuonInfo->phi[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]],MUON_MASS);
     Bmu1pt[typesize] = MuonInfo->pt[BInfo->uj_rfmu1_index[BInfo->rfuj_index[j]]];

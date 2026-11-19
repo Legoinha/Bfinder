@@ -11,6 +11,7 @@
 #include "Bfinder/Bfinder/interface/Bntuple.h"
 #include "Bfinder/Bfinder/interface/utilities.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "DataFormats/Math/interface/deltaR.h"
 //
 // class declaration
 //
@@ -394,8 +395,35 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto input_muons = *muons;
   const auto isUsableTrackRef = [](const reco::TrackRef& ref) { return ref.isNonnull() && ref.isAvailable();};
 
+  // True if the packed track at packedIndex is the inner track of muon mu.
+  const auto isTrackOfMuon = [&](const pat::Muon& mu, std::size_t packedIndex, const reco::Track* track) {
+    const auto muTrack = mu.innerTrack();
+    if (!isUsableTrackRef(muTrack)) return false;
+
+    // Prefer the persistent candidate identity whenever it is available.
+    const auto muonCandidate = mu.originalObjectRef();
+    if (muonCandidate.isNonnull() && muonCandidate.isAvailable()) {
+      const auto packedTrackPtr = tks->ptrAt(packedIndex);
+      return muonCandidate.id() == packedTrackPtr.id() &&
+             muonCandidate.key() == packedTrackPtr.key();
+    }
+
+    // Fallback for muons without an available candidate reference. These
+    // are the same tolerances used by MuonUnpacker to identify a track.
+    const double deltaPhi = std::atan2(std::sin(track->phi() - muTrack->phi()),
+                                       std::cos(track->phi() - muTrack->phi()));
+    return track->charge() == muTrack->charge() &&
+           track->numberOfValidHits() == muTrack->numberOfValidHits() &&
+           fabs(track->eta() - muTrack->eta()) < 1.e-3 &&
+           fabs(deltaPhi) < 1.e-3 &&
+           fabs((track->pt() - muTrack->pt()) / muTrack->pt()) < 1.e-2;
+  };
+
   std::vector<const reco::Track*> input_tracks;
   std::vector<std::size_t> input_track_packed_indices;
+  // Tracks entering the nominal event multiplicity (nChargedTracks_UNCORR), kept
+  // for the candidate cone multiplicities: (packed index, track).
+  std::vector<std::pair<std::size_t, const reco::Track*>> multiplicity_tracks;
   input_tracks.reserve(std::min<std::size_t>(tks->size(), MAX_TRACK));
   input_track_packed_indices.reserve(std::min<std::size_t>(tks->size(), MAX_TRACK));
   EvtInfo.nChargedTracks = 0.f;
@@ -453,6 +481,7 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (absDxySignificance <= 3. && absDzSignificance <= 3.) {
         addCorrectedTrack(EvtInfo.nChargedTracks, nominalTrackingEfficiency_);
         EvtInfo.nChargedTracks_UNCORR += 1.f;
+        multiplicity_tracks.emplace_back(packedIndex, track);
       }
       if (absDxySignificance <= 2. && absDzSignificance <= 2.)
         addCorrectedTrack(EvtInfo.nChargedTracks_TIGHT, tightTrackingEfficiency_);
@@ -472,34 +501,11 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Track quality pre-selection
 
     // Reject tracks that belong to a non-calo muon.
-    const auto packedTrackPtr = tks->ptrAt(packedIndex);
     bool isMuonTrack = false;
     for(auto it = input_muons.begin(); it != input_muons.end(); it++)
     {
-      const auto muTrack = it->innerTrack();
-      if (!isUsableTrackRef(muTrack)) continue;
       if((it->type()|(1<<4))==(1<<4)) continue;
-
-      // Prefer the persistent candidate identity whenever it is available.
-      const auto muonCandidate = it->originalObjectRef();
-      if (muonCandidate.isNonnull() && muonCandidate.isAvailable()) {
-        if (muonCandidate.id() == packedTrackPtr.id() &&
-            muonCandidate.key() == packedTrackPtr.key()) {
-          isMuonTrack = true;
-          break;
-        }
-        continue;
-      }
-
-      // Fallback for muons without an available candidate reference. These
-      // are the same tolerances used by MuonUnpacker to identify a track.
-      const double deltaPhi = std::atan2(std::sin(track->phi() - muTrack->phi()),
-                                         std::cos(track->phi() - muTrack->phi()));
-      if (track->charge() == muTrack->charge() &&
-          track->numberOfValidHits() == muTrack->numberOfValidHits() &&
-          fabs(track->eta() - muTrack->eta()) < 1.e-3 &&
-          fabs(deltaPhi) < 1.e-3 &&
-          fabs((track->pt() - muTrack->pt()) / muTrack->pt()) < 1.e-2) {
+      if (isTrackOfMuon(*it, packedIndex, track)) {
         isMuonTrack = true;
         break;
       }
@@ -1039,6 +1045,27 @@ void Bfinder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             printf("\n");
           }//}}}
+
+          // Cone multiplicities {{{
+          // Tracks with the nominal event-multiplicity selection (as nChargedTracks_UNCORR)
+          // within dR < 0.3 / 0.5 of the fitted candidate direction, excluding the
+          // candidate's own two muons and one or two tracks.
+          // Must run before the TrackInfo section, which remaps rftk*_index.
+          for (int iB = 0; iB < BInfo.size; iB++) {
+            const auto& candMu1 = input_muons[BInfo.uj_rfmu1_index[BInfo.rfuj_index[iB]]];
+            const auto& candMu2 = input_muons[BInfo.uj_rfmu2_index[BInfo.rfuj_index[iB]]];
+            const long candTk1Packed = BInfo.rftk1_index[iB] >= 0 ? long(input_track_packed_indices[BInfo.rftk1_index[iB]]) : -1;
+            const long candTk2Packed = BInfo.rftk2_index[iB] >= 0 ? long(input_track_packed_indices[BInfo.rftk2_index[iB]]) : -1;
+            for (const auto& [packedIndex, track] : multiplicity_tracks) {
+              const double dR2 = reco::deltaR2(BInfo.eta[iB], BInfo.phi[iB], track->eta(), track->phi());
+              if (dR2 >= 0.25) continue;
+              if (long(packedIndex) == candTk1Packed || long(packedIndex) == candTk2Packed) continue;
+              if (isTrackOfMuon(candMu1, packedIndex, track) || isTrackOfMuon(candMu2, packedIndex, track)) continue;
+              BInfo.dr5_mult[iB]++;
+              if (dR2 < 0.09) BInfo.dr3_mult[iB]++;
+            }
+          }
+          // Cone multiplicities }}}
 
           // TrackInfo section {{{
           // Setup MVA

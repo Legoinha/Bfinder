@@ -698,6 +698,9 @@ public:
   float  svpvDistance_2D[MAX_XB];
   float  svpvDisErr_2D[MAX_XB];
   float  MaxDoca[MAX_XB];
+  // Nominal-multiplicity tracks within dR<0.3 / 0.5 of the candidate, excluding its own tracks.
+  int    dr3_mult[MAX_XB];
+  int    dr5_mult[MAX_XB];
   // Secondary-vertex coordinates (cm) and covariance elements (cm^2; legacy names end in Err).
   float  vtxX[MAX_XB];
   float  vtxY[MAX_XB];
@@ -796,6 +799,8 @@ public:
     root->Branch("BInfo.svpvDistance_2D"  , svpvDistance_2D, "BInfo.svpvDistance_2D[BInfo.size]/F"	);
     root->Branch("BInfo.svpvDisErr_2D"    , svpvDisErr_2D  , "BInfo.svpvDisErr_2D[BInfo.size]/F"	);
     root->Branch("BInfo.MaxDoca"          , MaxDoca        , "BInfo.MaxDoca[BInfo.size]/F"	);
+    root->Branch("BInfo.dr3_mult"         , dr3_mult       , "BInfo.dr3_mult[BInfo.size]/I"	);
+    root->Branch("BInfo.dr5_mult"         , dr5_mult       , "BInfo.dr5_mult[BInfo.size]/I"	);
     root->Branch("BInfo.vtxX"             , vtxX           , "BInfo.vtxX[BInfo.size]/F"		);
     root->Branch("BInfo.vtxY"             , vtxY           , "BInfo.vtxY[BInfo.size]/F"		);
     root->Branch("BInfo.vtxZ"             , vtxZ           , "BInfo.vtxZ[BInfo.size]/F"		);
